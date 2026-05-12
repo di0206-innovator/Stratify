@@ -2,19 +2,19 @@
   "name": "bi-agent-network",
   "version": "1.0.0",
   "description": "Business Intelligence Agent Network powered by Google Gemini",
-  "main": "main-gemini.js",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node --test",
     "test-cli": "node main-gemini.js",
-    "dev": "node server.js"
+    "audit:prod": "npm audit --omit=dev --audit-level=high"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@langchain/core": "^0.1.62",
-    "@langchain/google-genai": "^0.0.12",
-    "axios": "^1.6.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "helmet": "^8.1.0"
   }
 }

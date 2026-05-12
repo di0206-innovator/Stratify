@@ -3,81 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuralBI | Autonomous Strategic Intelligence</title>
-    <meta name="description" content="Harness the power of a decentralized multi-agent network for real-time market intelligence and strategic analysis.">
+    <title>NeuralBI | Founder Strategy OS</title>
+    <meta name="description" content="A real-time founder strategy workspace for market intelligence, startup validation, and execution planning.">
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <div class="bg-gradient"></div>
-
-    <div class="container">
-        <header>
-            <div class="logo-container">
-                <div class="logo-icon">N</div>
-                <h1>NeuralBI</h1>
-            </div>
-            <p class="tagline">Autonomous Multi-Agent Strategic Intelligence Network</p>
-        </header>
-
-        <main>
-            <section class="input-section">
-                <div class="analysis-input-container">
-                    <input type="text" id="queryInput" placeholder="Enter strategic query (e.g. 'Future of Green Hydrogen in EU')..." autocomplete="off">
-                    <button id="analyzeBtn">Synthesize Intelligence</button>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">N</div>
+                <div>
+                    <strong>NeuralBI</strong>
+                    <span>Founder Strategy OS</span>
                 </div>
+            </div>
+
+            <nav class="nav-list" aria-label="Primary">
+                <button class="nav-item active" data-view="workspace">Workspace</button>
+                <button class="nav-item" data-view="profile">Founder Profile</button>
+                <button class="nav-item" data-view="history">Report History</button>
+            </nav>
+
+            <div class="runtime-card">
+                <span class="eyebrow">Runtime</span>
+                <strong id="modeStatus">Checking...</strong>
+                <small id="intelStatus">Checking intelligence layer...</small>
+            </div>
+        </aside>
+
+        <main class="main">
+            <section class="topbar">
+                <div>
+                    <p class="eyebrow">Strategy Workspace</p>
+                    <h1>Turn founder questions into current, source-aware execution plans.</h1>
+                </div>
+                <button class="secondary-btn" id="resetProfileBtn">Reset Profile</button>
             </section>
 
-            <div class="dashboard">
-                <section class="report-section">
-                    <div class="report-card" id="reportCard">
-                        <div class="report-placeholder" id="placeholder">
-                            <div class="loading-spinner" style="display: none;" id="spinner"></div>
-                            <p id="placeholderText">Awaiting strategic query to initialize neural synthesis...</p>
-                        </div>
-                        <div class="report-content" id="reportContent" style="display: none;"></div>
+            <section class="onboarding-panel" id="onboardingPanel">
+                <div class="panel-copy">
+                    <p class="eyebrow">Founder Onboarding</p>
+                    <h2>Tell NeuralBI who you are building as.</h2>
+                    <p>Your reports become sharper when the system knows your stage, constraints, market, and customer.</p>
+                </div>
+
+                <form class="onboarding-grid" id="profileForm">
+                    <label>
+                        Founder type
+                        <select name="founderType">
+                            <option value="solo">Solo founder</option>
+                            <option value="technical">Technical founder</option>
+                            <option value="business">Business founder</option>
+                            <option value="student">Student founder</option>
+                            <option value="domain_expert">Domain expert</option>
+                            <option value="repeat_founder">Repeat founder</option>
+                        </select>
+                    </label>
+                    <label>
+                        Startup stage
+                        <select name="startupStage">
+                            <option value="idea">Idea</option>
+                            <option value="validating">Validating</option>
+                            <option value="mvp">MVP</option>
+                            <option value="launched">Launched</option>
+                            <option value="raising">Raising</option>
+                            <option value="scaling">Scaling</option>
+                        </select>
+                    </label>
+                    <label>
+                        Industry
+                        <input name="industry" placeholder="AI sales automation, fintech, climate SaaS">
+                    </label>
+                    <label>
+                        Geography
+                        <input name="geography" placeholder="India, US, EU, Bengaluru, global">
+                    </label>
+                    <label class="wide">
+                        Product / startup idea
+                        <input name="product" placeholder="An AI copilot that helps SMBs forecast cashflow">
+                    </label>
+                    <label>
+                        Target customer
+                        <input name="targetCustomer" placeholder="Seed-stage SaaS founders, retail owners">
+                    </label>
+                    <label>
+                        Current goal
+                        <input name="currentGoal" placeholder="Validate the idea, launch MVP, prepare investor memo">
+                    </label>
+                    <label>
+                        Team size
+                        <input name="teamSize" placeholder="Solo, 2 founders, 5-person team">
+                    </label>
+                    <label>
+                        Budget
+                        <input name="budget" placeholder="$500/month, bootstrapped, pre-seed">
+                    </label>
+                    <label class="wide">
+                        Timeline
+                        <input name="timeline" placeholder="Need signal in 2 weeks, launch in 45 days">
+                    </label>
+                    <button class="primary-btn wide" type="submit">Enter Founder Workspace</button>
+                </form>
+            </section>
+
+            <section class="workspace-grid hidden" id="workspaceView">
+                <section class="query-panel">
+                    <div class="profile-summary" id="profileSummary"></div>
+
+                    <label>
+                        Founder problem
+                        <textarea id="queryInput" placeholder="Example: Should I build an AI outbound sales tool for Indian B2B SaaS teams right now?"></textarea>
+                    </label>
+
+                    <div class="controls-grid">
+                        <label>
+                            Report type
+                            <select id="reportType">
+                                <option value="idea_validation">Idea validation</option>
+                                <option value="market_pulse">Market pulse</option>
+                                <option value="competitor_brief">Competitor brief</option>
+                                <option value="gtm_strategy">GTM strategy</option>
+                                <option value="investor_memo">Investor memo</option>
+                                <option value="risk_radar">Risk radar</option>
+                                <option value="execution_plan">Execution plan</option>
+                            </select>
+                        </label>
+                        <label>
+                            Audience
+                            <select id="audience">
+                                <option value="founder">Founder</option>
+                                <option value="investor">Investor</option>
+                                <option value="operator">Operator</option>
+                                <option value="executive">Executive</option>
+                            </select>
+                        </label>
+                        <label>
+                            Time horizon
+                            <select id="timeHorizon">
+                                <option value="7_days">7 days</option>
+                                <option value="30_days" selected>30 days</option>
+                                <option value="90_days">90 days</option>
+                                <option value="12_months">12 months</option>
+                            </select>
+                        </label>
                     </div>
+
+                    <div class="source-builder">
+                        <div class="section-heading">
+                            <div>
+                                <p class="eyebrow">Optional founder sources</p>
+                                <h3>Add customer notes, links, or internal context.</h3>
+                            </div>
+                            <button class="icon-btn" id="addSourceBtn" type="button">+</button>
+                        </div>
+                        <div id="sourceList"></div>
+                    </div>
+
+                    <button class="primary-btn" id="analyzeBtn">Generate Founder Report</button>
+                    <p class="form-error" id="formError"></p>
                 </section>
 
-                <aside class="agent-feed" id="agentFeed">
-                    <h3 style="font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem;">Network Nodes</h3>
-                    
-                    <div class="agent-card" id="agent-researcher">
-                        <div class="agent-header">
-                            <div class="agent-status-dot"></div>
-                            <span class="agent-name">Neural Researcher</span>
+                <section class="report-panel">
+                    <div class="report-toolbar">
+                        <div>
+                            <p class="eyebrow">Founder Report</p>
+                            <h2 id="reportTitle">Ready when you are.</h2>
                         </div>
-                        <p class="agent-action">Node standby...</p>
+                        <div class="toolbar-actions">
+                            <button class="secondary-btn" id="copyReportBtn" disabled>Copy</button>
+                            <button class="secondary-btn" id="downloadReportBtn" disabled>Export .md</button>
+                        </div>
                     </div>
 
-                    <div class="agent-card" id="agent-analyst">
-                        <div class="agent-header">
-                            <div class="agent-status-dot"></div>
-                            <span class="agent-name">Trend Analyst</span>
-                        </div>
-                        <p class="agent-action">Node standby...</p>
+                    <div class="empty-state" id="emptyState">
+                        <strong>Ask a founder problem to generate a strategy report.</strong>
+                        <span>The report will include live-source signals when Tavily is configured, plus founder-specific execution steps.</span>
                     </div>
 
-                    <div class="agent-card" id="agent-strategist">
-                        <div class="agent-header">
-                            <div class="agent-status-dot"></div>
-                            <span class="agent-name">Strategic Advisory</span>
-                        </div>
-                        <p class="agent-action">Node standby...</p>
-                    </div>
+                    <div class="report-content hidden" id="reportContent"></div>
+                </section>
 
-                    <div style="margin-top: auto; padding: 1rem; border-radius: 12px; background: rgba(0,242,255,0.03); border: 1px dashed var(--card-border);">
-                        <p style="font-size: 0.75rem; color: var(--text-dim);">
-                            <strong>Network Status:</strong> Optimal<br>
-                            <strong>Active Nodes:</strong> 3/3<br>
-                            <strong>Latency:</strong> 42ms
-                        </p>
+                <aside class="agent-panel">
+                    <p class="eyebrow">Agentic Pipeline</p>
+                    <div class="agent-card" id="agent-founder"><strong>Founder Context</strong><span>Waiting</span></div>
+                    <div class="agent-card" id="agent-research"><strong>Live Research</strong><span>Waiting</span></div>
+                    <div class="agent-card" id="agent-analyst"><strong>Market Analyst</strong><span>Waiting</span></div>
+                    <div class="agent-card" id="agent-strategy"><strong>Founder Strategist</strong><span>Waiting</span></div>
+                    <div class="agent-card" id="agent-coach"><strong>Execution Coach</strong><span>Waiting</span></div>
+                    <div class="agent-card" id="agent-composer"><strong>Report Composer</strong><span>Waiting</span></div>
+
+                    <div class="source-panel">
+                        <p class="eyebrow">Sources</p>
+                        <div id="sourceStatus">No report yet.</div>
                     </div>
                 </aside>
-            </div>
+            </section>
+
+            <section class="hidden profile-view" id="profileView"></section>
+            <section class="hidden history-view" id="historyView"></section>
         </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
