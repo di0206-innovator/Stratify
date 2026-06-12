@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NeuralBI | Founder Strategy OS</title>
     <meta name="description" content="A real-time founder strategy workspace for market intelligence, startup validation, and execution planning.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
@@ -20,9 +23,14 @@
 
             <nav class="nav-list" aria-label="Primary">
                 <button class="nav-item active" data-view="workspace">Workspace</button>
+                <button class="nav-item" data-view="signals">Market Signals</button>
                 <button class="nav-item" data-view="profile">Founder Profile</button>
                 <button class="nav-item" data-view="history">Report History</button>
             </nav>
+
+            <div class="theme-switcher" style="margin-top: 10px;">
+                <button class="nav-item" id="themeToggleBtn" style="width: 100%; text-align: left; background: rgba(255,255,255,0.03);">🌙 Dark Mode</button>
+            </div>
 
             <div class="runtime-card">
                 <span class="eyebrow">Runtime</span>
@@ -34,10 +42,14 @@
         <main class="main">
             <section class="topbar">
                 <div>
-                    <p class="eyebrow">Strategy Workspace</p>
-                    <h1>Turn founder questions into current, source-aware execution plans.</h1>
+                    <p class="eyebrow" id="topbarSubtitle">Strategy Workspace</p>
+                    <h1 id="topbarTitle">Turn founder questions into current, source-aware execution plans.</h1>
                 </div>
-                <button class="secondary-btn" id="resetProfileBtn">Reset Profile</button>
+                <div class="topbar-actions" style="display: flex; gap: 8px; align-items: center;">
+                    <span class="user-status-badge" id="userStatusBadge" style="font-size: 0.82rem; font-weight: 700; background: var(--surface-2); padding: 6px 12px; border-radius: var(--radius); border: 1px dashed var(--line);">Guest Mode</span>
+                    <button class="secondary-btn" id="authBtn">Sign In</button>
+                    <button class="secondary-btn" id="resetProfileBtn">Reset Profile</button>
+                </div>
             </section>
 
             <section class="onboarding-panel" id="onboardingPanel">
@@ -107,7 +119,14 @@
             </section>
 
             <section class="workspace-grid hidden" id="workspaceView">
-                <section class="query-panel">
+                <!-- Mobile Workspace Navigation Tabs -->
+                <div class="workspace-tabs" id="workspaceTabs">
+                    <button class="workspace-tab active" data-panel="query" type="button">1. Context &amp; Query</button>
+                    <button class="workspace-tab" data-panel="report" type="button">2. Strategy Report</button>
+                    <button class="workspace-tab" data-panel="agent" type="button">3. Agents &amp; Sources</button>
+                </div>
+
+                <section class="query-panel" id="queryPanel">
                     <div class="profile-summary" id="profileSummary"></div>
 
                     <label>
@@ -163,7 +182,7 @@
                     <p class="form-error" id="formError"></p>
                 </section>
 
-                <section class="report-panel">
+                <section class="report-panel mobile-hidden" id="reportPanel">
                     <div class="report-toolbar">
                         <div>
                             <p class="eyebrow">Founder Report</p>
@@ -183,7 +202,7 @@
                     <div class="report-content hidden" id="reportContent"></div>
                 </section>
 
-                <aside class="agent-panel">
+                <aside class="agent-panel mobile-hidden" id="agentPanel">
                     <p class="eyebrow">Agentic Pipeline</p>
                     <div class="agent-card" id="agent-founder"><strong>Founder Context</strong><span>Waiting</span></div>
                     <div class="agent-card" id="agent-research"><strong>Live Research</strong><span>Waiting</span></div>
@@ -201,8 +220,151 @@
 
             <section class="hidden profile-view" id="profileView"></section>
             <section class="hidden history-view" id="historyView"></section>
+
+            <section class="hidden signals-view" id="signalsView">
+                <div class="query-panel" style="background: var(--surface);">
+                    <div class="section-heading" style="margin-bottom: 20px;">
+                        <div>
+                            <p class="eyebrow">Market signals feed</p>
+                            <h2>Recent Market Signals &amp; Regulatory Triggers</h2>
+                            <p>Fresh trends, funding actions, and competitor moves analyzed for your startup context.</p>
+                        </div>
+                        <button class="primary-btn" id="refreshSignalsBtn">Refresh Signals</button>
+                    </div>
+                    <div id="signalsStatus" class="form-error" style="margin-top: 10px;"></div>
+                    <div class="signals-grid" id="signalsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                        <p class="empty-signals">Load signals by selecting industry/geography in your Founder Profile.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="hidden auth-view" id="authView" style="max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px;">
+                <!-- Login Card -->
+                <div class="auth-card report-section" id="loginCard">
+                    <p class="eyebrow">Authentication</p>
+                    <h2>Sign In to Workspace</h2>
+                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Access persistent server-stored reports and collaborate securely.</p>
+                    <form id="loginForm" class="onboarding-grid" style="display: grid; gap: 12px;">
+                        <label class="wide">
+                            Email
+                            <input type="email" name="email" required placeholder="founder@startup.com">
+                        </label>
+                        <label class="wide">
+                            Password
+                            <input type="password" name="password" required placeholder="••••••••">
+                        </label>
+                        <button class="primary-btn wide" type="submit">Log In</button>
+                        <p class="auth-toggle-msg" style="font-size: 0.82rem; color: var(--muted); margin-top: 8px; text-align: center;">Don't have an account? <a href="#" id="toRegisterLink" style="color: var(--brand-2); font-weight: 700;">Register</a></p>
+                        <p class="auth-toggle-msg" style="font-size: 0.82rem; color: var(--muted); text-align: center;"><a href="#" id="toResetLink" style="color: var(--brand-2); font-weight: 700;">Forgot password?</a></p>
+                    </form>
+                </div>
+
+                <!-- Register Card -->
+                <div class="auth-card report-section hidden" id="registerCard">
+                    <p class="eyebrow">Authentication</p>
+                    <h2>Create Founder Account</h2>
+                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Register to sync reports across devices.</p>
+                    <form id="registerForm" class="onboarding-grid" style="display: grid; gap: 12px;">
+                        <label class="wide">
+                            Full Name
+                            <input type="text" name="name" required placeholder="Alex Founder">
+                        </label>
+                        <label class="wide">
+                            Email
+                            <input type="email" name="email" required placeholder="alex@startup.com">
+                        </label>
+                        <label class="wide">
+                            Password (Min 8 characters, numbers, casing)
+                            <input type="password" name="password" required placeholder="••••••••">
+                        </label>
+                        <button class="primary-btn wide" type="submit">Register Account</button>
+                        <p class="auth-toggle-msg" style="font-size: 0.82rem; color: var(--muted); margin-top: 8px; text-align: center;">Already have an account? <a href="#" id="toLoginLink" style="color: var(--brand-2); font-weight: 700;">Log In</a></p>
+                    </form>
+                </div>
+
+                <!-- Email Verification Card -->
+                <div class="auth-card report-section hidden" id="verifyCard">
+                    <p class="eyebrow">Authentication</p>
+                    <h2>Verify Your Email</h2>
+                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">An email verification token has been queued. Enter it below to activate your account.</p>
+                    <form id="verifyForm" class="onboarding-grid" style="display: grid; gap: 12px;">
+                        <label class="wide">
+                            Verification Token
+                            <input type="text" name="token" required placeholder="Enter verification token">
+                        </label>
+                        <button class="primary-btn wide" type="submit">Verify &amp; Activate</button>
+                    </form>
+                </div>
+
+                <!-- Request Password Reset Card -->
+                <div class="auth-card report-section hidden" id="requestResetCard">
+                    <p class="eyebrow">Authentication</p>
+                    <h2>Reset Password</h2>
+                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Enter your email to request a password reset token.</p>
+                    <form id="requestResetForm" class="onboarding-grid" style="display: grid; gap: 12px;">
+                        <label class="wide">
+                            Email
+                            <input type="email" name="email" required placeholder="alex@startup.com">
+                        </label>
+                        <button class="primary-btn wide" type="submit">Request Reset Token</button>
+                        <p class="auth-toggle-msg" style="font-size: 0.82rem; color: var(--muted); margin-top: 8px; text-align: center;">Back to <a href="#" id="toLoginLink2" style="color: var(--brand-2); font-weight: 700;">Log In</a></p>
+                    </form>
+                </div>
+
+                <!-- Reset Password Card -->
+                <div class="auth-card report-section hidden" id="resetPasswordCard">
+                    <p class="eyebrow">Authentication</p>
+                    <h2>Set New Password</h2>
+                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Enter your reset token and your new secure password.</p>
+                    <form id="resetPasswordForm" class="onboarding-grid" style="display: grid; gap: 12px;">
+                        <label class="wide">
+                            Reset Token
+                            <input type="text" name="token" required placeholder="Enter reset token">
+                        </label>
+                        <label class="wide">
+                            New Password
+                            <input type="password" name="password" required placeholder="••••••••">
+                        </label>
+                        <button class="primary-btn wide" type="submit">Update Password</button>
+                    </form>
+                </div>
+
+                <p class="form-error" id="authError" style="margin-top: 10px; min-height: 20px; text-align: center;"></p>
+                <p class="form-success" id="authSuccess" style="color: var(--success); font-weight: 700; min-height: 20px; margin-top: 10px; text-align: center;"></p>
+            </section>
+
+            <!-- Dev Mail Sandbox Widget -->
+            <div class="dev-mail-sandbox hidden" id="devMailSandbox">
+                <div class="dev-mail-header">
+                    <strong>🛠️ Dev Mail Outbox Sandbox</strong>
+                    <button id="closeDevMailBtn" class="dev-mail-close">×</button>
+                </div>
+                <div class="dev-mail-content" id="devMailContent">
+                    <p class="dev-mail-empty">No emails queued yet.</p>
+                </div>
+            </div>
         </main>
     </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-nav" aria-label="Mobile Navigation">
+        <button class="nav-item active" data-view="workspace">
+            <span class="nav-icon">💼</span>
+            <span class="nav-label">Workspace</span>
+        </button>
+        <button class="nav-item" data-view="signals">
+            <span class="nav-icon">📡</span>
+            <span class="nav-label">Signals</span>
+        </button>
+        <button class="nav-item" data-view="profile">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Profile</span>
+        </button>
+        <button class="nav-item" data-view="history">
+            <span class="nav-icon">📜</span>
+            <span class="nav-label">History</span>
+        </button>
+    </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>

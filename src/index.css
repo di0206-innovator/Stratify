@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-neo-canvas text-black font-outfit select-text antialiased;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-outfit font-black uppercase tracking-tight text-black;
+  }
+
+  code, pre {
+    @apply font-mono text-sm;
+  }
+}
+
+@layer components {
+  /* Neo-Brutalist Card styling */
+  .neo-card {
+    @apply border-[3px] border-black bg-white shadow-neo-hard rounded-none p-6 transition-all duration-150;
+  }
+  
+  .neo-card-interactive {
+    @apply neo-card hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-[7px_7px_0px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-neo-button cursor-pointer;
+  }
+  
+  /* Neo-Brutalist Button styling */
+  .neo-btn {
+    @apply border-[3px] border-black text-black font-black px-5 py-2.5 shadow-neo-button hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-neo-hard active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-100 flex items-center justify-center gap-2 cursor-pointer select-none rounded-none uppercase text-sm tracking-wider;
+  }
+  
+  .neo-btn-primary {
+    @apply neo-btn bg-neo-lime;
+  }
+  
+  .neo-btn-secondary {
+    @apply neo-btn bg-white hover:bg-[#F1EFEB];
+  }
+  
+  .neo-btn-accent {
+    @apply neo-btn bg-neo-orange;
+  }
+
+  .neo-btn-lavender {
+    @apply neo-btn bg-neo-lavender;
+  }
+
+  .neo-btn-pink {
+    @apply neo-btn bg-neo-pink;
+  }
+  
+  /* Neo-Brutalist Input styling */
+  .neo-input {
+    @apply border-[3px] border-black px-4 py-2.5 focus:outline-none focus:bg-neo-canvas bg-white rounded-none font-inter font-semibold text-black placeholder-gray-500 transition-colors w-full;
+  }
+  
+  .neo-input:focus {
+    box-shadow: 3px 3px 0px 0px #000000;
+  }
+  
+  /* Neo-Brutalist Badge styling */
+  .neo-badge {
+    @apply border-2 border-black px-3 py-1 font-outfit font-black text-xs uppercase inline-flex items-center gap-1.5 rounded-none tracking-wider select-none bg-white text-black;
+  }
+
+  /* Neo-Brutalist Terminal */
+  .neo-terminal {
+    @apply border-[3px] border-black bg-black text-green-400 font-mono p-4 rounded-none shadow-neo-hard overflow-auto select-text leading-relaxed;
+  }
+}
+
+/* Custom Scrollbar in Neo-Brutalist Style */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F8F7F4;
+  border-left: 3px solid #000000;
+  border-top: 3px solid #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #000000;
+  border: 2px solid #F8F7F4;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A3E635;
+}
+
+/* Hard outlines for interactive elements */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #C084FC;
+  outline-offset: 2px;
+}

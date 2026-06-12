@@ -45,6 +45,7 @@ function appWithStore(authStore, overrides = {}) {
         authStore,
         reportStore: new MemoryReportStore(),
         config: config(overrides),
+        disableBackgroundMonitor: true,
         orchestrator: {
             mode: 'demo',
             modelName: 'demo',

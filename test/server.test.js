@@ -42,6 +42,7 @@ function createTestApp(options = {}) {
         reportStore: options.reportStore || new MemoryReportStore(),
         authStore: options.authStore || new MemoryAuthStore(),
         config: testConfig(options.config),
+        disableBackgroundMonitor: true,
         ...options
     });
 }
@@ -143,6 +144,7 @@ test('POST /api/analyze returns structured report', async () => {
                 markdown: `## Report for ${query}`,
                 founderContext: { reportOptions: { reportType: 'idea_validation' } },
                 sections: { actionPlan: {} },
+                sectionOrder: ['executiveSnapshot', 'founderContext', 'marketSignals', 'recommendations', 'actionPlan', 'risks', 'sources'],
                 agentLogs: [{ id: 'researcher', agent: 'Research Analyst', message: 'Done' }],
                 mode: 'demo',
                 intelligenceMode: 'demo_grounding',
@@ -214,6 +216,7 @@ test('report resource endpoints persist and fetch generated reports', async () =
                 markdown: '# Persisted report',
                 founderContext: { reportOptions: { reportType: 'idea_validation' } },
                 sections: { actionPlan: {} },
+                sectionOrder: ['executiveSnapshot', 'founderContext', 'marketSignals', 'recommendations', 'actionPlan', 'risks', 'sources'],
                 agentLogs: [],
                 mode: 'demo',
                 intelligenceMode: 'demo_grounding',
@@ -273,6 +276,93 @@ test('API auth token protects report management endpoints', async () => {
             headers: { Authorization: 'Bearer secret' }
         });
         assert.equal(authorized.status, 200);
+    } finally {
+        server.close();
+    }
+});
+
+test('POST /api/signals returns market signals', async () => {
+    const app = createTestApp({
+        orchestrator: {
+            mode: 'demo',
+            modelName: 'demo',
+            searchProvider: { enabled: false },
+            processSignals: async (profile) => ({
+                signals: [
+                    { type: 'TECH SHIFT', title: 'Test Tech Shift', description: 'Test desc', impact: 'High', sentiment: 'Positive', source: null }
+                ],
+                mode: 'demo'
+            })
+        }
+    });
+    const { server, url } = await listen(app);
+
+    try {
+        const response = await fetch(`${url}/api/signals`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                founderProfile: {
+                    industry: 'fintech',
+                    geography: 'India'
+                }
+            })
+        });
+        const body = await response.json();
+
+        assert.equal(response.status, 200);
+        assert.equal(body.signals.length, 1);
+        assert.equal(body.signals[0].title, 'Test Tech Shift');
+        assert.equal(body.mode, 'demo');
+    } finally {
+        server.close();
+    }
+});
+
+test('POST /api/signals rejects request with missing industry/geography', async () => {
+    const app = createTestApp();
+    const { server, url } = await listen(app);
+
+    try {
+        const response = await fetch(`${url}/api/signals`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                founderProfile: {
+                    industry: '',
+                    geography: ''
+                }
+            })
+        });
+        const body = await response.json();
+
+        assert.equal(response.status, 400);
+        assert.equal(body.error.code, 'INVALID_PROFILE');
+    } finally {
+        server.close();
+    }
+});
+
+test('GET /api/dev/emails returns queued outbox emails in test/development mode', async () => {
+    const authStore = new MemoryAuthStore({
+        emailOutbox: [
+            { id: '1', to: 'alex@startup.com', type: 'email_verification', subject: 'Verify email', token: 'token123', createdAt: new Date().toISOString() }
+        ]
+    });
+    const app = createTestApp({
+        authStore,
+        config: { nodeEnv: 'development' }
+    });
+    const { server, url } = await listen(app);
+
+    try {
+        const response = await fetch(`${url}/api/dev/emails`);
+        const body = await response.json();
+
+        assert.equal(response.status, 200);
+        assert.equal(body.emails.length, 1);
+        assert.equal(body.emails[0].to, 'alex@startup.com');
+        assert.equal(body.emails[0].token, 'token123');
     } finally {
         server.close();
     }

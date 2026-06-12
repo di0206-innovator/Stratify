@@ -5,8 +5,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
 const crypto = require('crypto');
-const { GeminiBIOrchestrator } = require('./GEMINI_ORCHESTRATOR');
+const { GeminiBIOrchestrator } = require('./lib/intelligence/orchestrator');
 const { validateAnalyzeRequest } = require('./lib/validation');
+const { normalizeFounderProfile } = require('./lib/founderProfile');
 const { createRateLimiter } = require('./lib/rateLimit');
 const { getConfig } = require('./lib/config');
 const {
@@ -22,6 +23,7 @@ const { HttpError, errorResponse } = require('./lib/httpErrors');
 const { createLogger } = require('./lib/logger');
 const { createMetrics } = require('./lib/metrics');
 const { FileReportStore } = require('./lib/reportStore');
+const { FileSignalStore } = require('./lib/signalStore');
 
 const config = getConfig();
 
@@ -38,6 +40,9 @@ function createApp(options = {}) {
     const reportStore = options.reportStore || new FileReportStore({
         filePath: appConfig.reportStorePath || path.join(__dirname, 'data', 'reports.json'),
         maxReports: appConfig.maxStoredReports
+    });
+    const signalStore = options.signalStore || new FileSignalStore({
+        filePath: appConfig.signalStorePath || path.join(__dirname, 'data', 'signals.json')
     });
     const authStore = options.authStore || new FileAuthStore({
         filePath: appConfig.authStorePath || path.join(__dirname, 'data', 'auth.json')
@@ -91,7 +96,7 @@ function createApp(options = {}) {
     }));
 
     app.use(express.json({ limit: appConfig.jsonBodyLimit }));
-    app.use(express.static(path.join(__dirname, 'public')));
+    app.use(express.static(path.join(__dirname, 'dist')));
 
     app.get('/api/health', (req, res) => {
         res.json({
@@ -108,12 +113,14 @@ function createApp(options = {}) {
         try {
             await reportStore.init();
             await authStore.init();
+            await signalStore.init();
             res.json({
                 ok: true,
                 requestId: req.id,
                 dependencies: {
                     reportStore: 'ready',
                     authStore: 'ready',
+                    signalStore: 'ready',
                     gemini: orchestrator.mode === 'live' ? 'configured' : 'demo',
                     intelligence: getIntelligenceMode(orchestrator)
                 }
@@ -248,6 +255,35 @@ function createApp(options = {}) {
         }
     });
 
+    app.patch('/api/reports/:id', auth, async (req, res, next) => {
+        try {
+            const report = await reportStore.get(req.params.id, { userId: req.user && req.user.id });
+            if (!report) {
+                throw new HttpError(404, 'REPORT_NOT_FOUND', 'Report not found.');
+            }
+
+            if (req.body && req.body.sections) {
+                if (req.body.sections.actionPlan) {
+                    report.sections.actionPlan = req.body.sections.actionPlan;
+                    
+                    const { toMarkdown } = require('./lib/intelligence/orchestrator');
+                    report.markdown = toMarkdown(
+                        report.title,
+                        report.generatedAt,
+                        report.sections,
+                        report.sectionOrder,
+                        report.sources
+                    );
+                }
+            }
+
+            await reportStore.save(report);
+            res.json({ requestId: req.id, report });
+        } catch (error) {
+            next(error);
+        }
+    });
+
     app.post('/api/reports', auth, analyzeLimiter, (req, res, next) => {
         createReport(req, res, next, { orchestrator, reportStore, appConfig, logger, metrics });
     });
@@ -257,6 +293,61 @@ function createApp(options = {}) {
             return next(new HttpError(401, 'UNAUTHORIZED', 'Authentication is required.'));
         }
         createReport(req, res, next, { orchestrator, reportStore, appConfig, logger, metrics });
+    });
+
+    app.post('/api/analyze/stream', optionalAuth, analyzeLimiter, (req, res, next) => {
+        if (appConfig.requireAuthForAnalyze && !req.user) {
+            return next(new HttpError(401, 'UNAUTHORIZED', 'Authentication is required.'));
+        }
+        createReportStream(req, res, next, { orchestrator, reportStore, appConfig, logger, metrics });
+    });
+
+    app.post('/api/signals', optionalAuth, async (req, res, next) => {
+        try {
+            const profile = normalizeFounderProfile(req.body && req.body.founderProfile);
+            if (!profile.industry || !profile.geography) {
+                throw new HttpError(400, 'INVALID_PROFILE', 'Industry and geography are required for market signals.');
+            }
+
+            const cached = await signalStore.getSignals(profile.industry, profile.geography);
+            if (cached) {
+                return res.json({
+                    requestId: req.id,
+                    signals: cached.signals,
+                    mode: cached.mode
+                });
+            }
+
+            const result = await orchestrator.processSignals(profile);
+            await signalStore.saveSignals(profile.industry, profile.geography, result.signals, result.mode);
+
+            res.json({
+                requestId: req.id,
+                signals: result.signals,
+                mode: result.mode
+            });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    if (appConfig.nodeEnv !== 'production') {
+        app.get('/api/dev/emails', async (req, res, next) => {
+            try {
+                const state = await authStore.readState();
+                res.json({
+                    requestId: req.id,
+                    emails: state.emailOutbox || []
+                });
+            } catch (error) {
+                next(error);
+            }
+        });
+    }
+
+    app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/api')) return next();
+        res.sendFile(path.join(__dirname, 'dist', 'index.html'));
     });
 
     app.use((req, res, next) => {
@@ -277,6 +368,22 @@ function createApp(options = {}) {
         });
         res.status(response.status).json(response.body);
     });
+
+    if (!options.disableBackgroundMonitor) {
+        app.signalMonitor = startBackgroundSignalMonitor({
+            authStore,
+            reportStore,
+            orchestrator,
+            signalStore,
+            logger,
+            config: appConfig
+        });
+    } else {
+        app.signalMonitor = {
+            stop() {},
+            runSweep: async () => {}
+        };
+    }
 
     return app;
 }
@@ -327,6 +434,75 @@ async function createReport(req, res, next, services) {
     }
 }
 
+async function createReportStream(req, res, next, services) {
+    const { orchestrator, reportStore, appConfig, logger, metrics } = services;
+    const validation = validateAnalyzeRequest(req.body);
+
+    if (!validation.ok) {
+        return next(new HttpError(400, 'INVALID_ANALYSIS_REQUEST', 'Invalid analysis request.', validation.errors));
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    const sendSSE = (event, data) => {
+        res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    };
+
+    try {
+        const report = await withTimeout(
+            orchestrator.processInquiryStream(validation.value.query, {
+                sources: validation.value.sources,
+                founderProfile: validation.value.founderProfile,
+                reportOptions: validation.value.reportOptions
+            }, (update) => {
+                sendSSE(update.event, update.data);
+            }),
+            appConfig.requestTimeoutMs
+        );
+
+        if (req.user && req.user.id && req.user.id !== 'api-token') {
+            report.ownerId = req.user.id;
+        }
+
+        await reportStore.save(report);
+        metrics.recordReport(Date.now() - req.startedAt);
+        logger.info('Report generated via stream', {
+            requestId: req.id,
+            reportId: report.id,
+            mode: report.mode,
+            intelligenceMode: report.intelligenceMode,
+            sourceCount: report.sources.length,
+            durationMs: Date.now() - req.startedAt
+        });
+
+        res.end();
+    } catch (error) {
+        const timedOut = error && error.code === 'REQUEST_TIMEOUT';
+        metrics.recordFailure(timedOut ? 'reportFailures' : 'reportFailures');
+
+        let status = 500;
+        let errCode = 'INTERNAL_ERROR';
+        let errMsg = error.message || 'Internal server error';
+
+        if (timedOut) {
+            status = 504;
+            errCode = 'ANALYSIS_TIMEOUT';
+            errMsg = 'Analysis timed out. Try a narrower question or fewer sources.';
+        } else if (error instanceof HttpError) {
+            status = error.status;
+            errCode = error.code;
+            errMsg = error.message;
+        }
+
+        sendSSE('error', { status, error: { code: errCode, message: errMsg } });
+        res.end();
+    }
+}
+
 function parseOrigins(value) {
     return getConfig({ CORS_ORIGINS: value }).corsOrigins;
 }
@@ -365,6 +541,78 @@ function clampInt(value, min, max, fallback) {
     return Math.min(max, Math.max(min, parsed));
 }
 
+function startBackgroundSignalMonitor({ authStore, reportStore, orchestrator, signalStore, logger, config }) {
+    const intervalMs = config.nodeEnv === 'production' ? 60 * 60 * 1000 : 2 * 60 * 1000;
+    
+    async function runSweep() {
+        logger.info('Starting background market signals monitoring sweep...');
+        try {
+            const state = await authStore.readState();
+            const registeredUserIds = new Set((state.users || []).map(u => u.id));
+            
+            const reports = await reportStore.readAll();
+            
+            const sectorsMap = new Map();
+            
+            for (const report of reports) {
+                if (report.ownerId && registeredUserIds.has(report.ownerId)) {
+                    const profile = report.founderContext && report.founderContext.profile;
+                    if (profile && profile.industry && profile.geography) {
+                        const ind = profile.industry.trim();
+                        const geo = profile.geography.trim();
+                        const key = `${ind.toLowerCase()}_${geo.toLowerCase()}`;
+                        if (!sectorsMap.has(key)) {
+                            sectorsMap.set(key, {
+                                industry: ind,
+                                geography: geo,
+                                targetCustomer: profile.targetCustomer || 'users'
+                            });
+                        }
+                    }
+                }
+            }
+            
+            let sectors = Array.from(sectorsMap.values());
+            if (sectors.length === 0) {
+                sectors = [{
+                    industry: 'consumer coffee',
+                    geography: 'Bengaluru',
+                    targetCustomer: 'urban professionals'
+                }];
+            }
+            
+            logger.info(`Sweeping signals for ${sectors.length} unique sectors...`);
+            for (const sector of sectors) {
+                try {
+                    logger.info(`Generating signals for sector: ${sector.industry} (${sector.geography})`);
+                    const result = await orchestrator.processSignals(sector);
+                    await signalStore.saveSignals(sector.industry, sector.geography, result.signals, result.mode);
+                    logger.info(`Cached signals for: ${sector.industry} (${sector.geography})`);
+                } catch (err) {
+                    logger.error(`Failed to generate/cache signals for sector: ${sector.industry} (${sector.geography})`, { error: err.message });
+                }
+            }
+            logger.info('Background market signals sweep completed successfully.');
+        } catch (err) {
+            logger.error('Background market signals sweep failed', { error: err.message });
+        }
+    }
+    
+    const timeoutId = setTimeout(() => {
+        runSweep().catch(err => logger.error('Error in initial signals sweep', { error: err.message }));
+    }, 1000);
+    
+    const intervalId = setInterval(runSweep, intervalMs);
+    return {
+        stop() {
+            clearTimeout(timeoutId);
+            clearInterval(intervalId);
+            logger.info('Background market signals monitor stopped.');
+        },
+        runSweep
+    };
+}
+
 if (require.main === module) {
     const logger = createLogger({ env: config.nodeEnv });
     const app = createApp({ logger });
@@ -383,6 +631,9 @@ if (require.main === module) {
 
     const shutdown = (signal) => {
         logger.info('Shutdown signal received', { signal });
+        if (app.signalMonitor) {
+            app.signalMonitor.stop();
+        }
         server.close(() => {
             logger.info('HTTP server closed');
             process.exit(0);
@@ -398,5 +649,6 @@ module.exports = {
     parseOrigins,
     withTimeout,
     isAllowedDevOrigin,
-    clampInt
+    clampInt,
+    startBackgroundSignalMonitor
 };

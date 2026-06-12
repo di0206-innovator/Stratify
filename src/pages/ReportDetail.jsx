@@ -1,0 +1,514 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { 
+  ArrowLeft, Calendar, FileText, CheckCircle, ExternalLink,
+  BookOpen, ClipboardList, Trash2, ArrowRight, ShieldAlert, Sparkles, Check
+} from 'lucide-react';
+import confetti from 'canvas-confetti';
+
+export default function ReportDetail() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [report, setReport] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('interactive'); // 'interactive' | 'markdown'
+
+  const fetchReport = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/reports/${id}`);
+      if (!res.ok) {
+        if (res.status === 404) throw new Error('Strategic brief not found.');
+        throw new Error(`Failed to load brief: HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      setReport(data.report);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchReport();
+  }, [id]);
+
+  const handleCheckboxToggle = async (sectionKey, itemIndex, completed) => {
+    if (!report) return;
+
+    // Clone report locally
+    const updatedReport = JSON.parse(JSON.stringify(report));
+    const actionPlan = updatedReport.sections.actionPlan;
+    if (actionPlan && actionPlan[sectionKey] && actionPlan[sectionKey][itemIndex]) {
+      actionPlan[sectionKey][itemIndex].completed = completed;
+    }
+
+    try {
+      // Update local state immediately
+      setReport(updatedReport);
+
+      // Perform backend update
+      const response = await fetch(`/api/reports/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sections: {
+            actionPlan: updatedReport.sections.actionPlan
+          }
+        })
+      });
+
+      if (!response.ok) {
+        console.warn('Failed to update action plan state on backend server.');
+      } else {
+        // Play a mini-confetti pop on task completion
+        if (completed) {
+          confetti({
+            particleCount: 20,
+            spread: 30,
+            origin: { y: 0.8 },
+            colors: ['#A3E635', '#C084FC']
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Error toggling task checkbox:', err);
+    }
+  };
+
+  const handleDeleteReport = async () => {
+    if (!confirm('Are you sure you want to permanently delete this strategic brief?')) return;
+    try {
+      const res = await fetch(`/api/reports/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        confetti({ particleCount: 50, colors: ['#F472B6', '#000'] });
+        navigate('/reports');
+      } else {
+        alert('Failed to delete report.');
+      }
+    } catch (err) {
+      console.error('Failed to delete report:', err);
+    }
+  };
+
+  // Helper to parse simple markdown to HTML elements safely (headings, paragraphs, lists, highlights)
+  const renderSimpleMarkdown = (mdText) => {
+    if (!mdText) return null;
+    const lines = mdText.split('\n');
+    return lines.map((line, index) => {
+      const trimmed = line.trim();
+      if (!trimmed) return <div key={index} className="h-4"></div>;
+
+      // Headings
+      if (trimmed.startsWith('# ')) {
+        return <h1 key={index} className="text-2xl md:text-3xl font-black uppercase mt-6 mb-3 border-b-4 border-black pb-2">{trimmed.substring(2)}</h1>;
+      }
+      if (trimmed.startsWith('## ')) {
+        return <h2 key={index} className="text-xl md:text-2xl font-black uppercase mt-5 mb-2.5 text-[#C084FC]">{trimmed.substring(3)}</h2>;
+      }
+      if (trimmed.startsWith('### ')) {
+        return <h3 key={index} className="text-lg font-black uppercase mt-4 mb-2">{trimmed.substring(4)}</h3>;
+      }
+
+      // Blockquotes / Warnings
+      if (trimmed.startsWith('> ')) {
+        return (
+          <blockquote key={index} className="border-l-[6px] border-black bg-[#F8F7F4] p-4 font-semibold my-4 select-text leading-relaxed">
+            {trimmed.substring(2)}
+          </blockquote>
+        );
+      }
+
+      // List items
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        return (
+          <li key={index} className="ml-6 list-disc font-semibold text-sm md:text-base text-gray-800 mb-1.5 leading-relaxed">
+            {trimmed.substring(2)}
+          </li>
+        );
+      }
+
+      // Regular paragraphs
+      return (
+        <p key={index} className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed mb-4">
+          {trimmed}
+        </p>
+      );
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-24 text-center space-y-4">
+        <div className="w-12 h-12 border-[4px] border-black border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <h2 className="font-outfit font-black uppercase text-sm tracking-wider">Compiling Strategy Brief...</h2>
+      </div>
+    );
+  }
+
+  if (error || !report) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-4">
+        <div className="bg-[#F472B6] border-[3px] border-black p-6 shadow-neo-hard">
+          <ShieldAlert size={48} className="mx-auto mb-2 text-black" />
+          <h2 className="text-xl font-black uppercase">Brief Unreachable</h2>
+          <p className="text-xs font-semibold text-gray-800 mt-2">{error || 'Brief data failed to load.'}</p>
+        </div>
+        <Link to="/reports" className="neo-btn-secondary inline-flex items-center gap-2">
+          <ArrowLeft size={16} />
+          <span>Back to Library</span>
+        </Link>
+      </div>
+    );
+  }
+
+  const formattedDate = new Date(report.generatedAt).toLocaleDateString([], {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+      {/* Back to Library Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4 select-none">
+        <Link
+          to="/reports"
+          className="neo-btn-secondary px-4 py-2 text-xs font-black"
+        >
+          <ArrowLeft size={14} />
+          <span>LIBRARY</span>
+        </Link>
+        <button
+          onClick={handleDeleteReport}
+          className="bg-[#F472B6] border-[3px] border-black text-black font-black px-4 py-2 hover:bg-white active:translate-x-[2px] active:translate-y-[2px] shadow-neo-button active:shadow-none transition-all flex items-center gap-2 cursor-pointer uppercase text-xs"
+        >
+          <Trash2 size={14} />
+          <span>DELETE BRIEF</span>
+        </button>
+      </div>
+
+      {/* Main Grid: Detail View Left (Tabs), Tools Panel Right */}
+      <div className="grid grid-cols-12 gap-6">
+        
+        {/* Left Column: Brief Reader (Col span: 12 or 8) */}
+        <div className="col-span-12 lg:col-span-8 flex flex-col space-y-4">
+          {/* Tabs header */}
+          <div className="flex bg-[#F8F7F4] border-[3px] border-black p-1.5 gap-2 select-none">
+            <button
+              onClick={() => setActiveTab('interactive')}
+              className={`flex-1 py-2 text-center text-xs font-black uppercase border-2 border-black transition-all cursor-pointer ${
+                activeTab === 'interactive' 
+                  ? 'bg-[#A3E635] shadow-none' 
+                  : 'bg-white hover:bg-gray-100 shadow-neo-button active:translate-y-[1px]'
+              }`}
+            >
+              <BookOpen size={14} className="inline mr-1.5" />
+              <span>Interactive Strategist View</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('markdown')}
+              className={`flex-1 py-2 text-center text-xs font-black uppercase border-2 border-black transition-all cursor-pointer ${
+                activeTab === 'markdown' 
+                  ? 'bg-[#C084FC] shadow-none' 
+                  : 'bg-white hover:bg-gray-100 shadow-neo-button active:translate-y-[1px]'
+              }`}
+            >
+              <FileText size={14} className="inline mr-1.5" />
+              <span>Executive Memo (Raw Markdown)</span>
+            </button>
+          </div>
+
+          {/* Reader Panel */}
+          <div className="neo-card bg-white min-h-[500px] flex-1 p-6 md:p-8">
+            {activeTab === 'interactive' ? (
+              /* INTERACTIVE VIEW */
+              <div className="space-y-8">
+                {/* Title */}
+                <div className="border-b-4 border-black pb-4 select-none">
+                  <span className="neo-badge bg-[#FB923C] mb-2">
+                    {report.founderContext?.profile?.startupStage || 'IDEA'} WEDGE
+                  </span>
+                  <h1 className="text-2xl md:text-3xl font-black uppercase leading-tight tracking-tight">
+                    {report.title}
+                  </h1>
+                  <p className="text-xs text-gray-500 font-bold mt-1.5">
+                    ANALYZED AND ASSEMBLED ON {formattedDate}
+                  </p>
+                </div>
+
+                {/* Thesis Section */}
+                <div className="space-y-2">
+                  <h2 className="text-lg font-black uppercase text-black border-l-4 border-[#A3E635] pl-2">Executive Snapshot</h2>
+                  <p className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed bg-[#F8F7F4] p-4 border-2 border-black border-dashed">
+                    {report.sections.executiveSnapshot || report.sections.thesis}
+                  </p>
+                </div>
+
+                {/* Opportunity Wedge & Positioning */}
+                <div className="space-y-2">
+                  <h2 className="text-lg font-black uppercase text-black border-l-4 border-[#C084FC] pl-2">Opportunity Wedge & Positioning</h2>
+                  <p className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed bg-white p-4 border-[3px] border-black shadow-neo-hard">
+                    {report.sections.opportunityThesis || report.sections.positioning}
+                  </p>
+                </div>
+
+                {/* Report-Type-Specific Sections */}
+                {Object.entries(report.sections).map(([key, content]) => {
+                  // Skip standard sections that we handle elsewhere
+                  if (['executiveSnapshot', 'thesis', 'founderContext', 'marketSignals', 'opportunityThesis', 'positioning', 'recommendations', 'risks', 'assumptions', 'actionPlan'].includes(key)) {
+                    return null;
+                  }
+                  if (!content || typeof content !== 'string') return null;
+
+                  const sectionLabels = {
+                    trendAnalysis: 'Trend & Wave Analysis',
+                    competitivePositioning: 'Competitive Defensive Wedge',
+                    targetSegment: 'Initial Customer Wedge',
+                    channelStrategy: 'Acquisition Channels',
+                    marketOpportunity: 'TAM / Market Sizing',
+                    tractionEvidence: 'Traction Benchmarks',
+                    askAndUse: 'Use of Capital Strategy',
+                    threatCategories: 'Threat Frameworks',
+                    mitigationPlan: 'Mitigation Matrix'
+                  };
+
+                  return (
+                    <div key={key} className="space-y-2">
+                      <h2 className="text-lg font-black uppercase text-black border-l-4 border-[#FB923C] pl-2">
+                        {sectionLabels[key] || key.replace(/([A-Z])/g, ' $1').toUpperCase()}
+                      </h2>
+                      <p className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed">
+                        {content}
+                      </p>
+                    </div>
+                  );
+                })}
+
+                {/* Market Signals */}
+                {report.sections.marketSignals && report.sections.marketSignals.length > 0 && (
+                  <div className="space-y-3">
+                    <h2 className="text-lg font-black uppercase text-black border-l-4 border-[#F472B6] pl-2">Extracted Market Signals</h2>
+                    <div className="space-y-3">
+                      {report.sections.marketSignals.map((sig, idx) => (
+                        <div key={idx} className="border-2 border-black p-3.5 bg-[#F8F7F4] text-xs sm:text-sm font-semibold text-gray-800 flex gap-2">
+                          <span className="text-[#FB923C] font-black font-mono shrink-0 select-none">[{idx + 1}]</span>
+                          <span className="font-inter leading-relaxed">{sig}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Recommendations */}
+                {report.sections.recommendations && report.sections.recommendations.length > 0 && (
+                  <div className="space-y-3">
+                    <h2 className="text-lg font-black uppercase text-black border-l-4 border-black pl-2">Tactical Recommendations</h2>
+                    <ul className="space-y-2.5">
+                      {report.sections.recommendations.map((rec, idx) => (
+                        <li key={idx} className="flex gap-2.5 items-start">
+                          <div className="bg-[#A3E635] border-2 border-black p-1 text-black font-black font-mono text-[9px] shrink-0 mt-0.5 rounded-none select-none">
+                            REC {idx + 1}
+                          </div>
+                          <span className="text-xs sm:text-sm font-semibold font-inter text-gray-700 leading-relaxed">
+                            {rec}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Risks & Assumptions */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Risks */}
+                  {report.sections.risks && report.sections.risks.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="font-outfit font-black text-sm uppercase text-[#F472B6] border-b-2 border-black pb-1 select-none">Inherent Risks</h3>
+                      <ul className="space-y-1.5">
+                        {report.sections.risks.map((risk, idx) => (
+                          <li key={idx} className="text-xs font-semibold font-inter text-gray-700 leading-relaxed pl-3 border-l-2 border-[#F472B6]">
+                            {risk}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Assumptions */}
+                  {report.sections.assumptions && report.sections.assumptions.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="font-outfit font-black text-sm uppercase text-[#C084FC] border-b-2 border-black pb-1 select-none">Key Assumptions</h3>
+                      <ul className="space-y-1.5">
+                        {report.sections.assumptions.map((ass, idx) => (
+                          <li key={idx} className="text-xs font-semibold font-inter text-gray-700 leading-relaxed pl-3 border-l-2 border-[#C084FC]">
+                            {ass}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* RAW MARKDOWN VIEW */
+              <div className="markdown-body font-inter leading-relaxed select-text space-y-4">
+                {renderSimpleMarkdown(report.markdown)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: Tools Panel (Citations & Interactive Checklist) */}
+        <div className="col-span-12 lg:col-span-4 space-y-6">
+          
+          {/* Action Checklist Widget */}
+          {report.sections.actionPlan && (
+            <BentoCard title="Roadmap Task Tracker" badge="Toggles update Database" badgeColor="bg-[#C084FC]">
+              <div className="space-y-5">
+                {/* 7-Day Validation */}
+                <div className="space-y-2.5">
+                  <h3 className="font-outfit font-black text-xs uppercase text-[#FB923C] border-b border-black pb-1 flex justify-between items-center select-none">
+                    <span>7-Day Sprint</span>
+                    <span className="text-[10px] font-mono px-1 border border-black bg-[#F8F7F4]">
+                      {report.sections.actionPlan.sevenDaySprint?.filter(i => i.completed).length || 0} / {report.sections.actionPlan.sevenDaySprint?.length || 0}
+                    </span>
+                  </h3>
+                  <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                    {report.sections.actionPlan.sevenDaySprint?.map((item, idx) => (
+                      <div 
+                        key={item.id || idx}
+                        onClick={() => handleCheckboxToggle('sevenDaySprint', idx, !item.completed)}
+                        className="flex items-start gap-2 p-1.5 bg-[#F8F7F4] border-2 border-black hover:bg-white cursor-pointer select-none transition-colors"
+                      >
+                        <button type="button" className="shrink-0 text-black mt-0.5">
+                          {item.completed ? (
+                            <div className="bg-[#A3E635] border-2 border-black p-0.5"><Check size={10} strokeWidth={3} /></div>
+                          ) : (
+                            <div className="w-3.5 h-3.5 border-2 border-black bg-white"></div>
+                          )}
+                        </button>
+                        <span className={`text-[11px] font-semibold font-inter ${item.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                          {item.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 30-Day Roadmap */}
+                <div className="space-y-2.5">
+                  <h3 className="font-outfit font-black text-xs uppercase text-[#C084FC] border-b border-black pb-1 flex justify-between items-center select-none">
+                    <span>30-Day Milestones</span>
+                    <span className="text-[10px] font-mono px-1 border border-black bg-[#F8F7F4]">
+                      {report.sections.actionPlan.thirtyDayRoadmap?.filter(i => i.completed).length || 0} / {report.sections.actionPlan.thirtyDayRoadmap?.length || 0}
+                    </span>
+                  </h3>
+                  <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                    {report.sections.actionPlan.thirtyDayRoadmap?.map((item, idx) => (
+                      <div 
+                        key={item.id || idx}
+                        onClick={() => handleCheckboxToggle('thirtyDayRoadmap', idx, !item.completed)}
+                        className="flex items-start gap-2 p-1.5 bg-[#F8F7F4] border-2 border-black hover:bg-white cursor-pointer select-none transition-colors"
+                      >
+                        <button type="button" className="shrink-0 text-black mt-0.5">
+                          {item.completed ? (
+                            <div className="bg-[#A3E635] border-2 border-black p-0.5"><Check size={10} strokeWidth={3} /></div>
+                          ) : (
+                            <div className="w-3.5 h-3.5 border-2 border-black bg-white"></div>
+                          )}
+                        </button>
+                        <span className={`text-[11px] font-semibold font-inter ${item.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                          {item.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Validation Checklist */}
+                <div className="space-y-2.5">
+                  <h3 className="font-outfit font-black text-xs uppercase text-[#F472B6] border-b border-black pb-1 flex justify-between items-center select-none">
+                    <span>Validation Checklist</span>
+                    <span className="text-[10px] font-mono px-1 border border-black bg-[#F8F7F4]">
+                      {report.sections.actionPlan.validationChecklist?.filter(i => i.completed).length || 0} / {report.sections.actionPlan.validationChecklist?.length || 0}
+                    </span>
+                  </h3>
+                  <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                    {report.sections.actionPlan.validationChecklist?.map((item, idx) => (
+                      <div 
+                        key={item.id || idx}
+                        onClick={() => handleCheckboxToggle('validationChecklist', idx, !item.completed)}
+                        className="flex items-start gap-2 p-1.5 bg-[#F8F7F4] border-2 border-black hover:bg-white cursor-pointer select-none transition-colors"
+                      >
+                        <button type="button" className="shrink-0 text-black mt-0.5">
+                          {item.completed ? (
+                            <div className="bg-[#A3E635] border-2 border-black p-0.5"><Check size={10} strokeWidth={3} /></div>
+                          ) : (
+                            <div className="w-3.5 h-3.5 border-2 border-black bg-white"></div>
+                          )}
+                        </button>
+                        <span className={`text-[11px] font-semibold font-inter ${item.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                          {item.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </BentoCard>
+          )}
+
+          {/* Sources & Citations Widget */}
+          <BentoCard title="Grounding Citations" badge="References verified" badgeColor="bg-[#A3E635]">
+            {report.sources && report.sources.length > 0 ? (
+              <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1">
+                {report.sources.map((source, index) => (
+                  <div 
+                    key={index} 
+                    className="border-2 border-black p-3 bg-[#F8F7F4] hover:bg-white text-xs transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-2 border-b border-gray-300 pb-1.5 mb-2 select-none">
+                      <span className="neo-badge text-[8px] bg-white border-2 border-black font-black font-mono">
+                        Source {index + 1}
+                      </span>
+                      {source.url && (
+                        <a 
+                          href={source.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-[#C084FC] hover:text-black flex items-center gap-0.5"
+                        >
+                          <span className="font-black">LINK</span>
+                          <ExternalLink size={10} />
+                        </a>
+                      )}
+                    </div>
+                    <h4 className="font-outfit font-black text-black uppercase text-[10px] break-words line-clamp-2">
+                      {source.title}
+                    </h4>
+                    <p className="font-inter font-semibold text-gray-600 mt-1 leading-relaxed line-clamp-3">
+                      {source.summary || 'Verified web citation grounding claim.'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-4 text-center text-gray-400 text-xs italic select-none">
+                No external citation sources reported. Using internal knowledge grounding only.
+              </div>
+            )}
+          </BentoCard>
+        </div>
+
+      </div>
+    </div>
+  );
+}
