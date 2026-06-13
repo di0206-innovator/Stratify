@@ -52,8 +52,8 @@ function createApp(options = {}) {
         config: appConfig,
         logger
     });
-    const auth = createAuthMiddleware({ token: appConfig.apiAuthToken, authService });
-    const optionalAuth = createOptionalAuthMiddleware({ token: appConfig.apiAuthToken, authService });
+    const auth = createAuthMiddleware({ token: appConfig.apiAuthToken, authService, firebaseProjectId: appConfig.firebaseProjectId });
+    const optionalAuth = createOptionalAuthMiddleware({ token: appConfig.apiAuthToken, authService, firebaseProjectId: appConfig.firebaseProjectId });
     const analyzeLimiter = createRateLimiter({
         windowMs: appConfig.rateLimitWindowMs,
         max: appConfig.rateLimitMax
@@ -360,12 +360,20 @@ function createApp(options = {}) {
         }
 
         const response = errorResponse(err, req.id);
-        logger.error(err.message || 'Unhandled error', {
-            requestId: req.id,
-            status: response.status,
-            code: response.body.error.code,
-            stack: err.stack
-        });
+        if (response.status >= 500) {
+            logger.error(err.message || 'Unhandled error', {
+                requestId: req.id,
+                status: response.status,
+                code: response.body.error.code,
+                stack: err.stack
+            });
+        } else {
+            logger.warn(err.message || 'Client request issue', {
+                requestId: req.id,
+                status: response.status,
+                code: response.body.error.code
+            });
+        }
         res.status(response.status).json(response.body);
     });
 
@@ -542,7 +550,7 @@ function clampInt(value, min, max, fallback) {
 }
 
 function startBackgroundSignalMonitor({ authStore, reportStore, orchestrator, signalStore, logger, config }) {
-    const intervalMs = config.nodeEnv === 'production' ? 60 * 60 * 1000 : 2 * 60 * 1000;
+    const intervalMs = config.nodeEnv === 'production' ? 60 * 60 * 1000 : 15 * 60 * 1000;
     
     async function runSweep() {
         logger.info('Starting background market signals monitoring sweep...');

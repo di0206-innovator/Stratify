@@ -5,12 +5,12 @@ export default function BentoCard({
   title, 
   badge, 
   badgeColor = 'bg-[#A3E635]', 
-  className = '', 
+  className = 'h-full', 
   colSpan = 'col-span-12', 
   rowSpan = '' 
 }) {
   return (
-    <div className={`neo-card flex flex-col justify-between overflow-hidden h-full ${colSpan} ${rowSpan} ${className}`}>
+    <div className={`neo-card flex flex-col justify-between overflow-hidden ${colSpan} ${rowSpan} ${className}`}>
       {(title || badge) && (
         <div className="flex items-center justify-between border-b-[3px] border-black pb-3 mb-4 select-none">
           {title && <h2 className="text-base sm:text-lg font-black tracking-tight uppercase">{title}</h2>}

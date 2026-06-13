@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Trash2, Calendar, Lock, LogIn, UserPlus, AlertCircle, Compass } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { 
+  auth, 
+  googleProvider, 
+  signInWithPopup, 
+  signOut, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  sendEmailVerification,
+  updateProfile
+} from '../firebase';
 
 export default function Reports({ user, setUser }) {
   const [reports, setReports] = useState([]);
@@ -61,72 +71,58 @@ export default function Reports({ user, setUser }) {
     setAuthLoading(true);
     setAuthError(null);
 
-    const url = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
-    const body = authMode === 'login' 
-      ? { email, password } 
-      : { email, password, username };
-
     try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || 'Authentication failed');
-      }
-
-      const data = await res.json();
-      
       if (authMode === 'register') {
-        // If registered, let them know or auto login. 
-        // For NeuralBI, register might require verification, but let's check
-        if (data.emailVerificationRequired) {
-          // Verify automatically in dev mode, or retrieve verification token from /api/dev/emails
-          // Let's get verification code if dev environment
-          const devRes = await fetch('/api/dev/emails');
-          if (devRes.ok) {
-            const devData = await devRes.json();
-            const verificationEmail = devData.emails?.find(m => m.to === email && m.subject.includes('verify'));
-            if (verificationEmail) {
-              const token = verificationEmail.token;
-              // Call verify-email
-              const verifyRes = await fetch('/api/auth/verify-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token })
-              });
-              if (verifyRes.ok) {
-                // Now perform login automatically
-                const loginRes = await fetch('/api/auth/login', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email, password })
-                });
-                if (loginRes.ok) {
-                  const loginData = await loginRes.json();
-                  setUser(loginData.user);
-                  confetti({ particleCount: 80, colors: ['#A3E635', '#000'] });
-                  return;
-                }
-              }
-            }
-          }
-          setAuthError('Registration successful. Please verify email (Developer check outbox).');
-          return;
-        }
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        await updateProfile(user, { displayName: username });
+        await sendEmailVerification(user);
+        
+        confetti({
+          particleCount: 100,
+          spread: 60,
+          colors: ['#A3E635', '#000000']
+        });
+        setAuthError('Account created! A verification link has been sent to your email.');
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+        confetti({
+          particleCount: 100,
+          spread: 60,
+          colors: ['#A3E635', '#000000']
+        });
       }
+    } catch (err) {
+      console.error('Auth error:', err);
+      let msg = err.message || 'Authentication error occurred.';
+      if (err.code === 'auth/email-already-in-use') {
+        msg = 'This email address is already in use by another account.';
+      } else if (err.code === 'auth/weak-password') {
+        msg = 'The password must be at least 6 characters long.';
+      } else if (err.code === 'auth/invalid-email') {
+        msg = 'Please enter a valid email address.';
+      } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        msg = 'Incorrect email or password.';
+      }
+      setAuthError(msg);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
-      setUser(data.user);
+  const handleGoogleSignIn = async () => {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      await signInWithPopup(auth, googleProvider);
       confetti({
         particleCount: 100,
         spread: 60,
         colors: ['#A3E635', '#000000']
       });
     } catch (err) {
-      setAuthError(err.message || 'Authentication error occurred.');
+      console.error('Google sign in error:', err);
+      setAuthError(err.message || 'Failed to authenticate via Google.');
     } finally {
       setAuthLoading(false);
     }
@@ -134,9 +130,15 @@ export default function Reports({ user, setUser }) {
 
   const handleLogout = async () => {
     try {
+      await signOut(auth);
       await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
       setReports([]);
+      confetti({
+        particleCount: 30,
+        spread: 30,
+        colors: ['#000', '#F8F7F4']
+      });
     } catch (err) {
       console.error('Logout failed:', err);
     }
@@ -268,6 +270,24 @@ export default function Reports({ user, setUser }) {
             >
               {authMode === 'login' ? <LogIn size={14} /> : <UserPlus size={14} />}
               <span>{authLoading ? 'AUTHENTICATING...' : authMode === 'login' ? 'SIGN IN' : 'REGISTER'}</span>
+            </button>
+
+            <div className="relative flex py-1 items-center">
+              <div className="flex-grow border-t-2 border-black border-dashed"></div>
+              <span className="flex-shrink mx-4 font-outfit font-black text-[10px] uppercase text-gray-500">OR</span>
+              <div className="flex-grow border-t-2 border-black border-dashed"></div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={authLoading}
+              className="w-full bg-[#FB923C] border-[3px] border-black text-black font-black py-2.5 shadow-neo-button active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer uppercase text-xs tracking-wider"
+            >
+              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.24 10.285V13.4h6.887C18.2 15.614 15.645 18 12.24 18c-3.86 0-7-3.14-7-7s3.14-7 7-7c1.7 0 3.25.61 4.47 1.625l2.437-2.437C17.312 1.696 14.933 1 12.24 1c-5.523 0-10 4.477-10 10s4.477 10 10 10c5.782 0 9.61-4.062 9.61-9.78 0-.66-.06-1.294-.173-1.935H12.24z" />
+              </svg>
+              <span>{authLoading ? 'AUTHENTICATING...' : 'SIGN IN WITH GOOGLE'}</span>
             </button>
           </form>
 

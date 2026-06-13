@@ -217,6 +217,7 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
               title="Active Profile Wedge" 
               badge={founderProfile.startupStage}
               badgeColor="bg-[#C084FC]"
+              className="h-auto"
             >
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm font-outfit font-bold">

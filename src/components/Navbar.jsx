@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Radio, FileText, UserCog } from 'lucide-react';
+import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp } from 'lucide-react';
 
 export default function Navbar({ founderProfile }) {
   const location = useLocation();
@@ -8,6 +8,7 @@ export default function Navbar({ founderProfile }) {
   const navItems = [
     { path: '/', label: 'OS Dashboard', icon: LayoutDashboard },
     { path: '/signals', label: 'Signals Hub', icon: Radio },
+    { path: '/runway', label: 'Runway Planner', icon: TrendingUp },
     { path: '/reports', label: 'Reports', icon: FileText },
   ];
 

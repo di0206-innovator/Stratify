@@ -6,6 +6,27 @@ import Dashboard from './pages/Dashboard';
 import Signals from './pages/Signals';
 import Reports from './pages/Reports';
 import ReportDetail from './pages/ReportDetail';
+import RunwayPlanner from './pages/RunwayPlanner';
+import { auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+
+// Intercept window.fetch to automatically append Firebase ID token if authenticated
+const originalFetch = window.fetch;
+window.fetch = async (url, options = {}) => {
+  const currentUser = auth.currentUser;
+  if (currentUser) {
+    try {
+      const token = await currentUser.getIdToken();
+      options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`
+      };
+    } catch (e) {
+      console.warn('Failed to retrieve Firebase ID token for request:', e);
+    }
+  }
+  return originalFetch(url, options);
+};
 
 export default function App() {
   const [founderProfile, setFounderProfile] = useState(null);
@@ -24,21 +45,39 @@ export default function App() {
       }
     }
 
-    // Check backend active session
-    const checkSession = async () => {
+    // Check backend active session or Firebase session
+    const checkSession = async (firebaseUser) => {
       try {
         const res = await fetch('/api/auth/me');
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
+        } else {
+          setUser(null);
         }
       } catch (e) {
         console.warn('Backend server is not running or unreachable.');
+        if (firebaseUser) {
+          setUser({
+            id: firebaseUser.uid,
+            email: firebaseUser.email,
+            username: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+            emailVerified: firebaseUser.emailVerified
+          });
+        } else {
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }
     };
-    checkSession();
+
+    // Listen to Firebase Auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      checkSession(firebaseUser);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
@@ -103,6 +142,12 @@ export default function App() {
               <Route 
                 path="/reports/:id" 
                 element={<ReportDetail />} 
+              />
+
+              {/* Runway Planner */}
+              <Route 
+                path="/runway" 
+                element={<RunwayPlanner />} 
               />
 
               {/* Wildcard Fallback */}
