@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Play, Sparkles, AlertCircle, Compass, HelpCircle, 
-  MapPin, CheckSquare, Square, Check, RefreshCw, FileText, ArrowRight
+  MapPin, CheckSquare, Square, Check, RefreshCw, FileText, ArrowRight,
+  ClipboardList, BookOpen, ExternalLink
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import BentoCard from '../components/BentoCard';
@@ -16,6 +17,7 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
   const [logs, setLogs] = useState([]);
   const [isRunning, setIsRunning] = useState(false);
   const [streamError, setStreamError] = useState(null);
+  const [partialReport, setPartialReport] = useState(null);
 
   // Suggested questions based on primary goal
   const suggestedQueries = {
@@ -88,6 +90,7 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
     setLogs([]);
     setStreamError(null);
     setCurrentReport(null);
+    setPartialReport(null);
 
     const sourcesArray = customSources
       .split(',')
@@ -121,6 +124,7 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let currentEvent = '';
 
       while (true) {
         const { done, value } = await reader.read();
@@ -135,7 +139,7 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
           if (!trimmed) continue;
 
           if (trimmed.startsWith('event:')) {
-            // event identification (handled in data line)
+            currentEvent = trimmed.substring(6).trim();
           } else if (trimmed.startsWith('data:')) {
             const dataStr = trimmed.substring(5).trim();
             try {
@@ -148,13 +152,61 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                 return;
               }
 
-              // Route event payloads based on structure
-              if (parsed.agent && parsed.message) {
-                // It's a log event
+              // Route event payloads based on event type
+              if (currentEvent === 'log') {
                 setLogs((prev) => [...prev, parsed]);
-              } else if (parsed.id && parsed.sections) {
-                // It's the final result report
+              } else if (currentEvent === 'sources') {
+                setPartialReport((prev) => ({
+                  ...(prev || {}),
+                  sources: parsed
+                }));
+              } else if (currentEvent === 'analysis') {
+                setPartialReport((prev) => ({
+                  ...(prev || {}),
+                  sections: {
+                    ...(prev?.sections || {}),
+                    marketSignals: parsed.marketSignals || [],
+                    opportunityThesis: parsed.opportunityGaps?.map(g => `- ${g}`).join('\n') || '',
+                    risks: parsed.risks || [],
+                    assumptions: parsed.assumptions || []
+                  }
+                }));
+              } else if (currentEvent === 'strategy') {
+                setPartialReport((prev) => ({
+                  ...(prev || {}),
+                  title: `${reportType.replace(/_/g, ' ').toUpperCase()} STRATEGY FOR ${founderProfile.product.slice(0, 30)}`,
+                  sections: {
+                    ...(prev?.sections || {}),
+                    executiveSnapshot: parsed.thesis,
+                    opportunityThesis: parsed.positioning || prev?.sections?.opportunityThesis,
+                    recommendations: parsed.recommendations || [],
+                    trendAnalysis: parsed.trendAnalysis,
+                    competitivePositioning: parsed.competitivePositioning,
+                    targetSegment: parsed.targetSegment,
+                    channelStrategy: parsed.channelStrategy,
+                    marketOpportunity: parsed.marketOpportunity,
+                    tractionEvidence: parsed.tractionEvidence,
+                    askAndUse: parsed.askAndUse,
+                    threatCategories: parsed.threatCategories,
+                    mitigationPlan: parsed.mitigationPlan
+                  }
+                }));
+              } else if (currentEvent === 'executionPlan') {
+                setPartialReport((prev) => ({
+                  ...(prev || {}),
+                  sections: {
+                    ...(prev?.sections || {}),
+                    actionPlan: {
+                      sevenDaySprint: parsed.sevenDaySprint?.map((t, idx) => ({ id: `sprint-${idx}`, text: typeof t === 'string' ? t : t.text, completed: !!t.completed })),
+                      thirtyDayRoadmap: parsed.thirtyDayRoadmap?.map((t, idx) => ({ id: `roadmap-${idx}`, text: typeof t === 'string' ? t : t.text, completed: !!t.completed })),
+                      validationChecklist: parsed.validationChecklist?.map((t, idx) => ({ id: `checklist-${idx}`, text: typeof t === 'string' ? t : t.text, completed: !!t.completed })),
+                      nextAssets: parsed.nextAssets?.map((t, idx) => ({ id: `asset-${idx}`, text: typeof t === 'string' ? t : t.text, completed: !!t.completed }))
+                    }
+                  }
+                }));
+              } else if (currentEvent === 'result') {
                 setCurrentReport(parsed);
+                setPartialReport(null);
                 // Trigger celebratory confetti
                 confetti({
                   particleCount: 120,
@@ -162,6 +214,14 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                   origin: { y: 0.6 },
                   colors: ['#A3E635', '#C084FC', '#FB923C']
                 });
+              } else {
+                // Fallback for legacy format or unmapped events
+                if (parsed.agent && parsed.message) {
+                  setLogs((prev) => [...prev, parsed]);
+                } else if (parsed.id && parsed.sections) {
+                  setCurrentReport(parsed);
+                  setPartialReport(null);
+                }
               }
             } catch (e) {
               console.error('Failed to parse SSE payload:', dataStr, e);
@@ -183,6 +243,64 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
     } finally {
       setIsRunning(false);
     }
+  };
+
+  const activeReport = partialReport || currentReport;
+
+  const renderTextWithCitations = (text, sources = []) => {
+    if (!text) return null;
+    const regex = /(?:\[Source\s+(\d+)\]|\[(\d+)\])/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    
+    while ((match = regex.exec(text)) !== null) {
+      const matchIndex = match.index;
+      const sourceNum = parseInt(match[1] || match[2], 10);
+      
+      if (matchIndex > lastIndex) {
+        parts.push(text.substring(lastIndex, matchIndex));
+      }
+      
+      const source = sources[sourceNum - 1];
+      if (source) {
+        parts.push(
+          <a
+            key={matchIndex}
+            href={source.url || '#'}
+            target={source.url ? "_blank" : undefined}
+            rel={source.url ? "noopener noreferrer" : undefined}
+            title={`${source.title}: ${source.summary}`}
+            className="inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 text-[9px] font-black font-mono bg-[#A3E635] text-black border border-black hover:bg-black hover:text-white transition-colors cursor-pointer rounded-sm align-middle leading-none"
+            onClick={(e) => {
+              if (!source.url) {
+                e.preventDefault();
+                const citationEl = document.getElementById(`source-card-${sourceNum - 1}`);
+                if (citationEl) {
+                  citationEl.scrollIntoView({ behavior: 'smooth' });
+                  citationEl.classList.add('ring-4', 'ring-[#C084FC]');
+                  setTimeout(() => {
+                    citationEl.classList.remove('ring-4', 'ring-[#C084FC]');
+                  }, 2000);
+                }
+              }
+            }}
+          >
+            {sourceNum}
+          </a>
+        );
+      } else {
+        parts.push(match[0]);
+      }
+      
+      lastIndex = regex.lastIndex;
+    }
+    
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts;
   };
 
   return (
@@ -407,38 +525,54 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
             {/* Widget 4: Strategy Thesis / Summary */}
             <BentoCard 
               title="Active Strategy Thesis" 
-              badge="STRATEGIST DECISION"
-              badgeColor="bg-[#F472B6]"
+              badge={currentReport ? "STRATEGIST DECISION" : "COMPILING..."}
+              badgeColor={currentReport ? "bg-[#F472B6]" : "bg-[#FB923C] animate-pulse"}
             >
-              {currentReport ? (
+              {activeReport ? (
                 <div className="space-y-4 flex flex-col justify-between h-full">
                   <div className="space-y-2">
                     <h3 className="font-outfit font-black text-lg text-black uppercase">
-                      {currentReport.title}
+                      {activeReport.title || 'Compiling strategy thesis...'}
                     </h3>
-                    <p className="text-sm font-semibold font-inter text-gray-700 leading-relaxed max-h-[140px] overflow-y-auto pr-1">
-                      {currentReport.sections.executiveSnapshot || currentReport.sections.executiveBrief || currentReport.sections.thesis}
-                    </p>
+                    <div className="text-sm font-semibold font-inter text-gray-700 leading-relaxed max-h-[140px] overflow-y-auto pr-1">
+                      {renderTextWithCitations(
+                        activeReport.sections?.executiveSnapshot || activeReport.sections?.executiveBrief || activeReport.sections?.thesis,
+                        activeReport.sources
+                      ) || <div className="text-gray-400 italic">Synthesizing executive snapshot...</div>}
+                    </div>
 
                     <div className="grid grid-cols-2 gap-3 pt-2">
                       <div className="bg-[#F8F7F4] border border-black p-2.5 text-xs">
                         <span className="font-black text-gray-500 uppercase block text-[8px] mb-0.5">Positioning</span>
-                        <span className="font-bold text-gray-800 line-clamp-2">{currentReport.sections.opportunityThesis || currentReport.sections.positioning}</span>
+                        <div className="font-bold text-gray-800 line-clamp-2">
+                          {renderTextWithCitations(
+                            activeReport.sections?.opportunityThesis || activeReport.sections?.positioning,
+                            activeReport.sources
+                          ) || <span className="text-gray-400 italic font-normal">Analyzing market positioning...</span>}
+                        </div>
                       </div>
                       <div className="bg-[#F8F7F4] border border-black p-2.5 text-xs">
                         <span className="font-black text-gray-500 uppercase block text-[8px] mb-0.5">Intelligence Mode</span>
-                        <span className="font-bold text-gray-800 uppercase block">{currentReport.intelligenceMode?.replace(/_/g, ' ') || 'LOCAL DEMO'}</span>
+                        <span className="font-bold text-gray-800 uppercase block">
+                          {activeReport.intelligenceMode?.replace(/_/g, ' ') || 'LOCAL DEMO'}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <Link
-                    to={`/reports/${currentReport.id}`}
-                    className="neo-btn-primary py-2.5 w-full text-center mt-4 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2"
-                  >
-                    <FileText size={14} />
-                    <span>VIEW FULL STRATEGIC BRIEF ({currentReport.sources?.length || 0} SOURCES)</span>
-                  </Link>
+                  {currentReport ? (
+                    <Link
+                      to={`/reports/${currentReport.id}`}
+                      className="neo-btn-primary py-2.5 w-full text-center mt-4 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2"
+                    >
+                      <FileText size={14} />
+                      <span>VIEW FULL STRATEGIC BRIEF ({currentReport.sources?.length || 0} SOURCES)</span>
+                    </Link>
+                  ) : (
+                    <div className="bg-[#F8F7F4] border-2 border-black border-dashed py-2.5 text-center text-xs font-black uppercase tracking-wider text-gray-500 mt-4 select-none animate-pulse">
+                      Brief Compilation In Progress...
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center text-center p-8 text-gray-400 select-none flex-1">
@@ -453,26 +587,30 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
           </div>
 
           {/* Widget 5: Action Plan & Task Tracker (Full width below) */}
-          {currentReport && currentReport.sections.actionPlan && (
+          {activeReport && activeReport.sections?.actionPlan && (
             <div className="col-span-12">
-              <BentoCard title="Action Plan & Sprint Task Tracker" badge="Interactive Checklist" badgeColor="bg-[#C084FC]">
+              <BentoCard 
+                title="Action Plan & Sprint Task Tracker" 
+                badge={currentReport ? "Interactive Checklist" : "Drafting Tasks..."} 
+                badgeColor="bg-[#C084FC]"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* 7-Day Sprint Checklist */}
                   <div className="border-[3px] border-black p-4 bg-[#F8F7F4] space-y-3">
                     <h3 className="font-outfit font-black text-sm uppercase text-[#FB923C] border-b-2 border-black pb-1.5 flex items-center justify-between">
                       <span>7-Day Validation Sprint</span>
                       <span className="text-[10px] bg-white border border-black px-1.5 text-black font-mono">
-                        {currentReport.sections.actionPlan.sevenDaySprint?.filter(i => i.completed).length || 0} / {currentReport.sections.actionPlan.sevenDaySprint?.length || 0}
+                        {activeReport.sections.actionPlan.sevenDaySprint?.filter(i => i.completed).length || 0} / {activeReport.sections.actionPlan.sevenDaySprint?.length || 0}
                       </span>
                     </h3>
                     <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                      {currentReport.sections.actionPlan.sevenDaySprint?.map((item, idx) => (
+                      {activeReport.sections.actionPlan.sevenDaySprint?.map((item, idx) => (
                         <div 
                           key={item.id || idx}
-                          onClick={() => handleCheckboxToggle('sevenDaySprint', idx, !item.completed)}
-                          className="flex items-start gap-2.5 p-2 bg-white border-2 border-black hover:bg-white/80 active:translate-x-[1px] active:translate-y-[1px] cursor-pointer select-none transition-all"
+                          onClick={() => currentReport && handleCheckboxToggle('sevenDaySprint', idx, !item.completed)}
+                          className={`flex items-start gap-2.5 p-2 bg-white border-2 border-black hover:bg-white/80 ${currentReport ? 'active:translate-x-[1px] active:translate-y-[1px] cursor-pointer' : 'cursor-wait'} select-none transition-all`}
                         >
-                          <button type="button" className="shrink-0 text-black mt-0.5">
+                          <button type="button" className="shrink-0 text-black mt-0.5" disabled={!currentReport}>
                             {item.completed ? (
                               <div className="bg-[#A3E635] border-2 border-black p-0.5"><Check size={12} strokeWidth={3} /></div>
                             ) : (
@@ -492,17 +630,17 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                     <h3 className="font-outfit font-black text-sm uppercase text-[#C084FC] border-b-2 border-black pb-1.5 flex items-center justify-between">
                       <span>30-Day Milestone Roadmap</span>
                       <span className="text-[10px] bg-white border border-black px-1.5 text-black font-mono">
-                        {currentReport.sections.actionPlan.thirtyDayRoadmap?.filter(i => i.completed).length || 0} / {currentReport.sections.actionPlan.thirtyDayRoadmap?.length || 0}
+                        {activeReport.sections.actionPlan.thirtyDayRoadmap?.filter(i => i.completed).length || 0} / {activeReport.sections.actionPlan.thirtyDayRoadmap?.length || 0}
                       </span>
                     </h3>
                     <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                      {currentReport.sections.actionPlan.thirtyDayRoadmap?.map((item, idx) => (
+                      {activeReport.sections.actionPlan.thirtyDayRoadmap?.map((item, idx) => (
                         <div 
                           key={item.id || idx}
-                          onClick={() => handleCheckboxToggle('thirtyDayRoadmap', idx, !item.completed)}
-                          className="flex items-start gap-2.5 p-2 bg-white border-2 border-black hover:bg-white/80 active:translate-x-[1px] active:translate-y-[1px] cursor-pointer select-none transition-all"
+                          onClick={() => currentReport && handleCheckboxToggle('thirtyDayRoadmap', idx, !item.completed)}
+                          className={`flex items-start gap-2.5 p-2 bg-white border-2 border-black hover:bg-white/80 ${currentReport ? 'active:translate-x-[1px] active:translate-y-[1px] cursor-pointer' : 'cursor-wait'} select-none transition-all`}
                         >
-                          <button type="button" className="shrink-0 text-black mt-0.5">
+                          <button type="button" className="shrink-0 text-black mt-0.5" disabled={!currentReport}>
                             {item.completed ? (
                               <div className="bg-[#A3E635] border-2 border-black p-0.5"><Check size={12} strokeWidth={3} /></div>
                             ) : (
@@ -522,17 +660,17 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                     <h3 className="font-outfit font-black text-sm uppercase text-[#F472B6] border-b-2 border-black pb-1.5 flex items-center justify-between">
                       <span>Risk Validation Checklist</span>
                       <span className="text-[10px] bg-white border border-black px-1.5 text-black font-mono">
-                        {currentReport.sections.actionPlan.validationChecklist?.filter(i => i.completed).length || 0} / {currentReport.sections.actionPlan.validationChecklist?.length || 0}
+                        {activeReport.sections.actionPlan.validationChecklist?.filter(i => i.completed).length || 0} / {activeReport.sections.actionPlan.validationChecklist?.length || 0}
                       </span>
                     </h3>
                     <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                      {currentReport.sections.actionPlan.validationChecklist?.map((item, idx) => (
+                      {activeReport.sections.actionPlan.validationChecklist?.map((item, idx) => (
                         <div 
                           key={item.id || idx}
-                          onClick={() => handleCheckboxToggle('validationChecklist', idx, !item.completed)}
-                          className="flex items-start gap-2.5 p-2 bg-white border-2 border-black hover:bg-white/80 active:translate-x-[1px] active:translate-y-[1px] cursor-pointer select-none transition-all"
+                          onClick={() => currentReport && handleCheckboxToggle('validationChecklist', idx, !item.completed)}
+                          className={`flex items-start gap-2.5 p-2 bg-white border-2 border-black hover:bg-white/80 ${currentReport ? 'active:translate-x-[1px] active:translate-y-[1px] cursor-pointer' : 'cursor-wait'} select-none transition-all`}
                         >
-                          <button type="button" className="shrink-0 text-black mt-0.5">
+                          <button type="button" className="shrink-0 text-black mt-0.5" disabled={!currentReport}>
                             {item.completed ? (
                               <div className="bg-[#A3E635] border-2 border-black p-0.5"><Check size={12} strokeWidth={3} /></div>
                             ) : (
@@ -546,6 +684,51 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                       ))}
                     </div>
                   </div>
+                </div>
+              </BentoCard>
+            </div>
+          )}
+
+          {/* Widget 6: Verified Grounding Citations */}
+          {activeReport && activeReport.sources && activeReport.sources.length > 0 && (
+            <div className="col-span-12">
+              <BentoCard title="Verified Grounding Citations" badge={currentReport ? "References Assembled" : "Researching..."} badgeColor="bg-[#A3E635]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {activeReport.sources.map((source, index) => (
+                    <div 
+                      key={index} 
+                      id={`source-card-${index}`}
+                      className="border-[3px] border-black p-3.5 bg-white hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000000] transition-all duration-150 space-y-2 flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-black font-mono bg-[#A3E635] text-black border-2 border-black rounded-none">
+                            {index + 1}
+                          </span>
+                          <span className="text-[10px] font-black uppercase text-gray-500 bg-[#F8F7F4] border border-black px-1.5 py-0.5 max-w-[200px] truncate">
+                            {source.domain || (source.url ? new URL(source.url).hostname : 'source')}
+                          </span>
+                        </div>
+                        <h4 className="font-outfit font-black text-xs text-black uppercase mt-2 line-clamp-1">
+                          {source.title}
+                        </h4>
+                        <p className="text-[11px] font-semibold text-gray-600 line-clamp-2 mt-1">
+                          {source.summary || source.snippet || 'Verified web reference for strategy grounding.'}
+                        </p>
+                      </div>
+                      {source.url && (
+                        <a 
+                          href={source.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="inline-flex items-center gap-1 text-[10px] font-black uppercase underline text-[#C084FC] hover:text-black mt-2 self-start cursor-pointer"
+                        >
+                          <span>Visit Source</span>
+                          <ExternalLink size={10} strokeWidth={3} />
+                        </a>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </BentoCard>
             </div>

@@ -639,3 +639,35 @@ test('parseJsonSafely parses robustly and avoids corruption on double slashes', 
     assert.equal(res3.success, true);
 });
 
+test('orchestrator processInquiry caches subsequent identical queries', async () => {
+    const orchestrator = new GeminiBIOrchestrator({ apiKey: '' });
+    
+    // First inquiry
+    const t0 = Date.now();
+    const report1 = await orchestrator.processInquiry('Analyze cafe GTM', {
+        founderProfile: testProfile,
+        reportOptions: { reportType: 'idea_validation', audience: 'founder', timeHorizon: '30_days' }
+    });
+    const d0 = Date.now() - t0;
+    
+    // Second identical inquiry (should hit cache)
+    const t1 = Date.now();
+    const report2 = await orchestrator.processInquiry('Analyze cafe GTM', {
+        founderProfile: testProfile,
+        reportOptions: { reportType: 'idea_validation', audience: 'founder', timeHorizon: '30_days' }
+    });
+    const d1 = Date.now() - t1;
+    
+    assert.deepEqual(report1, report2);
+    // Cache hit should be extremely fast (generally <5ms, definitely <50ms)
+    assert.ok(d1 < 50, `Cached call took ${d1}ms which is too slow`);
+});
+
+test('prompts contain temporal date anchoring for 2026', () => {
+    const { REACT_RESEARCHER_PROMPT, RESEARCHER_PROMPT } = require('../lib/intelligence/prompts');
+    
+    assert.ok(RESEARCHER_PROMPT.includes('2026'), 'RESEARCHER_PROMPT must anchor to 2026');
+    assert.ok(REACT_RESEARCHER_PROMPT.includes('2026'), 'REACT_RESEARCHER_PROMPT must anchor to 2026');
+});
+
+

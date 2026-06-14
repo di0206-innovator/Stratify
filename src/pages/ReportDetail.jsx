@@ -96,6 +96,62 @@ export default function ReportDetail() {
     }
   };
 
+  const renderTextWithCitations = (text, sources = []) => {
+    if (!text) return null;
+    const regex = /(?:\[Source\s+(\d+)\]|\[(\d+)\])/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    
+    while ((match = regex.exec(text)) !== null) {
+      const matchIndex = match.index;
+      const sourceNum = parseInt(match[1] || match[2], 10);
+      
+      if (matchIndex > lastIndex) {
+        parts.push(text.substring(lastIndex, matchIndex));
+      }
+      
+      const source = sources[sourceNum - 1];
+      if (source) {
+        parts.push(
+          <a
+            key={matchIndex}
+            href={source.url || '#'}
+            target={source.url ? "_blank" : undefined}
+            rel={source.url ? "noopener noreferrer" : undefined}
+            title={`${source.title}: ${source.summary}`}
+            className="inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 text-[9px] font-black font-mono bg-[#A3E635] text-black border border-black hover:bg-black hover:text-white transition-colors cursor-pointer rounded-sm align-middle leading-none"
+            onClick={(e) => {
+              if (!source.url) {
+                e.preventDefault();
+                const citationEl = document.getElementById(`source-card-${sourceNum - 1}`);
+                if (citationEl) {
+                  citationEl.scrollIntoView({ behavior: 'smooth' });
+                  citationEl.classList.add('ring-4', 'ring-[#C084FC]');
+                  setTimeout(() => {
+                    citationEl.classList.remove('ring-4', 'ring-[#C084FC]');
+                  }, 2000);
+                }
+              }
+            }}
+          >
+            {sourceNum}
+          </a>
+        );
+      } else {
+        parts.push(match[0]);
+      }
+      
+      lastIndex = regex.lastIndex;
+    }
+    
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts;
+  };
+
   // Helper to parse simple markdown to HTML elements safely (headings, paragraphs, lists, highlights)
   const renderSimpleMarkdown = (mdText) => {
     if (!mdText) return null;
@@ -106,20 +162,20 @@ export default function ReportDetail() {
 
       // Headings
       if (trimmed.startsWith('# ')) {
-        return <h1 key={index} className="text-2xl md:text-3xl font-black uppercase mt-6 mb-3 border-b-4 border-black pb-2">{trimmed.substring(2)}</h1>;
+        return <h1 key={index} className="text-2xl md:text-3xl font-black uppercase mt-6 mb-3 border-b-4 border-black pb-2">{renderTextWithCitations(trimmed.substring(2), report.sources)}</h1>;
       }
       if (trimmed.startsWith('## ')) {
-        return <h2 key={index} className="text-xl md:text-2xl font-black uppercase mt-5 mb-2.5 text-[#C084FC]">{trimmed.substring(3)}</h2>;
+        return <h2 key={index} className="text-xl md:text-2xl font-black uppercase mt-5 mb-2.5 text-[#C084FC]">{renderTextWithCitations(trimmed.substring(3), report.sources)}</h2>;
       }
       if (trimmed.startsWith('### ')) {
-        return <h3 key={index} className="text-lg font-black uppercase mt-4 mb-2">{trimmed.substring(4)}</h3>;
+        return <h3 key={index} className="text-lg font-black uppercase mt-4 mb-2">{renderTextWithCitations(trimmed.substring(4), report.sources)}</h3>;
       }
 
       // Blockquotes / Warnings
       if (trimmed.startsWith('> ')) {
         return (
           <blockquote key={index} className="border-l-[6px] border-black bg-[#F8F7F4] p-4 font-semibold my-4 select-text leading-relaxed">
-            {trimmed.substring(2)}
+            {renderTextWithCitations(trimmed.substring(2), report.sources)}
           </blockquote>
         );
       }
@@ -128,7 +184,7 @@ export default function ReportDetail() {
       if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
         return (
           <li key={index} className="ml-6 list-disc font-semibold text-sm md:text-base text-gray-800 mb-1.5 leading-relaxed">
-            {trimmed.substring(2)}
+            {renderTextWithCitations(trimmed.substring(2), report.sources)}
           </li>
         );
       }
@@ -136,7 +192,7 @@ export default function ReportDetail() {
       // Regular paragraphs
       return (
         <p key={index} className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed mb-4">
-          {trimmed}
+          {renderTextWithCitations(trimmed, report.sources)}
         </p>
       );
     });
@@ -247,17 +303,17 @@ export default function ReportDetail() {
                 {/* Thesis Section */}
                 <div className="space-y-2">
                   <h2 className="text-lg font-black uppercase text-black border-l-4 border-[#A3E635] pl-2">Executive Snapshot</h2>
-                  <p className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed bg-[#F8F7F4] p-4 border-2 border-black border-dashed">
-                    {report.sections.executiveSnapshot || report.sections.thesis}
-                  </p>
+                  <div className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed bg-[#F8F7F4] p-4 border-2 border-black border-dashed">
+                    {renderTextWithCitations(report.sections.executiveSnapshot || report.sections.thesis, report.sources)}
+                  </div>
                 </div>
 
                 {/* Opportunity Wedge & Positioning */}
                 <div className="space-y-2">
                   <h2 className="text-lg font-black uppercase text-black border-l-4 border-[#C084FC] pl-2">Opportunity Wedge & Positioning</h2>
-                  <p className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed bg-white p-4 border-[3px] border-black shadow-neo-hard">
-                    {report.sections.opportunityThesis || report.sections.positioning}
-                  </p>
+                  <div className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed bg-white p-4 border-[3px] border-black shadow-neo-hard">
+                    {renderTextWithCitations(report.sections.opportunityThesis || report.sections.positioning, report.sources)}
+                  </div>
                 </div>
 
                 {/* Report-Type-Specific Sections */}
@@ -285,9 +341,9 @@ export default function ReportDetail() {
                       <h2 className="text-lg font-black uppercase text-black border-l-4 border-[#FB923C] pl-2">
                         {sectionLabels[key] || key.replace(/([A-Z])/g, ' $1').toUpperCase()}
                       </h2>
-                      <p className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed">
-                        {content}
-                      </p>
+                      <div className="text-sm md:text-base font-semibold font-inter text-gray-800 leading-relaxed">
+                        {renderTextWithCitations(content, report.sources)}
+                      </div>
                     </div>
                   );
                 })}
@@ -300,7 +356,7 @@ export default function ReportDetail() {
                       {report.sections.marketSignals.map((sig, idx) => (
                         <div key={idx} className="border-2 border-black p-3.5 bg-[#F8F7F4] text-xs sm:text-sm font-semibold text-gray-800 flex gap-2">
                           <span className="text-[#FB923C] font-black font-mono shrink-0 select-none">[{idx + 1}]</span>
-                          <span className="font-inter leading-relaxed">{sig}</span>
+                          <span className="font-inter leading-relaxed">{renderTextWithCitations(sig, report.sources)}</span>
                         </div>
                       ))}
                     </div>
@@ -318,7 +374,7 @@ export default function ReportDetail() {
                             REC {idx + 1}
                           </div>
                           <span className="text-xs sm:text-sm font-semibold font-inter text-gray-700 leading-relaxed">
-                            {rec}
+                            {renderTextWithCitations(rec, report.sources)}
                           </span>
                         </li>
                       ))}
@@ -335,7 +391,7 @@ export default function ReportDetail() {
                       <ul className="space-y-1.5">
                         {report.sections.risks.map((risk, idx) => (
                           <li key={idx} className="text-xs font-semibold font-inter text-gray-700 leading-relaxed pl-3 border-l-2 border-[#F472B6]">
-                            {risk}
+                            {renderTextWithCitations(risk, report.sources)}
                           </li>
                         ))}
                       </ul>
@@ -349,7 +405,7 @@ export default function ReportDetail() {
                       <ul className="space-y-1.5">
                         {report.sections.assumptions.map((ass, idx) => (
                           <li key={idx} className="text-xs font-semibold font-inter text-gray-700 leading-relaxed pl-3 border-l-2 border-[#C084FC]">
-                            {ass}
+                            {renderTextWithCitations(ass, report.sources)}
                           </li>
                         ))}
                       </ul>
@@ -473,7 +529,8 @@ export default function ReportDetail() {
                 {report.sources.map((source, index) => (
                   <div 
                     key={index} 
-                    className="border-2 border-black p-3 bg-[#F8F7F4] hover:bg-white text-xs transition-colors"
+                    id={`source-card-${index}`}
+                    className="border-2 border-black p-3 bg-[#F8F7F4] hover:bg-white text-xs transition-all duration-150"
                   >
                     <div className="flex items-center justify-between gap-2 border-b border-gray-300 pb-1.5 mb-2 select-none">
                       <span className="neo-badge text-[8px] bg-white border-2 border-black font-black font-mono">
