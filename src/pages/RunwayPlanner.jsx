@@ -12,6 +12,7 @@ export default function RunwayPlanner() {
   const [projections, setProjections] = useState([]);
   const [runwayMonths, setRunwayMonths] = useState(null);
   const [defaultAlive, setDefaultAlive] = useState(false);
+  const [hoveredMonth, setHoveredMonth] = useState(null);
 
   useEffect(() => {
     calculateFinancials();
@@ -310,6 +311,173 @@ export default function RunwayPlanner() {
 
           {/* Widget 4: Month-by-month cash flow projections */}
           <BentoCard title="Cash Balance Projections" badge="24-Month Forecast" badgeColor="bg-cyan-400" className="flex-1">
+            {/* Interactive SVG Chart */}
+            <div className="border-[3px] border-black p-4 bg-white mb-4">
+              {/* Dynamic Tooltip */}
+              <div className="border-2 border-black bg-[#F8F7F4] p-2.5 mb-4 select-none min-h-[50px] flex items-center justify-center">
+                {hoveredMonth !== null && projections[hoveredMonth] ? (
+                  <div className="flex w-full justify-between items-center text-xs font-semibold px-2">
+                    <div>
+                      <span className="text-[9px] font-black text-gray-500 uppercase block">Period</span>
+                      <span className="font-outfit font-black text-sm uppercase text-black">Month {projections[hoveredMonth].month}</span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] font-black text-gray-500 uppercase block">Projected Cash</span>
+                      <span className="font-mono font-bold text-sm text-black">
+                        {projections[hoveredMonth].cash <= 0 ? 'DEPLETED' : formatCurrency(projections[hoveredMonth].cash)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] font-black text-gray-500 uppercase block">Net Flow</span>
+                      <span className={`font-mono font-bold text-sm ${projections[hoveredMonth].netBurn > 0 ? 'text-[#F472B6]' : 'text-[#A3E635]'}`}>
+                        {projections[hoveredMonth].netBurn > 0 ? '-' : '+'}{formatCurrency(Math.abs(projections[hoveredMonth].netBurn))}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-[10px] text-gray-500 font-black uppercase tracking-wider">
+                    Hover over forecast bars below to analyze monthly metrics
+                  </div>
+                )}
+              </div>
+
+              {/* Responsive SVG Grid */}
+              <div className="w-full overflow-x-auto">
+                <svg viewBox="0 0 600 180" className="w-full min-w-[500px] h-auto overflow-visible">
+                  {/* Grid Lines */}
+                  {[0, 0.25, 0.5, 0.75, 1].map((ratio, idx) => {
+                    const maxCash = Math.max(...projections.map(p => p.cash), 10000);
+                    const paddingTop = 20;
+                    const chartHeight = 135;
+                    const paddingLeft = 60;
+                    const paddingRight = 20;
+                    const width = 600;
+                    
+                    const y = paddingTop + chartHeight * (1 - ratio);
+                    const val = ratio * maxCash;
+                    return (
+                      <g key={idx}>
+                        <line 
+                          x1={paddingLeft} 
+                          y1={y} 
+                          x2={width - paddingRight} 
+                          y2={y} 
+                          stroke="#E4E4E7" 
+                          strokeWidth="1" 
+                          strokeDasharray="4 4" 
+                        />
+                        <text 
+                          x={paddingLeft - 8} 
+                          y={y + 3} 
+                          textAnchor="end" 
+                          className="font-mono text-[9px] fill-gray-500 font-bold"
+                        >
+                          {formatCurrency(val)}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Axis lines */}
+                  <line 
+                    x1={60} 
+                    y1={20} 
+                    x2={60} 
+                    y2={155} 
+                    stroke="#000000" 
+                    strokeWidth="3" 
+                  />
+                  <line 
+                    x1={60} 
+                    y1={155} 
+                    x2={580} 
+                    y2={155} 
+                    stroke="#000000" 
+                    strokeWidth="3" 
+                  />
+
+                  {/* Bars */}
+                  {projections.map((p, idx) => {
+                    const maxCash = Math.max(...projections.map(p => p.cash), 10000);
+                    const chartWidth = 500;
+                    const chartHeight = 135;
+                    const paddingLeft = 60;
+                    const paddingBottom = 25;
+                    const height = 180;
+                    
+                    const barW = (chartWidth / 24) - 3;
+                    const x = paddingLeft + idx * (chartWidth / 24) + 1.5;
+                    const maxProjCash = maxCash || 1;
+                    const barH = (p.cash / maxProjCash) * chartHeight;
+                    const y = height - paddingBottom - barH;
+                    
+                    let barColor = 'fill-[#C084FC]'; // Lavender
+                    if (p.isDeficit || p.cash <= 0) {
+                      barColor = 'fill-[#F472B6]'; // Pink (Depleted)
+                    } else if (p.netBurn <= 0) {
+                      barColor = 'fill-[#A3E635]'; // Lime (Default Alive)
+                    } else if (idx < 6 && runwayMonths < 6) {
+                      barColor = 'fill-[#FB923C]'; // Orange (Critical Warning)
+                    }
+
+                    const isHovered = hoveredMonth === idx;
+
+                    return (
+                      <g 
+                        key={p.month}
+                        onMouseEnter={() => setHoveredMonth(idx)}
+                        onMouseLeave={() => setHoveredMonth(null)}
+                      >
+                        <rect
+                          x={x}
+                          y={y}
+                          width={barW}
+                          height={Math.max(2, barH)}
+                          className={`${barColor} stroke-black stroke-2 transition-all duration-150`}
+                          style={{
+                            transformOrigin: `${x + barW / 2}px ${height - paddingBottom}px`,
+                            transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                            filter: isHovered ? 'drop-shadow(2px 2px 0px rgba(0,0,0,1))' : 'none'
+                          }}
+                        />
+                        {/* Hidden rect for easier mouse interactions */}
+                        <rect
+                          x={x - 1}
+                          y={20}
+                          width={barW + 2}
+                          height={145}
+                          fill="transparent"
+                          className="cursor-pointer"
+                        />
+                      </g>
+                    );
+                  })}
+
+                  {/* X Axis Labels */}
+                  {projections.filter(p => p.month % 3 === 0 || p.month === 1).map((p) => {
+                    const chartWidth = 500;
+                    const paddingLeft = 60;
+                    const paddingBottom = 25;
+                    const height = 180;
+                    const idxInArray = p.month - 1;
+                    const x = paddingLeft + idxInArray * (chartWidth / 24) + ((chartWidth / 24) / 2);
+                    return (
+                      <text 
+                        key={p.month} 
+                        x={x} 
+                        y={height - paddingBottom + 14} 
+                        textAnchor="middle" 
+                        className="font-outfit font-black text-[9px] fill-black uppercase tracking-tighter"
+                      >
+                        M{p.month}
+                      </text>
+                    );
+                  })}
+                </svg>
+              </div>
+            </div>
+
+            {/* Existing forecast breakdown table */}
             <div className="border-[3px] border-black overflow-hidden bg-white">
               <div className="overflow-y-auto max-h-[300px] scrollbar-thin">
                 <table className="w-full text-left font-inter border-collapse">

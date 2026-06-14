@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield } from 'lucide-react';
+import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield, Sun, Moon, Terminal } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { auth, signOut } from '../firebase';
 
-export default function Navbar({ founderProfile, user, setUser, openAuthModal }) {
+export default function Navbar({ founderProfile, user, setUser, openAuthModal, theme, setTheme }) {
   const location = useLocation();
 
   const navItems = [
@@ -42,7 +42,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal })
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#F8F7F4] border-b-[3px] border-black select-none">
+    <header className="sticky top-0 z-40 w-full bg-neo-canvas border-b-[3px] border-black select-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 min-h-[4.75rem] flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
@@ -78,6 +78,30 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal })
 
         {/* Profile indicator & User Authentication */}
         <div className="flex items-center gap-3.5 flex-wrap sm:flex-nowrap">
+          {/* Theme Toggler Buttons */}
+          <div className="flex items-center border-[3px] border-black bg-white select-none shadow-neo-button">
+            <button
+              onClick={() => setTheme('light')}
+              className={`p-1.5 transition-colors ${theme === 'light' ? 'bg-[#A3E635]' : 'hover:bg-gray-100'} border-r-2 border-black cursor-pointer`}
+              title="Light Mode"
+            >
+              <Sun size={13} className="text-black" />
+            </button>
+            <button
+              onClick={() => setTheme('dark')}
+              className={`p-1.5 transition-colors ${theme === 'dark' ? 'bg-[#C084FC]' : 'hover:bg-gray-100'} border-r-2 border-black cursor-pointer`}
+              title="Cyberpunk Dark"
+            >
+              <Moon size={13} className="text-black" />
+            </button>
+            <button
+              onClick={() => setTheme('retro')}
+              className={`p-1.5 transition-colors ${theme === 'retro' ? 'bg-[#FB923C]' : 'hover:bg-gray-100'} cursor-pointer`}
+              title="Matrix Retro"
+            >
+              <Terminal size={13} className="text-black" />
+            </button>
+          </div>
           {founderProfile ? (
             <Link
               to="/onboarding"

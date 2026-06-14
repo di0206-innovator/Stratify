@@ -48,6 +48,14 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('neuralbi_theme') || 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('neuralbi_theme', theme);
+  }, [theme]);
 
   const openAuthModal = () => setIsAuthModalOpen(true);
 
@@ -121,8 +129,8 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8F7F4] flex flex-col items-center justify-center p-4">
-        <div className="w-12 h-12 border-[4px] border-black border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-neo-canvas flex flex-col items-center justify-center p-4">
+        <div className="w-12 h-12 border-[4px] border-neo-black border-t-transparent rounded-full animate-spin"></div>
         <h2 className="font-outfit font-black uppercase text-xs tracking-wider mt-4">BOOTING FOUNDER STRATEGY OS...</h2>
       </div>
     );
@@ -130,10 +138,10 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-[#F8F7F4] flex flex-col justify-between">
+      <div className="min-h-screen bg-neo-canvas flex flex-col justify-between">
         <div>
           {/* Top Navigation */}
-          <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} />
+          <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} theme={theme} setTheme={setTheme} />
 
           {/* Main Pages */}
           <main className="pb-16">
@@ -217,7 +225,7 @@ export default function App() {
         </div>
 
         {/* Footer */}
-        <footer className="w-full bg-[#F8F7F4] border-t-[3px] border-black py-4 select-none">
+        <footer className="w-full bg-neo-canvas border-t-[3px] border-black py-4 select-none">
           <div className="max-w-7xl mx-auto px-4 text-center">
             <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-gray-500">
               © {new Date().getFullYear()} NEURALBI LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.
