@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp } from 'lucide-react';
+import confetti from 'canvas-confetti';
+import { auth, signOut } from '../firebase';
 
-export default function Navbar({ founderProfile }) {
+export default function Navbar({ founderProfile, user, setUser, openAuthModal }) {
   const location = useLocation();
 
   const navItems = [
@@ -11,6 +13,21 @@ export default function Navbar({ founderProfile }) {
     { path: '/runway', label: 'Runway Planner', icon: TrendingUp },
     { path: '/reports', label: 'Reports', icon: FileText },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setUser(null);
+      confetti({
+        particleCount: 30,
+        spread: 30,
+        colors: ['#000', '#F8F7F4']
+      });
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#F8F7F4] border-b-[3px] border-black select-none">
@@ -47,8 +64,8 @@ export default function Navbar({ founderProfile }) {
           })}
         </nav>
 
-        {/* Profile indicator */}
-        <div className="flex items-center gap-3">
+        {/* Profile indicator & User Authentication */}
+        <div className="flex items-center gap-2">
           {founderProfile ? (
             <Link
               to="/onboarding"
@@ -64,6 +81,27 @@ export default function Navbar({ founderProfile }) {
             >
               Set Profile
             </Link>
+          )}
+
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="hidden lg:inline-block text-[10px] font-black uppercase border-[3px] border-black px-2.5 py-2 bg-white select-none">
+                {user.username || user.email}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="px-3 py-2 bg-neo-pink border-[3px] border-black text-xs font-black uppercase shadow-neo-button hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[3px] active:translate-y-[3px] transition-all cursor-pointer"
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={openAuthModal}
+              className="px-3 py-2 bg-neo-lime border-[3px] border-black text-xs font-black uppercase shadow-neo-button hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[3px] active:translate-y-[3px] transition-all cursor-pointer"
+            >
+              Sign In
+            </button>
           )}
         </div>
       </div>

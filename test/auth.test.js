@@ -228,3 +228,126 @@ test('login attempts are rate limited', async () => {
         server.close();
     }
 });
+
+test('verifyFirebaseToken rejects invalid or expired tokens', async () => {
+    const { verifyFirebaseToken } = require('../lib/auth');
+    
+    // 1. Rejects empty token
+    assert.equal(await verifyFirebaseToken('', 'project-123'), null);
+    
+    // 2. Rejects malformed token
+    assert.equal(await verifyFirebaseToken('abc.def', 'project-123'), null);
+    
+    // Helper to generate a dummy JWT
+    const makeToken = (headerObj, payloadObj) => {
+        const h = Buffer.from(JSON.stringify(headerObj)).toString('base64url');
+        const p = Buffer.from(JSON.stringify(payloadObj)).toString('base64url');
+        return `${h}.${p}.signature`;
+    };
+
+    // 3. Rejects expired tokens
+    const expiredToken = makeToken({ alg: 'RS256', kid: '1' }, {
+        exp: Math.floor(Date.now() / 1000) - 10,
+        iss: 'https://securetoken.google.com/project-123',
+        aud: 'project-123',
+        sub: 'user-1'
+    });
+    assert.equal(await verifyFirebaseToken(expiredToken, 'project-123'), null);
+
+    // 4. Rejects future iat tokens
+    const futureIatToken = makeToken({ alg: 'RS256', kid: '1' }, {
+        exp: Math.floor(Date.now() / 1000) + 3600,
+        iat: Math.floor(Date.now() / 1000) + 600, // 10 minutes in the future
+        iss: 'https://securetoken.google.com/project-123',
+        aud: 'project-123',
+        sub: 'user-1'
+    });
+    assert.equal(await verifyFirebaseToken(futureIatToken, 'project-123'), null);
+
+    // 5. Rejects issuer mismatch
+    const badIssuerToken = makeToken({ alg: 'RS256', kid: '1' }, {
+        exp: Math.floor(Date.now() / 1000) + 3600,
+        iat: Math.floor(Date.now() / 1000) - 10,
+        iss: 'https://securetoken.google.com/bad-project',
+        aud: 'project-123',
+        sub: 'user-1'
+    });
+    assert.equal(await verifyFirebaseToken(badIssuerToken, 'project-123'), null);
+
+    // 6. Rejects audience mismatch
+    const badAudienceToken = makeToken({ alg: 'RS256', kid: '1' }, {
+        exp: Math.floor(Date.now() / 1000) + 3600,
+        iat: Math.floor(Date.now() / 1000) - 10,
+        iss: 'https://securetoken.google.com/project-123',
+        aud: 'bad-project',
+        sub: 'user-1'
+    });
+    assert.equal(await verifyFirebaseToken(badAudienceToken, 'project-123'), null);
+});
+
+test('canAccessReport security permissions', () => {
+    const { canAccessReport } = require('../lib/reportStore');
+
+    const unownedReport = { id: 'r1', ownerId: null };
+    const ownedReport = { id: 'r2', ownerId: 'user-123' };
+
+    // 1. Unowned reports are accessible by anyone
+    assert.equal(canAccessReport(unownedReport, null), true);
+    assert.equal(canAccessReport(unownedReport, 'user-123'), true);
+    assert.equal(canAccessReport(unownedReport, 'api-token'), true);
+
+    // 2. Owned reports are NOT accessible by guests (null/undefined userId)
+    assert.equal(canAccessReport(ownedReport, null), false);
+    assert.equal(canAccessReport(ownedReport, undefined), false);
+
+    // 3. Owned reports are accessible by their owner
+    assert.equal(canAccessReport(ownedReport, 'user-123'), true);
+
+    // 4. Owned reports are NOT accessible by other users
+    assert.equal(canAccessReport(ownedReport, 'user-456'), false);
+
+    // 5. Owned reports are accessible by the system (api-token)
+    assert.equal(canAccessReport(ownedReport, 'api-token'), true);
+});
+
+test('Firebase user syncing to local auth store', async () => {
+    const { AuthService } = require('../lib/authService');
+    const authStore = new MemoryAuthStore();
+    const service = new AuthService({
+        store: authStore,
+        config: { sessionTtlMs: 360000 },
+        logger: silentLogger
+    });
+
+    const fbUser = {
+        id: 'firebase-uid-123',
+        email: 'fb-user@example.com',
+        name: 'Firebase User',
+        emailVerified: true
+    };
+
+    // 1. Initially, user should not exist
+    let found = await service.findUserById(fbUser.id);
+    assert.equal(found, null);
+
+    // 2. Syncing should add the user
+    let updateCount = 0;
+    const originalUpdate = authStore.update.bind(authStore);
+    authStore.update = async (mutator) => {
+        updateCount++;
+        return originalUpdate(mutator);
+    };
+
+    await service.syncFirebaseUser(fbUser);
+    assert.equal(updateCount, 1);
+
+    found = await service.findUserById(fbUser.id);
+    assert.ok(found);
+    assert.equal(found.id, fbUser.id);
+    assert.equal(found.email, 'fb-user@example.com');
+    assert.equal(found.name, 'Firebase User');
+
+    // 3. Subsequent sync with same user should use in-memory cache and not touch the store
+    await service.syncFirebaseUser(fbUser);
+    assert.equal(updateCount, 1); // updateCount should remain 1!
+});

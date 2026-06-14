@@ -612,3 +612,30 @@ test('TavilySearchProvider extract method falls back to direct fetch', async () 
     assert.ok(fetchCalledUrls.includes('https://fallback-url.com'));
 });
 
+test('parseJsonSafely parses robustly and avoids corruption on double slashes', () => {
+    const { parseJsonSafely } = require('../lib/intelligence/orchestrator');
+
+    // 1. Standard valid JSON
+    const res1 = parseJsonSafely('{"key": "value"}');
+    assert.equal(res1.key, 'value');
+
+    // 2. JSON with comments and trailing commas
+    const dirtyJson = `{
+        // line comment
+        "url": "https://example.com/api", /* inline comment */
+        "text": "contains // double slash and no comment",
+        "nested": {
+            "arr": [1, 2, 3,], // trailing comma in array
+        },
+    }`;
+    const res2 = parseJsonSafely(dirtyJson);
+    assert.equal(res2.url, 'https://example.com/api');
+    assert.equal(res2.text, 'contains // double slash and no comment');
+    assert.deepEqual(res2.nested.arr, [1, 2, 3]);
+
+    // 3. JSON wrapped in markdown
+    const mdJson = '\`\`\`json\n{"success": true}\n\`\`\`';
+    const res3 = parseJsonSafely(mdJson);
+    assert.equal(res3.success, true);
+});
+

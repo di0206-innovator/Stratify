@@ -262,6 +262,11 @@ function createApp(options = {}) {
                 throw new HttpError(404, 'REPORT_NOT_FOUND', 'Report not found.');
             }
 
+            // Assign ownership to the authenticated user if it was anonymous/unowned
+            if (!report.ownerId && req.user && req.user.id && req.user.id !== 'api-token') {
+                report.ownerId = req.user.id;
+            }
+
             if (req.body && req.body.sections) {
                 if (req.body.sections.actionPlan) {
                     report.sections.actionPlan = req.body.sections.actionPlan;

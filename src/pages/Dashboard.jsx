@@ -8,7 +8,7 @@ import confetti from 'canvas-confetti';
 import BentoCard from '../components/BentoCard';
 import AgentConsole from '../components/AgentConsole';
 
-export default function Dashboard({ founderProfile, currentReport, setCurrentReport }) {
+export default function Dashboard({ founderProfile, currentReport, setCurrentReport, user, openAuthModal }) {
   const [query, setQuery] = useState('');
   const [reportType, setReportType] = useState('idea_validation');
   const [focusArea, setFocusArea] = useState('market');
@@ -356,6 +356,23 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                     />
                   </div>
                 </div>
+
+                {/* Auth Prompt for Anonymous User */}
+                {!user && (
+                  <div className="bg-[#FB923C]/10 border-2 border-black border-dashed p-3 text-xs font-semibold text-gray-800 space-y-2">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle size={16} className="shrink-0 text-[#FB923C] mt-0.5" />
+                      <span>You are running in guest mode. Strategy reports generated won't be saved to your permanent library.</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={openAuthModal}
+                      className="w-full bg-white hover:bg-gray-100 border-2 border-black text-black font-black py-1.5 active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none transition-all text-[10px] uppercase tracking-wide cursor-pointer"
+                    >
+                      Sign In / Sign Up
+                    </button>
+                  </div>
+                )}
 
                 {/* Error Banner */}
                 {streamError && (

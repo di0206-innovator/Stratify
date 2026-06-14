@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import AuthModal from './components/AuthModal';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Signals from './pages/Signals';
@@ -17,10 +18,22 @@ window.fetch = async (url, options = {}) => {
   if (currentUser) {
     try {
       const token = await currentUser.getIdToken();
-      options.headers = {
-        ...options.headers,
-        'Authorization': `Bearer ${token}`
-      };
+      if (!options.headers) {
+        options.headers = {};
+      }
+      if (options.headers instanceof Headers) {
+        options.headers.set('Authorization', `Bearer ${token}`);
+      } else if (Array.isArray(options.headers)) {
+        const hasAuth = options.headers.some(([key]) => key.toLowerCase() === 'authorization');
+        if (!hasAuth) {
+          options.headers.push(['Authorization', `Bearer ${token}`]);
+        }
+      } else {
+        options.headers = {
+          ...options.headers,
+          'Authorization': `Bearer ${token}`
+        };
+      }
     } catch (e) {
       console.warn('Failed to retrieve Firebase ID token for request:', e);
     }
@@ -33,9 +46,37 @@ export default function App() {
   const [currentReport, setCurrentReport] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  const openAuthModal = () => setIsAuthModalOpen(true);
+
+  const checkSession = async (firebaseUser) => {
+    try {
+      const res = await fetch('/api/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (e) {
+      console.warn('Backend server is not running or unreachable.');
+      if (firebaseUser) {
+        setUser({
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          username: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+          emailVerified: firebaseUser.emailVerified
+        });
+      } else {
+        setUser(null);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Load founder profile from local storage if preset
     const cachedProfile = localStorage.getItem('neuralbi_founder_profile');
     if (cachedProfile) {
       try {
@@ -45,40 +86,37 @@ export default function App() {
       }
     }
 
-    // Check backend active session or Firebase session
-    const checkSession = async (firebaseUser) => {
-      try {
-        const res = await fetch('/api/auth/me');
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        } else {
-          setUser(null);
-        }
-      } catch (e) {
-        console.warn('Backend server is not running or unreachable.');
-        if (firebaseUser) {
-          setUser({
-            id: firebaseUser.uid,
-            email: firebaseUser.email,
-            username: firebaseUser.displayName || firebaseUser.email.split('@')[0],
-            emailVerified: firebaseUser.emailVerified
-          });
-        } else {
-          setUser(null);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Listen to Firebase Auth state changes
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       checkSession(firebaseUser);
     });
 
     return () => unsubscribe();
   }, []);
+
+  // Claim anonymous reports on login
+  useEffect(() => {
+    const claimAnonymousReport = async () => {
+      if (user && currentReport && !currentReport.ownerId) {
+        try {
+          const res = await fetch(`/api/reports/${currentReport.id}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setCurrentReport(data.report);
+            console.log('Successfully claimed current anonymous brief for user:', user.email);
+          }
+        } catch (e) {
+          console.warn('Failed to auto-claim current report for logged-in user:', e);
+        }
+      }
+    };
+    claimAnonymousReport();
+  }, [user, currentReport]);
 
   if (loading) {
     return (
@@ -94,7 +132,7 @@ export default function App() {
       <div className="min-h-screen bg-[#F8F7F4] flex flex-col justify-between">
         <div>
           {/* Top Navigation */}
-          <Navbar founderProfile={founderProfile} />
+          <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} />
 
           {/* Main Pages */}
           <main className="pb-16">
@@ -108,6 +146,8 @@ export default function App() {
                       founderProfile={founderProfile} 
                       currentReport={currentReport}
                       setCurrentReport={setCurrentReport}
+                      user={user}
+                      openAuthModal={openAuthModal}
                     />
                   ) : (
                     <Navigate to="/onboarding" replace />
@@ -135,7 +175,7 @@ export default function App() {
               {/* Reports List */}
               <Route 
                 path="/reports" 
-                element={<Reports user={user} setUser={setUser} />} 
+                element={<Reports user={user} setUser={setUser} openAuthModal={openAuthModal} />} 
               />
 
               {/* Report Detail */}
@@ -165,6 +205,13 @@ export default function App() {
           </div>
         </footer>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+        onAuthSuccess={() => checkSession(auth.currentUser)} 
+      />
     </BrowserRouter>
   );
 }
