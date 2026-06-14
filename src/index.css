@@ -19,16 +19,16 @@
   }
 
   [data-theme="dark"] {
-    --color-canvas: #09090B;
-    --color-card: #18181B;
-    --color-text: #F4F4F5;
-    --color-border: #FAFAFA;
-    --color-grid: rgba(255, 255, 255, 0.08);
-    --color-shadow: #A3E635;
-    --color-lime: #A3E635;
-    --color-orange: #FB923C;
-    --color-lavender: #C084FC;
-    --color-pink: #F472B6;
+    --color-canvas: #090A0F;
+    --color-card: #131924;
+    --color-text: #F8FAFC;
+    --color-border: #334155;
+    --color-grid: rgba(99, 102, 241, 0.08);
+    --color-shadow: #6366F1;
+    --color-lime: #10B981;
+    --color-orange: #F59E0B;
+    --color-lavender: #8B5CF6;
+    --color-pink: #EC4899;
     --shadow-neo: 5px 5px 0px 0px var(--color-shadow);
     --shadow-neo-btn: 3px 3px 0px 0px var(--color-shadow);
   }
@@ -294,4 +294,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 
 [data-theme="dark"] .text-gray-800, [data-theme="retro"] .text-gray-800 {
   color: var(--color-text) !important;
+}
+
+/* Ensure colored buttons remain high contrast and legible in dark/retro modes */
+[data-theme="dark"] .neo-btn-primary, [data-theme="dark"] .neo-btn-accent, [data-theme="dark"] .neo-btn-lavender, [data-theme="dark"] .neo-btn-pink,
+[data-theme="retro"] .neo-btn-primary, [data-theme="retro"] .neo-btn-accent, [data-theme="retro"] .neo-btn-lavender, [data-theme="retro"] .neo-btn-pink {
+  color: #000000 !important;
 }
