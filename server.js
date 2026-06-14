@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
 const path = require('path');
 const crypto = require('crypto');
 const { GeminiBIOrchestrator } = require('./lib/intelligence/orchestrator');
@@ -65,6 +66,7 @@ function createApp(options = {}) {
 
     app.disable('x-powered-by');
     app.set('trust proxy', true);
+    app.use(compression());
     app.use(helmet({
         contentSecurityPolicy: {
             directives: {
