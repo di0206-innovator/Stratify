@@ -69,11 +69,12 @@ function createApp(options = {}) {
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
+                scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://apis.google.com", "https://*.firebaseapp.com", "'unsafe-inline'"],
                 styleSrc: ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
-                fontSrc: ["'self'", "https://fonts.gstatic.com"],
+                fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
                 imgSrc: ["'self'", "data:", "https:"],
-                connectSrc: ["'self'"]
+                connectSrc: ["'self'", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com", "https://*.googleapis.com", "https://*.firebaseapp.com"],
+                frameSrc: ["'self'", "https://*.firebaseapp.com", "https://*.google.com"]
             }
         }
     }));
