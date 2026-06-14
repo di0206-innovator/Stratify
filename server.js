@@ -64,6 +64,7 @@ function createApp(options = {}) {
     });
 
     app.disable('x-powered-by');
+    app.set('trust proxy', true);
     app.use(helmet({
         contentSecurityPolicy: {
             directives: {
@@ -301,10 +302,8 @@ function createApp(options = {}) {
             return next(new HttpError(401, 'UNAUTHORIZED', 'Authentication is required.'));
         }
         const email = req.user.email ? req.user.email.toLowerCase() : '';
-        const isAdmin = req.user.role === 'admin' || 
-                        email === 'divyanshu.b.sinha@gmail.com' || 
-                        email === 'divyanshusunstone@gmail.com' ||
-                        email.startsWith('admin@');
+        const adminEmails = appConfig.adminEmails || [];
+        const isAdmin = req.user.role === 'admin' || adminEmails.includes(email);
         if (!isAdmin) {
             return next(new HttpError(403, 'FORBIDDEN', 'Admin access is required.'));
         }

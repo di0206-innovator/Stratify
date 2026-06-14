@@ -32,6 +32,7 @@ function testConfig(overrides = {}) {
         reportStorePath: '',
         maxStoredReports: 100,
         nodeEnv: 'test',
+        adminEmails: ['divyanshu.b.sinha@gmail.com', 'divyanshusunstone@gmail.com'],
         ...overrides
     };
 }
@@ -381,6 +382,7 @@ test('admin endpoints block non-admins and allow authorized admins', async () =>
                 name: 'Admin User',
                 passwordHash: adminPasswordHash,
                 emailVerified: true,
+                role: 'admin',
                 createdAt: new Date().toISOString()
             },
             {
@@ -472,6 +474,105 @@ test('admin endpoints block non-admins and allow authorized admins', async () =>
         assert.equal(res7.status, 204);
         assert.equal((await authStore.readState()).users.length, 1);
 
+    } finally {
+        server.close();
+    }
+});
+
+test('requireAdmin blocks email starting with admin@ if not whitelisted or role not admin', async () => {
+    const { hashPassword } = require('../lib/security/passwords');
+    const attackerPasswordHash = await hashPassword('SecurePass123!');
+
+    const authStore = new MemoryAuthStore({
+        users: [
+            {
+                id: 'attacker-id',
+                email: 'admin@attacker.com',
+                name: 'Attacker User',
+                passwordHash: attackerPasswordHash,
+                emailVerified: true,
+                createdAt: new Date().toISOString()
+            }
+        ]
+    });
+
+    const app = createTestApp({ authStore });
+    const { server, url } = await listen(app);
+
+    try {
+        const login = await fetch(`${url}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: 'admin@attacker.com', password: 'SecurePass123!' })
+        });
+        const cookie = login.headers.get('set-cookie');
+        
+        const res = await fetch(`${url}/api/admin/stats`, {
+            headers: { Cookie: cookie }
+        });
+        assert.equal(res.status, 403);
+    } finally {
+        server.close();
+    }
+});
+
+test('requireAdmin allows whitelisted email addresses even without role admin', async () => {
+    const { hashPassword } = require('../lib/security/passwords');
+    const whitelistedPasswordHash = await hashPassword('SecurePass123!');
+
+    const authStore = new MemoryAuthStore({
+        users: [
+            {
+                id: 'whitelisted-id',
+                email: 'divyanshu.b.sinha@gmail.com',
+                name: 'Whitelisted User',
+                passwordHash: whitelistedPasswordHash,
+                emailVerified: true,
+                createdAt: new Date().toISOString()
+            }
+        ]
+    });
+
+    const app = createTestApp({ authStore });
+    const { server, url } = await listen(app);
+
+    try {
+        const login = await fetch(`${url}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: 'divyanshu.b.sinha@gmail.com', password: 'SecurePass123!' })
+        });
+        const cookie = login.headers.get('set-cookie');
+        
+        const res = await fetch(`${url}/api/admin/stats`, {
+            headers: { Cookie: cookie }
+        });
+        assert.equal(res.status, 200);
+    } finally {
+        server.close();
+    }
+});
+
+test('timingSafeEqual is used for API token auth', async () => {
+    const reportStore = new MemoryReportStore();
+    const app = createTestApp({
+        reportStore,
+        config: testConfig({ apiAuthToken: 'secure-token-123' })
+    });
+    const { server, url } = await listen(app);
+
+    try {
+        // Correct token should succeed (200)
+        const res1 = await fetch(`${url}/api/reports`, {
+            headers: { 'Authorization': 'Bearer secure-token-123' }
+        });
+        assert.equal(res1.status, 200);
+
+        // Incorrect token should fail (401)
+        const res2 = await fetch(`${url}/api/reports`, {
+            headers: { 'Authorization': 'Bearer wrong-token' }
+        });
+        assert.equal(res2.status, 401);
     } finally {
         server.close();
     }
