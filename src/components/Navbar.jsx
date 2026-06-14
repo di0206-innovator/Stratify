@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp } from 'lucide-react';
+import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { auth, signOut } from '../firebase';
 
@@ -13,6 +13,18 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal })
     { path: '/runway', label: 'Runway Planner', icon: TrendingUp },
     { path: '/reports', label: 'Reports', icon: FileText },
   ];
+
+  const email = user && user.email ? user.email.toLowerCase() : '';
+  const isAdmin = user && (
+    user.role === 'admin' || 
+    email === 'divyanshu.b.sinha@gmail.com' || 
+    email === 'divyanshusunstone@gmail.com' ||
+    email.startsWith('admin@')
+  );
+
+  const activeNavItems = isAdmin 
+    ? [...navItems, { path: '/admin', label: 'Admin Console', icon: Shield }]
+    : navItems;
 
   const handleLogout = async () => {
     try {
@@ -31,7 +43,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal })
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#F8F7F4] border-b-[3px] border-black select-none">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 min-h-[4.75rem] flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
           <div className="bg-[#A3E635] border-[3px] border-black px-3 py-1 font-outfit font-black text-lg tracking-tighter uppercase transform -rotate-2 group-hover:rotate-0 transition-transform shadow-neo-button">
@@ -43,8 +55,8 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal })
         </Link>
 
         {/* Navigation Tabs */}
-        <nav className="flex items-center gap-2 h-full py-2">
-          {navItems.map((item) => {
+        <nav className="flex items-center gap-3 h-full py-1.5 flex-wrap md:flex-nowrap">
+          {activeNavItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
             return (
@@ -65,7 +77,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal })
         </nav>
 
         {/* Profile indicator & User Authentication */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3.5 flex-wrap sm:flex-nowrap">
           {founderProfile ? (
             <Link
               to="/onboarding"

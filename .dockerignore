@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.gitignore
+.env
+.env.example
+*.log
+test
+scratch
+.gemini
+package-lock.json
+README.md
+screenshot.png

@@ -367,3 +367,112 @@ test('GET /api/dev/emails returns queued outbox emails in test/development mode'
         server.close();
     }
 });
+
+test('admin endpoints block non-admins and allow authorized admins', async () => {
+    const { hashPassword } = require('../lib/security/passwords');
+    const adminPasswordHash = await hashPassword('SecurePass123!');
+    const regularPasswordHash = await hashPassword('SecurePass123!');
+
+    const authStore = new MemoryAuthStore({
+        users: [
+            {
+                id: 'admin-id',
+                email: 'admin@neuralbi.io',
+                name: 'Admin User',
+                passwordHash: adminPasswordHash,
+                emailVerified: true,
+                createdAt: new Date().toISOString()
+            },
+            {
+                id: 'regular-id',
+                email: 'regular@example.com',
+                name: 'Regular User',
+                passwordHash: regularPasswordHash,
+                emailVerified: true,
+                createdAt: new Date().toISOString()
+            }
+        ]
+    });
+
+    const reportStore = new MemoryReportStore();
+    await reportStore.save({
+        id: 'r1',
+        title: 'Report 1',
+        generatedAt: new Date().toISOString(),
+        ownerId: 'regular-id',
+        sources: []
+    });
+
+    const app = createTestApp({ authStore, reportStore });
+    const { server, url } = await listen(app);
+
+    try {
+        // 1. Unauthenticated request to admin stats is blocked (401)
+        const res1 = await fetch(`${url}/api/admin/stats`);
+        assert.equal(res1.status, 401);
+
+        // 2. Regular user logs in and tries to access admin stats (blocked 403)
+        const regularLogin = await fetch(`${url}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: 'regular@example.com', password: 'SecurePass123!' })
+        });
+        const regCookie = regularLogin.headers.get('set-cookie');
+        
+        const res2 = await fetch(`${url}/api/admin/stats`, {
+            headers: { Cookie: regCookie }
+        });
+        assert.equal(res2.status, 403);
+
+        // 3. Admin user logs in and accesses admin stats (success 200)
+        const adminLogin = await fetch(`${url}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: 'admin@neuralbi.io', password: 'SecurePass123!' })
+        });
+        const adminCookie = adminLogin.headers.get('set-cookie');
+
+        const res3 = await fetch(`${url}/api/admin/stats`, {
+            headers: { Cookie: adminCookie }
+        });
+        const body3 = await res3.json();
+        assert.equal(res3.status, 200);
+        assert.equal(body3.stats.totalUsers, 2);
+        assert.equal(body3.stats.totalReports, 1);
+
+        // 4. Admin lists reports
+        const res4 = await fetch(`${url}/api/admin/reports`, {
+            headers: { Cookie: adminCookie }
+        });
+        const body4 = await res4.json();
+        assert.equal(res4.status, 200);
+        assert.equal(body4.reports.length, 1);
+
+        // 5. Admin lists users
+        const res5 = await fetch(`${url}/api/admin/users`, {
+            headers: { Cookie: adminCookie }
+        });
+        const body5 = await res5.json();
+        assert.equal(res5.status, 200);
+        assert.equal(body5.users.length, 2);
+
+        // 6. Admin deletes a report
+        const res6 = await fetch(`${url}/api/admin/reports/r1`, {
+            method: 'DELETE',
+            headers: { Cookie: adminCookie }
+        });
+        assert.equal(res6.status, 204);
+        assert.equal((await reportStore.readAll()).length, 0);
+
+        // 7. Admin deletes a user (regular user)
+        const res7 = await fetch(`${url}/api/admin/users/regular-id`, {
+            method: 'DELETE',
+            headers: { Cookie: adminCookie }
+        });
+        assert.equal(res7.status, 204);
+        assert.equal((await authStore.readState()).users.length, 1);
+
+    } finally {
+        server.close();
+    }
+});

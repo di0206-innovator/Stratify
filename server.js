@@ -289,6 +289,108 @@ function createApp(options = {}) {
         }
     });
 
+    function requireAdmin(req, res, next) {
+        if (!req.user) {
+            return next(new HttpError(401, 'UNAUTHORIZED', 'Authentication is required.'));
+        }
+        const email = req.user.email ? req.user.email.toLowerCase() : '';
+        const isAdmin = req.user.role === 'admin' || 
+                        email === 'divyanshu.b.sinha@gmail.com' || 
+                        email === 'divyanshusunstone@gmail.com' ||
+                        email.startsWith('admin@');
+        if (!isAdmin) {
+            return next(new HttpError(403, 'FORBIDDEN', 'Admin access is required.'));
+        }
+        next();
+    }
+
+    app.get('/api/admin/stats', auth, requireAdmin, async (req, res, next) => {
+        try {
+            const usersState = await authStore.readState();
+            const totalUsers = usersState.users.length;
+            const reports = await reportStore.readAll();
+            const totalReports = reports.length;
+            const activeSessions = usersState.sessions.length;
+            const emailOutboxCount = usersState.emailOutbox.length;
+
+            let totalCachedSignals = 0;
+            if (typeof signalStore.readAll === 'function') {
+                const signalsState = await signalStore.readAll();
+                totalCachedSignals = Array.isArray(signalsState) ? signalsState.length : 0;
+            }
+
+            res.json({
+                requestId: req.id,
+                stats: {
+                    totalUsers,
+                    totalReports,
+                    activeSessions,
+                    emailOutboxCount,
+                    totalCachedSignals,
+                    apiMetrics: metrics.snapshot()
+                }
+            });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.get('/api/admin/users', auth, requireAdmin, async (req, res, next) => {
+        try {
+            const usersState = await authStore.readState();
+            const users = usersState.users.map((u) => ({
+                id: u.id,
+                email: u.email,
+                name: u.name,
+                emailVerified: u.emailVerified,
+                createdAt: u.createdAt,
+                isFirebase: !!u.isFirebase
+            }));
+            res.json({ requestId: req.id, users });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.delete('/api/admin/users/:id', auth, requireAdmin, async (req, res, next) => {
+        try {
+            const userId = req.params.id;
+            if (req.user.id === userId) {
+                throw new HttpError(400, 'SELF_DELETION_PROHIBITED', 'You cannot delete your own admin user account.');
+            }
+            await authStore.update((state) => {
+                state.users = state.users.filter((u) => u.id !== userId);
+                state.sessions = state.sessions.filter((s) => s.userId !== userId);
+                state.tokens = state.tokens.filter((t) => t.userId !== userId);
+            });
+            res.status(204).end();
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.get('/api/admin/reports', auth, requireAdmin, async (req, res, next) => {
+        try {
+            const reports = await reportStore.readAll();
+            res.json({ requestId: req.id, reports });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.delete('/api/admin/reports/:id', auth, requireAdmin, async (req, res, next) => {
+        try {
+            const reportId = req.params.id;
+            const deleted = await reportStore.delete(reportId, { userId: 'api-token' });
+            if (!deleted) {
+                throw new HttpError(404, 'REPORT_NOT_FOUND', 'Report not found.');
+            }
+            res.status(204).end();
+        } catch (error) {
+            next(error);
+        }
+    });
+
     app.post('/api/reports', auth, analyzeLimiter, (req, res, next) => {
         createReport(req, res, next, { orchestrator, reportStore, appConfig, logger, metrics });
     });

@@ -33,8 +33,18 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
       if (mode === 'register') {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-        await updateProfile(user, { displayName: username });
-        await sendEmailVerification(user);
+        
+        try {
+          await updateProfile(user, { displayName: username });
+        } catch (profileErr) {
+          console.warn('Failed to update displayName on registration:', profileErr);
+        }
+
+        try {
+          await sendEmailVerification(user);
+        } catch (verificationErr) {
+          console.warn('Failed to send email verification:', verificationErr);
+        }
         
         confetti({
           particleCount: 100,

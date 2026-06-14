@@ -8,6 +8,7 @@ import Signals from './pages/Signals';
 import Reports from './pages/Reports';
 import ReportDetail from './pages/ReportDetail';
 import RunwayPlanner from './pages/RunwayPlanner';
+import AdminDashboard from './pages/AdminDashboard';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -188,6 +189,25 @@ export default function App() {
               <Route 
                 path="/runway" 
                 element={<RunwayPlanner />} 
+              />
+
+              {/* Admin Console */}
+              <Route 
+                path="/admin" 
+                element={
+                  user && (
+                    user.role === 'admin' || 
+                    (user.email && (
+                      user.email.toLowerCase() === 'divyanshu.b.sinha@gmail.com' || 
+                      user.email.toLowerCase() === 'divyanshusunstone@gmail.com' ||
+                      user.email.toLowerCase().startsWith('admin@')
+                    ))
+                  ) ? (
+                    <AdminDashboard />
+                  ) : (
+                    <Navigate to="/" replace />
+                  )
+                } 
               />
 
               {/* Wildcard Fallback */}
