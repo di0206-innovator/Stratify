@@ -20,6 +20,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
+  const [authMethod, setAuthMethod] = useState('firebase'); // 'firebase' | 'local'
+  const [fallbackNotice, setFallbackNotice] = useState(false);
 
   if (!isOpen) return null;
 
@@ -29,35 +31,43 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     setError(null);
     setMessage(null);
 
-    try {
+    const executeLocalAuth = async () => {
       if (mode === 'register') {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, name: username, username })
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error?.message || `Local registration failed with HTTP ${res.status}`);
+        }
+        const data = await res.json();
         
-        try {
-          await updateProfile(user, { displayName: username });
-        } catch (profileErr) {
-          console.warn('Failed to update displayName on registration:', profileErr);
+        if (data.emailVerificationRequired && !data.user.emailVerified) {
+          setMessage('Account registered locally! Please sign in.');
+        } else {
+          setMessage('Account registered locally! You can now sign in.');
         }
 
-        try {
-          await sendEmailVerification(user);
-        } catch (verificationErr) {
-          console.warn('Failed to send email verification:', verificationErr);
-        }
-        
         confetti({
           particleCount: 100,
           spread: 60,
           colors: ['#A3E635', '#C084FC', '#000000']
         });
-        setMessage('Account created! A verification link has been sent to your email.');
-        // Reset form fields
-        setEmail('');
+        
+        setMode('login');
         setPassword('');
-        setUsername('');
       } else if (mode === 'login') {
-        await signInWithEmailAndPassword(auth, email, password);
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error?.message || 'Incorrect email or password.');
+        }
         confetti({
           particleCount: 80,
           spread: 60,
@@ -66,20 +76,86 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
         if (onAuthSuccess) onAuthSuccess();
         onClose();
       } else if (mode === 'forgot') {
-        await sendPasswordResetEmail(auth, email);
-        setMessage('A password reset link has been sent to your email address.');
-        setEmail('');
+        const res = await fetch('/api/auth/request-password-reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error?.message || 'Password reset request failed.');
+        }
+        setMessage('A local password reset token has been queued successfully.');
+      }
+    };
+
+    try {
+      if (authMethod === 'local') {
+        await executeLocalAuth();
+      } else {
+        // Try Firebase Auth
+        try {
+          if (mode === 'register') {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            try {
+              await updateProfile(user, { displayName: username });
+            } catch (profileErr) {
+              console.warn('Failed to update displayName on registration:', profileErr);
+            }
+
+            try {
+              await sendEmailVerification(user);
+            } catch (verificationErr) {
+              console.warn('Failed to send email verification:', verificationErr);
+            }
+            
+            confetti({
+              particleCount: 100,
+              spread: 60,
+              colors: ['#A3E635', '#C084FC', '#000000']
+            });
+            setMessage('Account created! A verification link has been sent to your email.');
+            setEmail('');
+            setPassword('');
+            setUsername('');
+          } else if (mode === 'login') {
+            await signInWithEmailAndPassword(auth, email, password);
+            confetti({
+              particleCount: 80,
+              spread: 60,
+              colors: ['#A3E635', '#C084FC']
+            });
+            if (onAuthSuccess) onAuthSuccess();
+            onClose();
+          } else if (mode === 'forgot') {
+            await sendPasswordResetEmail(auth, email);
+            setMessage('A password reset link has been sent to your email address.');
+            setEmail('');
+          }
+        } catch (firebaseErr) {
+          // If network request failed (authDomain unreachable or API blocked)
+          if (firebaseErr.code === 'auth/network-request-failed' || firebaseErr.message?.includes('network')) {
+            console.warn('Firebase encountered network request failed. Switching to local database authentication...');
+            setAuthMethod('local');
+            setFallbackNotice(true);
+            await executeLocalAuth();
+          } else {
+            throw firebaseErr;
+          }
+        }
       }
     } catch (err) {
       console.error('AuthModal error:', err);
       let msg = err.message || 'Authentication error occurred.';
-      if (err.code === 'auth/email-already-in-use') {
+      if (err.code === 'auth/email-already-in-use' || msg.includes('EMAIL_ALREADY_REGISTERED')) {
         msg = 'This email address is already in use by another account.';
-      } else if (err.code === 'auth/weak-password') {
+      } else if (err.code === 'auth/weak-password' || msg.includes('WEAK_PASSWORD')) {
         msg = 'The password must be at least 6 characters long.';
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (err.code === 'auth/invalid-email' || msg.includes('INVALID_EMAIL')) {
         msg = 'Please enter a valid email address.';
-      } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+      } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || msg.includes('INVALID_CREDENTIALS')) {
         msg = 'Incorrect email or password.';
       } else if (err.code === 'auth/user-disabled') {
         msg = 'This account has been disabled.';
@@ -105,7 +181,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
       onClose();
     } catch (err) {
       console.error('Google sign in error:', err);
-      setError(err.message || 'Failed to authenticate via Google.');
+      if (err.code === 'auth/network-request-failed' || err.message?.includes('network')) {
+        setAuthMethod('local');
+        setFallbackNotice(true);
+        setError('Google authentication failed due to network blocks. Switched to secure local authentication mode.');
+      } else {
+        setError(err.message || 'Failed to authenticate via Google.');
+      }
     } finally {
       setLoading(false);
     }
@@ -133,9 +215,16 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
         {/* Modal Header */}
         <div className="text-center pt-2">
-          <div className="inline-flex items-center gap-1.5 bg-neo-lavender border-2 border-black px-3 py-1 font-outfit font-black text-xs uppercase tracking-wider mb-2">
-            <Lock size={12} strokeWidth={3} /> SECURE GATEWAY
-          </div>
+          {authMethod === 'firebase' ? (
+            <div className="inline-flex items-center gap-1.5 bg-neo-lavender border-2 border-black px-3 py-1 font-outfit font-black text-xs uppercase tracking-wider mb-2">
+              <Lock size={12} strokeWidth={3} /> SECURE GATEWAY (CLOUD)
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 bg-[#A3E635] border-2 border-black px-3 py-1 font-outfit font-black text-xs uppercase tracking-wider mb-2 text-black">
+              <KeyRound size={12} strokeWidth={3} /> SECURE GATEWAY (LOCAL RUN)
+            </div>
+          )}
+          
           <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
             {mode === 'login' && 'STRATEGIST LOGIN'}
             {mode === 'register' && 'CREATE NETWORK ACCOUNT'}
@@ -146,7 +235,30 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             {mode === 'register' && 'Join the agent network to persist startup intelligence profiles.'}
             {mode === 'forgot' && 'Enter your email to receive a secure password recovery token.'}
           </p>
+
+          {/* Toggle Button for Auth Method */}
+          <div className="mt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMethod(prev => prev === 'firebase' ? 'local' : 'firebase');
+                setError(null);
+                setMessage(null);
+              }}
+              className="text-[9px] font-black uppercase underline text-[#C084FC] hover:text-black cursor-pointer"
+            >
+              {authMethod === 'firebase' ? 'Switch to Local Database Auth' : 'Switch to Google/Cloud Gateway'}
+            </button>
+          </div>
         </div>
+
+        {/* Fallback Notice Banner */}
+        {fallbackNotice && authMethod === 'local' && (
+          <div className="bg-[#FB923C]/20 border-2 border-[#FB923C] p-3 text-xs font-semibold text-gray-800 flex items-start gap-2">
+            <AlertCircle size={16} className="shrink-0 mt-0.5 text-[#FB923C]" />
+            <span>Firebase network request failed. Switched to secure local-first database mode (no external internet requests needed).</span>
+          </div>
+        )}
 
         {/* Auth Forms */}
         <form onSubmit={handleAuthSubmit} className="space-y-4">
@@ -223,7 +335,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
           </button>
 
           {/* Divider & Google Sign-In */}
-          {mode !== 'forgot' && (
+          {mode !== 'forgot' && authMethod === 'firebase' && (
             <>
               <div className="relative flex py-1 items-center">
                 <div className="flex-grow border-t-2 border-black border-dashed"></div>
