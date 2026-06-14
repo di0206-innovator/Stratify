@@ -85,13 +85,20 @@ function createApp(options = {}) {
         next();
     });
 
-    app.use(cors({
-        origin(origin, callback) {
-            if (!origin || appConfig.corsOrigins.includes(origin) || isAllowedDevOrigin(origin, appConfig)) {
-                return callback(null, true);
-            }
+    app.use(cors((req, callback) => {
+        const origin = req.get('origin');
+        const host = req.get('host');
+        const forwardedHost = req.get('x-forwarded-host');
+        const isSameOrigin = origin && (
+            origin === `https://${host}` || 
+            origin === `http://${host}` ||
+            (forwardedHost && (origin === `https://${forwardedHost}` || origin === `http://${forwardedHost}`))
+        );
 
-            return callback(new HttpError(403, 'CORS_ORIGIN_DENIED', 'Origin is not allowed by CORS.'));
+        if (!origin || isSameOrigin || appConfig.corsOrigins.includes(origin) || isAllowedDevOrigin(origin, appConfig)) {
+            callback(null, { origin: true });
+        } else {
+            callback(new HttpError(403, 'CORS_ORIGIN_DENIED', 'Origin is not allowed by CORS.'));
         }
     }));
 
