@@ -1,6 +1,6 @@
-# BI Agent Network
+# Stratify
 
-BI Agent Network is a founder strategy workspace that generates source-aware startup reports, live market signals, and execution plans. It runs in two modes:
+Stratify is a founder strategy workspace that generates source-aware startup reports, live market signals, and execution plans. It runs in two modes:
 
 - **Grounded demo mode:** used when `GEMINI_API_KEY` is missing. It does not call Gemini and does not claim live market data.
 - **Live Gemini mode:** used when `GEMINI_API_KEY` is set. Gemini synthesizes the founder context, research, strategy, and execution plan.
