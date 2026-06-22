@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield, Sun, Moon, Terminal } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { auth, signOut } from '../firebase';
+import { supabase } from '../lib/supabase';
 
 export default function Navbar({ founderProfile, user, setUser, openAuthModal, theme, setTheme }) {
   const location = useLocation();
@@ -28,7 +28,11 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      if (window.Clerk) {
+        await window.Clerk.signOut();
+      } else if (supabase) {
+        await supabase.auth.signOut();
+      }
       await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
       confetti({

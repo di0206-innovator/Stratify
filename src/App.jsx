@@ -9,34 +9,44 @@ import Reports from './pages/Reports';
 import ReportDetail from './pages/ReportDetail';
 import RunwayPlanner from './pages/RunwayPlanner';
 import AdminDashboard from './pages/AdminDashboard';
-import { auth } from './firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { supabase } from './lib/supabase';
 
-// Intercept window.fetch to automatically append Firebase ID token if authenticated
+// Intercept window.fetch to automatically append Clerk or Supabase session token if authenticated
 const originalFetch = window.fetch;
 window.fetch = async (url, options = {}) => {
-  const currentUser = auth.currentUser;
-  if (currentUser) {
+  let token = null;
+  
+  if (window.Clerk?.session) {
     try {
-      const token = await currentUser.getIdToken();
-      if (!options.headers) {
-        options.headers = {};
-      }
-      if (options.headers instanceof Headers) {
-        options.headers.set('Authorization', `Bearer ${token}`);
-      } else if (Array.isArray(options.headers)) {
-        const hasAuth = options.headers.some(([key]) => key.toLowerCase() === 'authorization');
-        if (!hasAuth) {
-          options.headers.push(['Authorization', `Bearer ${token}`]);
-        }
-      } else {
-        options.headers = {
-          ...options.headers,
-          'Authorization': `Bearer ${token}`
-        };
-      }
+      token = await window.Clerk.session.getToken();
     } catch (e) {
-      console.warn('Failed to retrieve Firebase ID token for request:', e);
+      console.warn('Failed to retrieve Clerk token for request:', e);
+    }
+  } else if (supabase?.auth) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      token = session?.access_token;
+    } catch (e) {
+      console.warn('Failed to retrieve Supabase session token for request:', e);
+    }
+  }
+
+  if (token) {
+    if (!options.headers) {
+      options.headers = {};
+    }
+    if (options.headers instanceof Headers) {
+      options.headers.set('Authorization', `Bearer ${token}`);
+    } else if (Array.isArray(options.headers)) {
+      const hasAuth = options.headers.some(([key]) => key.toLowerCase() === 'authorization');
+      if (!hasAuth) {
+        options.headers.push(['Authorization', `Bearer ${token}`]);
+      }
+    } else {
+      options.headers = {
+        ...options.headers,
+        'Authorization': `Bearer ${token}`
+      };
     }
   }
   return originalFetch(url, options);
@@ -59,7 +69,7 @@ export default function App() {
 
   const openAuthModal = () => setIsAuthModalOpen(true);
 
-  const checkSession = async (firebaseUser) => {
+  const checkSession = async (extUser) => {
     try {
       const res = await fetch('/api/auth/me');
       if (res.ok) {
@@ -70,12 +80,12 @@ export default function App() {
       }
     } catch (e) {
       console.warn('Backend server is not running or unreachable.');
-      if (firebaseUser) {
+      if (extUser) {
         setUser({
-          id: firebaseUser.uid,
-          email: firebaseUser.email,
-          username: firebaseUser.displayName || firebaseUser.email.split('@')[0],
-          emailVerified: firebaseUser.emailVerified
+          id: extUser.id,
+          email: extUser.email,
+          username: extUser.username || extUser.email.split('@')[0],
+          emailVerified: extUser.emailVerified
         });
       } else {
         setUser(null);
@@ -95,11 +105,31 @@ export default function App() {
       }
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      checkSession(firebaseUser);
-    });
+    let unsubscribe = null;
 
-    return () => unsubscribe();
+    if (supabase) {
+      // Listen to Supabase Auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session?.user) {
+          const extUser = {
+            id: session.user.id,
+            email: session.user.email,
+            username: session.user.user_metadata?.username || session.user.email.split('@')[0],
+            emailVerified: !!session.user.email_confirmed_at
+          };
+          checkSession(extUser);
+        } else {
+          checkSession(null);
+        }
+      });
+      unsubscribe = subscription.unsubscribe;
+    } else {
+      checkSession(null);
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   // Claim anonymous reports on login
@@ -238,7 +268,7 @@ export default function App() {
       <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
-        onAuthSuccess={() => checkSession(auth.currentUser)} 
+        onAuthSuccess={() => checkSession(null)} 
       />
     </BrowserRouter>
   );

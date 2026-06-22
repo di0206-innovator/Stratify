@@ -26,6 +26,21 @@ const { createMetrics } = require('./lib/metrics');
 const { FileReportStore } = require('./lib/reportStore');
 const { FileSignalStore } = require('./lib/signalStore');
 
+// ── Scalable backends (auto-selected when DATABASE_URL / REDIS_URL are set) ──
+const USE_PG    = !!(process.env.DATABASE_URL || process.env.PGHOST);
+const USE_REDIS = !!(process.env.REDIS_URL    || process.env.REDIS_HOST);
+
+let PgAuthService, PgReportStore, PgSignalStore, getRedis, createRedisRateLimiter;
+if (USE_PG) {
+    ({ PgAuthService }   = require('./lib/db/pgAuthService'));
+    ({ PgReportStore }   = require('./lib/db/pgReportStore'));
+    ({ PgSignalStore }   = require('./lib/db/pgSignalStore'));
+}
+if (USE_REDIS) {
+    ({ getRedis }                = require('./lib/cache/redis'));
+    ({ createRedisRateLimiter }  = require('./lib/cache/redisRateLimit'));
+}
+
 const config = getConfig();
 
 function createApp(options = {}) {
@@ -38,31 +53,53 @@ function createApp(options = {}) {
         modelName: appConfig.geminiModel,
         tavilyApiKey: appConfig.tavilyApiKey
     });
-    const reportStore = options.reportStore || new FileReportStore({
-        filePath: appConfig.reportStorePath || path.join(__dirname, 'data', 'reports.json'),
-        maxReports: appConfig.maxStoredReports
-    });
-    const signalStore = options.signalStore || new FileSignalStore({
-        filePath: appConfig.signalStorePath || path.join(__dirname, 'data', 'signals.json')
-    });
+    // Auto-select PostgreSQL or file-based stores based on environment
+    const redis = (USE_REDIS && !options.redis) ? getRedis() : (options.redis || null);
+
+    let reportStore, signalStore, authService;
+
+    if (USE_PG && !options.reportStore) {
+        reportStore = new PgReportStore({ maxReports: appConfig.maxStoredReports });
+    } else {
+        reportStore = options.reportStore || new FileReportStore({
+            filePath: appConfig.reportStorePath || path.join(__dirname, 'data', 'reports.json'),
+            maxReports: appConfig.maxStoredReports
+        });
+    }
+
+    if (USE_PG && !options.signalStore) {
+        signalStore = new PgSignalStore({ redis });
+    } else {
+        signalStore = options.signalStore || new FileSignalStore({
+            filePath: appConfig.signalStorePath || path.join(__dirname, 'data', 'signals.json')
+        });
+    }
+
     const authStore = options.authStore || new FileAuthStore({
         filePath: appConfig.authStorePath || path.join(__dirname, 'data', 'auth.json')
     });
-    const authService = options.authService || new AuthService({
-        store: authStore,
-        config: appConfig,
-        logger
-    });
-    const auth = createAuthMiddleware({ token: appConfig.apiAuthToken, authService, firebaseProjectId: appConfig.firebaseProjectId });
-    const optionalAuth = createOptionalAuthMiddleware({ token: appConfig.apiAuthToken, authService, firebaseProjectId: appConfig.firebaseProjectId });
-    const analyzeLimiter = createRateLimiter({
-        windowMs: appConfig.rateLimitWindowMs,
-        max: appConfig.rateLimitMax
-    });
-    const loginLimiter = createRateLimiter({
-        windowMs: appConfig.loginRateLimitWindowMs,
-        max: appConfig.loginRateLimitMax
-    });
+
+    if (USE_PG && !options.authService) {
+        authService = new PgAuthService({ config: appConfig, logger, redis });
+        logger.info('Using PostgreSQL auth service');
+    } else {
+        authService = options.authService || new AuthService({ store: authStore, config: appConfig, logger });
+        logger.info('Using file-based auth service');
+    }
+    const auth = createAuthMiddleware({ token: appConfig.apiAuthToken, authService });
+    const optionalAuth = createOptionalAuthMiddleware({ token: appConfig.apiAuthToken, authService });
+
+    // Use Redis rate limiter (distributed, shared across workers) when available
+    const buildLimiter = (windowMs, max) => {
+        if (USE_REDIS && createRedisRateLimiter) {
+            const redis = getRedis ? getRedis() : null;
+            if (redis) return createRedisRateLimiter({ windowMs, max, redis });
+        }
+        return createRateLimiter({ windowMs, max });
+    };
+
+    const analyzeLimiter = buildLimiter(appConfig.rateLimitWindowMs, appConfig.rateLimitMax);
+    const loginLimiter   = buildLimiter(appConfig.loginRateLimitWindowMs, appConfig.loginRateLimitMax);
 
     app.disable('x-powered-by');
     app.set('trust proxy', true);
@@ -114,24 +151,46 @@ function createApp(options = {}) {
             ok: true,
             service: 'neuralbi-api',
             requestId: req.id,
+            workerId: process.pid,
             mode: orchestrator.mode,
             model: orchestrator.modelName || 'demo',
-            intelligenceMode: getIntelligenceMode(orchestrator)
+            intelligenceMode: getIntelligenceMode(orchestrator),
+            backend: USE_PG ? 'postgresql' : 'file',
+            cache: USE_REDIS ? 'redis' : 'memory'
         });
     });
 
     app.get('/api/ready', async (req, res, next) => {
         try {
-            await reportStore.init();
-            await authStore.init();
-            await signalStore.init();
+            const checks = {};
+
+            if (USE_PG) {
+                const { testConnection } = require('./lib/db/pool');
+                checks.database = (await testConnection()) ? 'ready' : 'unavailable';
+            } else {
+                await authStore.init();
+                await reportStore.init();
+                await signalStore.init();
+                checks.database = 'file (ready)';
+            }
+
+            if (USE_REDIS) {
+                const { testRedisConnection } = require('./lib/cache/redis');
+                checks.cache = (await testRedisConnection()) ? 'ready' : 'unavailable';
+            } else {
+                checks.cache = 'memory (ready)';
+            }
+
+            const allHealthy = Object.values(checks).every(v => v.includes('ready'));
+            if (!allHealthy) {
+                return next(new HttpError(503, 'NOT_READY', 'Some dependencies are not ready.', checks));
+            }
+
             res.json({
                 ok: true,
                 requestId: req.id,
                 dependencies: {
-                    reportStore: 'ready',
-                    authStore: 'ready',
-                    signalStore: 'ready',
+                    ...checks,
                     gemini: orchestrator.mode === 'live' ? 'configured' : 'demo',
                     intelligence: getIntelligenceMode(orchestrator)
                 }
@@ -353,7 +412,7 @@ function createApp(options = {}) {
                 name: u.name,
                 emailVerified: u.emailVerified,
                 createdAt: u.createdAt,
-                isFirebase: !!u.isFirebase
+                isExternal: !!u.isExternal
             }));
             res.json({ requestId: req.id, users });
         } catch (error) {
@@ -741,7 +800,13 @@ if (require.main === module) {
     const logger = createLogger({ env: config.nodeEnv });
     const app = createApp({ logger });
     const server = app.listen(config.port, () => {
-        logger.info('BI Agent Network started', { port: config.port, env: config.nodeEnv });
+        logger.info('BI Agent Network started', {
+            port: config.port,
+            env: config.nodeEnv,
+            pid: process.pid,
+            backend: USE_PG ? 'postgresql' : 'file',
+            cache: USE_REDIS ? 'redis' : 'memory'
+        });
     });
 
     server.on('error', (error) => {
@@ -749,23 +814,43 @@ if (require.main === module) {
             logger.error(`Port ${config.port} is already in use. Set PORT to another value, for example PORT=3100 npm start.`);
             process.exit(1);
         }
-
         throw error;
     });
 
-    const shutdown = (signal) => {
-        logger.info('Shutdown signal received', { signal });
-        if (app.signalMonitor) {
-            app.signalMonitor.stop();
-        }
-        server.close(() => {
+    const shutdown = async (signal) => {
+        logger.info('Shutdown signal received', { signal, pid: process.pid });
+        if (app.signalMonitor) app.signalMonitor.stop();
+
+        server.close(async () => {
             logger.info('HTTP server closed');
+            // Drain connections
+            try {
+                if (USE_PG) {
+                    const { closePool } = require('./lib/db/pool');
+                    await closePool();
+                }
+                if (USE_REDIS) {
+                    const { closeRedis } = require('./lib/cache/redis');
+                    await closeRedis();
+                }
+            } catch (e) {
+                logger.warn('Error during resource cleanup:', e.message);
+            }
+            logger.info('Cleanup complete. Exiting.');
             process.exit(0);
         });
+
+        // Force exit if graceful shutdown takes too long
+        setTimeout(() => process.exit(1), 15_000).unref();
     };
 
-    process.on('SIGINT', shutdown);
-    process.on('SIGTERM', shutdown);
+    // Cluster worker shutdown support
+    process.on('message', (msg) => {
+        if (msg === 'shutdown') shutdown('cluster');
+    });
+
+    process.on('SIGINT',  () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
 }
 
 module.exports = {

@@ -1,0 +1,47 @@
+version: '3.9'
+
+# ════════════════════════════════════════════════════════════════════
+#  NeuralBI — Production Override
+#  Use with: docker compose -f docker-compose.yml -f docker-compose.prod.yml up
+#
+#  Scales app to N replicas (set via WORKERS env or default 4).
+#  Assumes external managed databases (Cloud SQL, Cloud Memorystore).
+#  Nginx load-balances across all app containers.
+# ════════════════════════════════════════════════════════════════════
+
+services:
+
+  app:
+    deploy:
+      replicas: ${APP_REPLICAS:-4}
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 5
+    environment:
+      WORKERS: 1           # 1 Node.js process per container; k8s/compose handles replicas
+      NODE_ENV: production
+    # Remove local port exposure — all traffic via Nginx
+    ports: []
+
+  # In production, postgres + redis are managed services (Cloud SQL / Cloud Memorystore)
+  # Remove them from the compose stack
+  postgres:
+    profiles: ["dev-only"]
+
+  redis:
+    profiles: ["dev-only"]
+
+  nginx:
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M

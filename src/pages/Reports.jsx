@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Trash2, Calendar, Lock, LogIn, AlertCircle, Compass } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { auth, signOut } from '../firebase';
+import { supabase } from '../lib/supabase';
 
 export default function Reports({ user, setUser, openAuthModal }) {
   const [reports, setReports] = useState([]);
@@ -37,7 +37,11 @@ export default function Reports({ user, setUser, openAuthModal }) {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      if (window.Clerk) {
+        await window.Clerk.signOut();
+      } else if (supabase) {
+        await supabase.auth.signOut();
+      }
       await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
       setReports([]);

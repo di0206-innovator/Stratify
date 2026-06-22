@@ -228,8 +228,8 @@ export default function AdminDashboard() {
                           <div className="text-[10px] text-gray-400 font-mono select-all">{u.id}</div>
                         </td>
                         <td className="py-4 px-4 font-bold uppercase">
-                          {u.isFirebase ? (
-                            <span className="bg-[#FB923C] border-2 border-black text-[9px] px-2 py-0.5 font-black">Firebase/OAuth</span>
+                          {u.isExternal ? (
+                            <span className="bg-[#FB923C] border-2 border-black text-[9px] px-2 py-0.5 font-black">External Auth</span>
                           ) : (
                             <span className="bg-white border-2 border-black text-[9px] px-2 py-0.5">Local Creds</span>
                           )}

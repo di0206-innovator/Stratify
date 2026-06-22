@@ -1,0 +1,109 @@
+version: '3.9'
+
+# ════════════════════════════════════════════════════════════════════
+#  NeuralBI — Local Development Stack
+#  Services: PostgreSQL + Redis + App (single worker) + Nginx
+#
+#  Usage:
+#    docker compose up --build          # first run
+#    docker compose up                  # subsequent runs
+#    docker compose down -v             # reset data volumes
+# ════════════════════════════════════════════════════════════════════
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       neuralbi
+      POSTGRES_USER:     neuralbi
+      POSTGRES_PASSWORD: neuralbi_local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Schema is applied by migrate.js at startup; this init script
+      # is kept as a fallback for cold starts.
+      - ./lib/db/schema.sql:/docker-entrypoint-initdb.d/00-schema.sql:ro
+    ports:
+      - "5432:5432"        # expose for local DB tools (TablePlus, psql, etc.)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U neuralbi -d neuralbi"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ── Redis ────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: >
+      redis-server
+        --appendonly yes
+        --maxmemory 256mb
+        --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"        # expose for local Redis tools (RedisInsight, redis-cli)
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── App ─────────────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    restart: unless-stopped
+    environment:
+      NODE_ENV:          production
+      PORT:              3000
+      DATABASE_URL:      postgresql://neuralbi:neuralbi_local@postgres:5432/neuralbi
+      REDIS_URL:         redis://redis:6379
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-studio-9817976701-89717}
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-studio-9817976701-89717}
+      GEMINI_API_KEY:    ${GEMINI_API_KEY:-}
+      TAVILY_API_KEY:    ${TAVILY_API_KEY:-}
+      API_AUTH_TOKEN:    ${API_AUTH_TOKEN:-dev-local-token}
+      PG_POOL_MAX:       10
+      WORKERS:           1         # single worker per container; scale via replicas
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Expose directly for dev without Nginx
+    ports:
+      - "3010:3000"
+    volumes:
+      - app_data:/app/data          # persist any file fallbacks
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── Nginx ────────────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Serve built frontend directly from Nginx (faster than Node serving static)
+      - ./dist:/usr/share/nginx/html:ro
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  app_data:

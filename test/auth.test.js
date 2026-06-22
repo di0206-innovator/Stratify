@@ -229,60 +229,15 @@ test('login attempts are rate limited', async () => {
     }
 });
 
-test('verifyFirebaseToken rejects invalid or expired tokens', async () => {
-    const { verifyFirebaseToken } = require('../lib/auth');
+test('verifyClerkToken and verifySupabaseToken return null if unconfigured/invalid', async () => {
+    const { verifyClerkToken, verifySupabaseToken } = require('../lib/auth');
     
-    // 1. Rejects empty token
-    assert.equal(await verifyFirebaseToken('', 'project-123'), null);
+    // Should return null when unconfigured
+    assert.equal(await verifyClerkToken('some-token'), null);
+    assert.equal(await verifySupabaseToken('some-token'), null);
     
-    // 2. Rejects malformed token
-    assert.equal(await verifyFirebaseToken('abc.def', 'project-123'), null);
-    
-    // Helper to generate a dummy JWT
-    const makeToken = (headerObj, payloadObj) => {
-        const h = Buffer.from(JSON.stringify(headerObj)).toString('base64url');
-        const p = Buffer.from(JSON.stringify(payloadObj)).toString('base64url');
-        return `${h}.${p}.signature`;
-    };
-
-    // 3. Rejects expired tokens
-    const expiredToken = makeToken({ alg: 'RS256', kid: '1' }, {
-        exp: Math.floor(Date.now() / 1000) - 10,
-        iss: 'https://securetoken.google.com/project-123',
-        aud: 'project-123',
-        sub: 'user-1'
-    });
-    assert.equal(await verifyFirebaseToken(expiredToken, 'project-123'), null);
-
-    // 4. Rejects future iat tokens
-    const futureIatToken = makeToken({ alg: 'RS256', kid: '1' }, {
-        exp: Math.floor(Date.now() / 1000) + 3600,
-        iat: Math.floor(Date.now() / 1000) + 600, // 10 minutes in the future
-        iss: 'https://securetoken.google.com/project-123',
-        aud: 'project-123',
-        sub: 'user-1'
-    });
-    assert.equal(await verifyFirebaseToken(futureIatToken, 'project-123'), null);
-
-    // 5. Rejects issuer mismatch
-    const badIssuerToken = makeToken({ alg: 'RS256', kid: '1' }, {
-        exp: Math.floor(Date.now() / 1000) + 3600,
-        iat: Math.floor(Date.now() / 1000) - 10,
-        iss: 'https://securetoken.google.com/bad-project',
-        aud: 'project-123',
-        sub: 'user-1'
-    });
-    assert.equal(await verifyFirebaseToken(badIssuerToken, 'project-123'), null);
-
-    // 6. Rejects audience mismatch
-    const badAudienceToken = makeToken({ alg: 'RS256', kid: '1' }, {
-        exp: Math.floor(Date.now() / 1000) + 3600,
-        iat: Math.floor(Date.now() / 1000) - 10,
-        iss: 'https://securetoken.google.com/project-123',
-        aud: 'bad-project',
-        sub: 'user-1'
-    });
-    assert.equal(await verifyFirebaseToken(badAudienceToken, 'project-123'), null);
+    assert.equal(await verifyClerkToken(''), null);
+    assert.equal(await verifySupabaseToken(''), null);
 });
 
 test('canAccessReport security permissions', () => {
@@ -310,7 +265,7 @@ test('canAccessReport security permissions', () => {
     assert.equal(canAccessReport(ownedReport, 'api-token'), true);
 });
 
-test('Firebase user syncing to local auth store', async () => {
+test('External user syncing to local auth store', async () => {
     const { AuthService } = require('../lib/authService');
     const authStore = new MemoryAuthStore();
     const service = new AuthService({
@@ -319,15 +274,15 @@ test('Firebase user syncing to local auth store', async () => {
         logger: silentLogger
     });
 
-    const fbUser = {
-        id: 'firebase-uid-123',
-        email: 'fb-user@example.com',
-        name: 'Firebase User',
+    const extUser = {
+        id: 'external-uid-123',
+        email: 'ext-user@example.com',
+        name: 'External User',
         emailVerified: true
     };
 
     // 1. Initially, user should not exist
-    let found = await service.findUserById(fbUser.id);
+    let found = await service.findUserById(extUser.id);
     assert.equal(found, null);
 
     // 2. Syncing should add the user
@@ -338,16 +293,16 @@ test('Firebase user syncing to local auth store', async () => {
         return originalUpdate(mutator);
     };
 
-    await service.syncFirebaseUser(fbUser);
+    await service.syncExternalUser(extUser, 'clerk');
     assert.equal(updateCount, 1);
 
-    found = await service.findUserById(fbUser.id);
+    found = await service.findUserById(extUser.id);
     assert.ok(found);
-    assert.equal(found.id, fbUser.id);
-    assert.equal(found.email, 'fb-user@example.com');
-    assert.equal(found.name, 'Firebase User');
+    assert.equal(found.id, extUser.id);
+    assert.equal(found.email, 'ext-user@example.com');
+    assert.equal(found.name, 'External User');
 
     // 3. Subsequent sync with same user should use in-memory cache and not touch the store
-    await service.syncFirebaseUser(fbUser);
+    await service.syncExternalUser(extUser, 'clerk');
     assert.equal(updateCount, 1); // updateCount should remain 1!
 });
