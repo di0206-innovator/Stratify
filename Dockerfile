@@ -1,5 +1,5 @@
 # ════════════════════════════════════════════════════════════════════
-#  NeuralBI — Multi-stage Dockerfile
+#  Stratify — Multi-stage Dockerfile
 #  Stage 1 (builder): compile Vite frontend
 #  Stage 2 (runner):  production Node.js server (minimal image)
 # ════════════════════════════════════════════════════════════════════
@@ -22,7 +22,7 @@ FROM node:20-alpine AS runner
 
 # Security: run as non-root
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser  --system --uid 1001 --ingroup nodejs neuralbi
+    adduser  --system --uid 1001 --ingroup nodejs stratify
 
 WORKDIR /app
 
@@ -37,7 +37,7 @@ COPY --from=builder /app/server.js     ./server.js
 COPY --from=builder /app/cluster.js    ./cluster.js
 
 # Ensure data dir is owned by our user BEFORE switching user
-RUN mkdir -p /app/data && chown -R neuralbi:nodejs /app/data && chmod -R 775 /app/data
+RUN mkdir -p /app/data && chown -R stratify:nodejs /app/data && chmod -R 775 /app/data
 
 # Copy .env.example as default template (overridden by Docker environment vars at runtime)
 COPY .env.example .env
@@ -58,7 +58,7 @@ EXPOSE 3000
 # ── Volume for file-store fallback ─────────────────────────────────
 VOLUME ["/app/data"]
 
-USER neuralbi
+USER stratify
 
 # Use cluster.js so all CPU cores are used in the container.
 # Set WORKERS=1 in Kubernetes (let the orchestrator handle replicas).

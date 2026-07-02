@@ -261,7 +261,7 @@ test('live mode chains agents and includes role system prompts', async () => {
     assert.ok(promptsCaptured[2].includes('# ROLE: QUANTITATIVE & QUALITATIVE MARKET TRENDS ANALYST') || promptsCaptured[2].includes('# ROLE: RISK & DEFENSE ASSESSMENT SPECIALIST'));
     assert.ok(promptsCaptured[3].includes('# ROLE: RISK & DEFENSE ASSESSMENT SPECIALIST') || promptsCaptured[3].includes('# ROLE: QUANTITATIVE & QUALITATIVE MARKET TRENDS ANALYST'));
     assert.ok(promptsCaptured[4].includes('# ROLE: EXECUTIVE STRATEGIST & LEAD ORCHESTRATOR'));
-    assert.ok(promptsCaptured[5].includes("You are NeuralBI's Execution Coach Agent."));
+    assert.ok(promptsCaptured[5].includes("You are Stratify's Execution Coach Agent."));
     assert.ok(promptsCaptured[6].includes('QUALITY ASSURANCE & RESEARCH CRITIC'));
 
     // Verify section extraction worked

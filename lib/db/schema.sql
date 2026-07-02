@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════
---  NeuralBI — PostgreSQL Schema
+--  Stratify — PostgreSQL Schema
 --  Designed for high concurrency (MVCC, indexed, advisory locks avoided)
 --  All migrations are idempotent (safe to re-run)
 -- ═══════════════════════════════════════════════════════════════
@@ -140,6 +140,229 @@ DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_signals_updated_at') THEN
         CREATE TRIGGER trg_signals_updated_at
             BEFORE UPDATE ON signals_cache
+            FOR EACH ROW EXECUTE FUNCTION _set_updated_at();
+    END IF;
+END; $$;
+
+-- ─────────────────────────────────────────
+--  STARTUPS
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS startups (
+    id              TEXT        PRIMARY KEY,
+    owner_id        TEXT        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name            TEXT        NOT NULL,
+    logo_url        TEXT,
+    pitch           TEXT        NOT NULL DEFAULT '',
+    problem         TEXT        NOT NULL DEFAULT '',
+    solution        TEXT        NOT NULL DEFAULT '',
+    stage           TEXT        NOT NULL DEFAULT 'idea',
+    industry        TEXT        NOT NULL DEFAULT '',
+    geography       TEXT        NOT NULL DEFAULT '',
+    team_status     TEXT        NOT NULL DEFAULT '',
+    traction        TEXT        NOT NULL DEFAULT '',
+    needs           TEXT        NOT NULL DEFAULT '',
+    tech_stack      TEXT        NOT NULL DEFAULT '',
+    score           INTEGER     NOT NULL DEFAULT 0,
+    validation_score INTEGER,
+    execution_readiness INTEGER,
+    fundraising_readiness INTEGER,
+    founder_market_fit INTEGER,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS startups_owner_id_idx ON startups (owner_id);
+CREATE INDEX IF NOT EXISTS startups_score_idx    ON startups (score DESC);
+
+-- ─────────────────────────────────────────
+--  POSTS (Startup progress / execution logs feed)
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS posts (
+    id              TEXT        PRIMARY KEY,
+    startup_id      TEXT        REFERENCES startups(id) ON DELETE CASCADE,
+    author_id       TEXT        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    content         TEXT        NOT NULL,
+    type            TEXT        NOT NULL DEFAULT 'post', -- 'post', 'milestone', 'launch', 'update'
+    metadata        JSONB,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS posts_startup_id_idx ON posts (startup_id);
+CREATE INDEX IF NOT EXISTS posts_created_at_idx ON posts (created_at DESC);
+
+-- ─────────────────────────────────────────
+--  MATCHES (Relationships / connections)
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS matches (
+    id              TEXT        PRIMARY KEY,
+    sender_id       TEXT        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id     TEXT        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status          TEXT        NOT NULL DEFAULT 'pending', -- 'pending', 'accepted', 'rejected'
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (sender_id, receiver_id)
+);
+
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_startups_updated_at') THEN
+        CREATE TRIGGER trg_startups_updated_at
+            BEFORE UPDATE ON startups
+            FOR EACH ROW EXECUTE FUNCTION _set_updated_at();
+    END IF;
+END; $$;
+
+-- ─────────────────────────────────────────
+--  USER PROFILE EXTENSIONS
+-- ─────────────────────────────────────────
+ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT DEFAULT '';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS skills TEXT DEFAULT '';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS linkedin_url TEXT DEFAULT '';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS availability TEXT DEFAULT '';
+
+-- ─────────────────────────────────────────
+--  STARTUP PROFILE EXTENSIONS
+-- ─────────────────────────────────────────
+ALTER TABLE startups ADD COLUMN IF NOT EXISTS deck_url TEXT DEFAULT '';
+ALTER TABLE startups ADD COLUMN IF NOT EXISTS website_url TEXT DEFAULT '';
+ALTER TABLE startups ADD COLUMN IF NOT EXISTS revenue TEXT DEFAULT '';
+ALTER TABLE startups ADD COLUMN IF NOT EXISTS funding_raised TEXT DEFAULT '';
+
+-- ─────────────────────────────────────────
+--  DECISIONS (Founder memory: what was decided and why)
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS decisions (
+    id              TEXT        PRIMARY KEY,
+    startup_id      TEXT        REFERENCES startups(id) ON DELETE CASCADE,
+    author_id       TEXT        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title           TEXT        NOT NULL,
+    context         TEXT        NOT NULL DEFAULT '',
+    outcome         TEXT        NOT NULL DEFAULT '',
+    status          TEXT        NOT NULL DEFAULT 'active',
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS decisions_startup_id_idx ON decisions (startup_id);
+CREATE INDEX IF NOT EXISTS decisions_created_at_idx ON decisions (created_at DESC);
+
+-- ─────────────────────────────────────────
+--  TIMELINE EVENTS (Unified audit trail)
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS timeline_events (
+    id              TEXT        PRIMARY KEY,
+    startup_id      TEXT        REFERENCES startups(id) ON DELETE CASCADE,
+    actor_id        TEXT        REFERENCES users(id) ON DELETE SET NULL,
+    event_type      TEXT        NOT NULL,
+    title           TEXT        NOT NULL,
+    description     TEXT        NOT NULL DEFAULT '',
+    metadata        JSONB,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS timeline_startup_id_idx ON timeline_events (startup_id);
+CREATE INDEX IF NOT EXISTS timeline_created_at_idx ON timeline_events (created_at DESC);
+CREATE INDEX IF NOT EXISTS timeline_type_idx ON timeline_events (event_type);
+
+-- ─────────────────────────────────────────
+--  OPPORTUNITIES (Grants, accelerators, programs)
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS opportunities (
+    id              TEXT        PRIMARY KEY,
+    title           TEXT        NOT NULL,
+    type            TEXT        NOT NULL DEFAULT 'grant',
+    organization    TEXT        NOT NULL DEFAULT '',
+    description     TEXT        NOT NULL DEFAULT '',
+    geography       TEXT        NOT NULL DEFAULT '',
+    industries      TEXT        NOT NULL DEFAULT '',
+    stages          TEXT        NOT NULL DEFAULT '',
+    deadline        TEXT,
+    link            TEXT,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS opportunities_type_idx ON opportunities (type);
+CREATE INDEX IF NOT EXISTS opportunities_geo_idx ON opportunities (LOWER(geography));
+
+-- ─────────────────────────────────────────
+--  SIGNAL HISTORY (Per-startup signal log)
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS signal_history (
+    id              TEXT        PRIMARY KEY,
+    startup_id      TEXT        REFERENCES startups(id) ON DELETE CASCADE,
+    signal_data     JSONB       NOT NULL,
+    relevance       TEXT        NOT NULL DEFAULT 'medium',
+    is_read         BOOLEAN     NOT NULL DEFAULT false,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS signal_history_startup_idx ON signal_history (startup_id);
+CREATE INDEX IF NOT EXISTS signal_history_created_idx ON signal_history (created_at DESC);
+
+-- ─────────────────────────────────────────
+--  BOUNTIES (Startup bounties / requests for help)
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS bounties (
+    id              TEXT        PRIMARY KEY,
+    startup_id      TEXT        REFERENCES startups(id) ON DELETE CASCADE,
+    title           TEXT        NOT NULL,
+    description     TEXT        NOT NULL DEFAULT '',
+    points          INTEGER     NOT NULL DEFAULT 10,
+    reward          TEXT        NOT NULL DEFAULT '',
+    status          TEXT        NOT NULL DEFAULT 'open', -- 'open', 'claimed', 'completed'
+    submissions     JSONB       DEFAULT '[]'::jsonb,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS bounties_startup_idx ON bounties (startup_id);
+CREATE INDEX IF NOT EXISTS bounties_status_idx ON bounties (status);
+
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_bounties_updated_at') THEN
+        CREATE TRIGGER trg_bounties_updated_at
+            BEFORE UPDATE ON bounties
+            FOR EACH ROW EXECUTE FUNCTION _set_updated_at();
+    END IF;
+END; $$;
+
+-- ─────────────────────────────────────────
+--  BRIEFS (Pitch briefs / summary exports)
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS briefs (
+    id              TEXT        PRIMARY KEY,
+    startup_id      TEXT        NOT NULL REFERENCES startups(id) ON DELETE CASCADE,
+    title           TEXT        NOT NULL,
+    content         TEXT        NOT NULL,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS briefs_startup_idx ON briefs (startup_id);
+
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_briefs_updated_at') THEN
+        CREATE TRIGGER trg_briefs_updated_at
+            BEFORE UPDATE ON briefs
+            FOR EACH ROW EXECUTE FUNCTION _set_updated_at();
+    END IF;
+END; $$;
+
+-- ─────────────────────────────────────────
+--  CAP TABLES (Equity Planner states)
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS cap_tables (
+    id              TEXT        PRIMARY KEY,
+    startup_id      TEXT        NOT NULL REFERENCES startups(id) ON DELETE CASCADE,
+    version_name    TEXT        NOT NULL DEFAULT 'Current',
+    state           JSONB       NOT NULL DEFAULT '{}'::jsonb,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS cap_tables_startup_idx ON cap_tables (startup_id);
+
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_cap_tables_updated_at') THEN
+        CREATE TRIGGER trg_cap_tables_updated_at
+            BEFORE UPDATE ON cap_tables
             FOR EACH ROW EXECUTE FUNCTION _set_updated_at();
     END IF;
 END; $$;

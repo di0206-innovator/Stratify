@@ -2,14 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Play, Sparkles, AlertCircle, Compass, HelpCircle, 
-  MapPin, CheckSquare, Square, Check, RefreshCw, FileText, ArrowRight,
-  ClipboardList, BookOpen, ExternalLink
+  MapPin, Check, RefreshCw, FileText, ArrowRight,
+  ClipboardList, BookOpen, ExternalLink, Trophy, Users, Zap, Award, Target
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import BentoCard from '../components/BentoCard';
 import AgentConsole from '../components/AgentConsole';
 
 export default function Dashboard({ founderProfile, currentReport, setCurrentReport, user, openAuthModal }) {
+  // Common states
+  const [loading, setLoading] = useState(false);
+  const [connections, setConnections] = useState([]);
+  const [matchingPartners, setMatchingPartners] = useState([]);
+
+  // Founder Workspace states
   const [query, setQuery] = useState('');
   const [reportType, setReportType] = useState('idea_validation');
   const [focusArea, setFocusArea] = useState('market');
@@ -18,6 +24,25 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
   const [isRunning, setIsRunning] = useState(false);
   const [streamError, setStreamError] = useState(null);
   const [partialReport, setPartialReport] = useState(null);
+  const [govSchemes, setGovSchemes] = useState([]);
+  const [myStartup, setMyStartup] = useState(null);
+
+  // Negotiation states
+  const [negotiatingPartner, setNegotiatingPartner] = useState(null);
+  const [investmentVal, setInvestmentVal] = useState(250000);
+  const [preVal, setPreVal] = useState(2500000);
+  const [optionPool, setOptionPool] = useState(10);
+  const [syndicateActive, setSyndicateActive] = useState(false);
+  const [dealClosed, setDealClosed] = useState(false);
+
+  // Fit Radar states
+  const [radarPartner, setRadarPartner] = useState(null);
+  const [radarVisible, setRadarVisible] = useState(false);
+
+  // VC & Angel Workspace states
+  const [trendingStartups, setTrendingStartups] = useState([]);
+  const [selectedStartup, setSelectedStartup] = useState(null);
+  const [vouchedStartups, setVouchedStartups] = useState([]);
 
   // Suggested questions based on primary goal
   const suggestedQueries = {
@@ -44,10 +69,62 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
     return suggestedQueries[founderProfile.currentGoal] || suggestedQueries['validate idea'];
   };
 
+  // Fetch role-specific data
+  useEffect(() => {
+    if (!founderProfile) return;
+
+    const fetchRoleData = async () => {
+      setLoading(true);
+      try {
+        // Fetch matches/connections (for all roles)
+        const connRes = await fetch('/api/matches');
+        if (connRes.ok) {
+          const connData = await connRes.json();
+          setConnections(connData.matches || []);
+        }
+
+        // Fetch matching partners (for all roles)
+        const partnersRes = await fetch('/api/matching/partners');
+        if (partnersRes.ok) {
+          const partnersData = await partnersRes.json();
+          setMatchingPartners(partnersData.partners || []);
+        }
+
+        if (founderProfile.role === 'founder') {
+          // Fetch my startup
+          const myStartupRes = await fetch('/api/startups/my');
+          if (myStartupRes.ok) {
+            const msData = await myStartupRes.json();
+            setMyStartup(msData.startup || null);
+          }
+
+          // Fetch government schemes
+          const schemesRes = await fetch('/api/gov-schemes');
+          if (schemesRes.ok) {
+            const scData = await schemesRes.json();
+            setGovSchemes(scData.schemes || []);
+          }
+        } else {
+          // Fetch trending startups for VC / Angel
+          const trendingRes = await fetch('/api/startups/trending');
+          if (trendingRes.ok) {
+            const trData = await trendingRes.json();
+            setTrendingStartups(trData.startups || []);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load role-specific dashboard metrics:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoleData();
+  }, [founderProfile, currentReport]);
+
   const handleCheckboxToggle = async (sectionKey, itemIndex, completed) => {
     if (!currentReport) return;
 
-    // Deep clone the report
     const updatedReport = JSON.parse(JSON.stringify(currentReport));
     const actionPlan = updatedReport.sections.actionPlan;
     if (actionPlan && actionPlan[sectionKey] && actionPlan[sectionKey][itemIndex]) {
@@ -55,16 +132,11 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
     }
 
     try {
-      // Update locally first for responsiveness
       setCurrentReport(updatedReport);
-
-      // Perform backend update. Wait, endpoints might require auth.
-      // We will perform a PATCH request to /api/reports/:id
-      const response = await fetch(`/api/reports/${currentReport.id}`, {
+      await fetch(`/api/reports/${currentReport.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          // Note: Cookie-based auth will automatically pass credentials
         },
         body: JSON.stringify({
           sections: {
@@ -72,10 +144,6 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
           }
         })
       });
-
-      if (!response.ok) {
-        console.warn('Failed to persist action plan item state to backend, auth might be required.');
-      }
     } catch (error) {
       console.error('Error updating checkbox state:', error);
     }
@@ -132,7 +200,7 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
-        buffer = lines.pop() || ''; // Keep the remainder
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
           const trimmed = line.trim();
@@ -145,612 +213,997 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
             try {
               const parsed = JSON.parse(dataStr);
               
-              // Handle error from SSE
               if (parsed.error) {
                 setStreamError(parsed.error.message || 'Simulation encountered an error');
-                setIsRunning(false);
-                return;
-              }
-
-              // Route event payloads based on event type
-              if (currentEvent === 'log') {
-                setLogs((prev) => [...prev, parsed]);
-              } else if (currentEvent === 'sources') {
-                setPartialReport((prev) => ({
-                  ...(prev || {}),
-                  sources: parsed
-                }));
-              } else if (currentEvent === 'analysis') {
-                setPartialReport((prev) => ({
-                  ...(prev || {}),
-                  sections: {
-                    ...(prev?.sections || {}),
-                    marketSignals: parsed.marketSignals || [],
-                    opportunityThesis: parsed.opportunityGaps?.map(g => `- ${g}`).join('\n') || '',
-                    risks: parsed.risks || [],
-                    assumptions: parsed.assumptions || []
-                  }
-                }));
-              } else if (currentEvent === 'strategy') {
-                setPartialReport((prev) => ({
-                  ...(prev || {}),
-                  title: `${reportType.replace(/_/g, ' ').toUpperCase()} STRATEGY FOR ${founderProfile.product.slice(0, 30)}`,
-                  sections: {
-                    ...(prev?.sections || {}),
-                    executiveSnapshot: parsed.thesis,
-                    opportunityThesis: parsed.positioning || prev?.sections?.opportunityThesis,
-                    recommendations: parsed.recommendations || [],
-                    trendAnalysis: parsed.trendAnalysis,
-                    competitivePositioning: parsed.competitivePositioning,
-                    targetSegment: parsed.targetSegment,
-                    channelStrategy: parsed.channelStrategy,
-                    marketOpportunity: parsed.marketOpportunity,
-                    tractionEvidence: parsed.tractionEvidence,
-                    askAndUse: parsed.askAndUse,
-                    threatCategories: parsed.threatCategories,
-                    mitigationPlan: parsed.mitigationPlan
-                  }
-                }));
-              } else if (currentEvent === 'executionPlan') {
-                setPartialReport((prev) => ({
-                  ...(prev || {}),
-                  sections: {
-                    ...(prev?.sections || {}),
-                    actionPlan: {
-                      sevenDaySprint: parsed.sevenDaySprint?.map((t, idx) => ({ id: `sprint-${idx}`, text: typeof t === 'string' ? t : t.text, completed: !!t.completed })),
-                      thirtyDayRoadmap: parsed.thirtyDayRoadmap?.map((t, idx) => ({ id: `roadmap-${idx}`, text: typeof t === 'string' ? t : t.text, completed: !!t.completed })),
-                      validationChecklist: parsed.validationChecklist?.map((t, idx) => ({ id: `checklist-${idx}`, text: typeof t === 'string' ? t : t.text, completed: !!t.completed })),
-                      nextAssets: parsed.nextAssets?.map((t, idx) => ({ id: `asset-${idx}`, text: typeof t === 'string' ? t : t.text, completed: !!t.completed }))
-                    }
-                  }
-                }));
-              } else if (currentEvent === 'result') {
-                setCurrentReport(parsed);
+              } else if (currentEvent === 'log') {
+                setLogs((prev) => [...prev, parsed.message]);
+              } else if (currentEvent === 'partial') {
+                setPartialReport(parsed.report);
+              } else if (currentEvent === 'complete') {
+                setCurrentReport(parsed.report);
                 setPartialReport(null);
-                // Trigger celebratory confetti
+                setIsRunning(false);
                 confetti({
                   particleCount: 120,
-                  spread: 70,
+                  spread: 60,
                   origin: { y: 0.6 },
-                  colors: ['#A3E635', '#C084FC', '#FB923C']
+                  colors: ['#A3E635', '#000000', '#F8F7F4']
                 });
-              } else {
-                // Fallback for legacy format or unmapped events
-                if (parsed.agent && parsed.message) {
-                  setLogs((prev) => [...prev, parsed]);
-                } else if (parsed.id && parsed.sections) {
-                  setCurrentReport(parsed);
-                  setPartialReport(null);
-                }
               }
-            } catch (e) {
-              console.error('Failed to parse SSE payload:', dataStr, e);
+            } catch (err) {
+              console.warn('Failed to parse SSE line data:', err);
             }
           }
         }
       }
     } catch (err) {
-      setStreamError(err.message || 'Failed to start simulation.');
-      setLogs((prev) => [
-        ...prev,
-        {
-          id: 'error',
-          agent: 'ERROR MONITOR',
-          message: `Simulation terminated: ${err.message}`,
-          at: new Date().toISOString()
-        }
-      ]);
-    } finally {
+      setStreamError(err.message || 'Failed to connect to agent network stream.');
       setIsRunning(false);
     }
   };
 
-  const activeReport = partialReport || currentReport;
-
-  const renderTextWithCitations = (text, sources = []) => {
-    if (!text) return null;
-    const regex = /(?:\[Source\s+(\d+)\]|\[(\d+)\])/g;
-    const parts = [];
-    let lastIndex = 0;
-    let match;
-    
-    while ((match = regex.exec(text)) !== null) {
-      const matchIndex = match.index;
-      const sourceNum = parseInt(match[1] || match[2], 10);
-      
-      if (matchIndex > lastIndex) {
-        parts.push(text.substring(lastIndex, matchIndex));
+  const handleConnectRequest = async (partnerId) => {
+    try {
+      const res = await fetch('/api/matches', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ receiverId: partnerId, status: 'pending' })
+      });
+      if (res.ok) {
+        // Refresh matching list/connections
+        const connRes = await fetch('/api/matches');
+        if (connRes.ok) {
+          const connData = await connRes.json();
+          setConnections(connData.matches || []);
+        }
+        confetti({
+          particleCount: 30,
+          spread: 30,
+          colors: ['#A3E635', '#000000']
+        });
       }
-      
-      const source = sources[sourceNum - 1];
-      if (source) {
-        parts.push(
-          <a
-            key={matchIndex}
-            href={source.url || '#'}
-            target={source.url ? "_blank" : undefined}
-            rel={source.url ? "noopener noreferrer" : undefined}
-            title={`${source.title}: ${source.summary}`}
-            className="inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 text-[9px] font-black font-mono bg-[#A3E635] text-black border border-black hover:bg-black hover:text-white transition-colors cursor-pointer rounded-sm align-middle leading-none"
-            onClick={(e) => {
-              if (!source.url) {
-                e.preventDefault();
-                const citationEl = document.getElementById(`source-card-${sourceNum - 1}`);
-                if (citationEl) {
-                  citationEl.scrollIntoView({ behavior: 'smooth' });
-                  citationEl.classList.add('ring-4', 'ring-[#C084FC]');
-                  setTimeout(() => {
-                    citationEl.classList.remove('ring-4', 'ring-[#C084FC]');
-                  }, 2000);
-                }
-              }
-            }}
-          >
-            {sourceNum}
-          </a>
-        );
-      } else {
-        parts.push(match[0]);
-      }
-      
-      lastIndex = regex.lastIndex;
+    } catch (e) {
+      console.error('Failed to request connection:', e);
     }
-    
-    if (lastIndex < text.length) {
-      parts.push(text.substring(lastIndex));
-    }
-    
-    return parts;
   };
 
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-      {/* Welcome Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border-[3px] border-black p-6 shadow-neo-hard select-none">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
-            Founder Strategy OS
-          </h1>
-          <p className="font-outfit font-bold text-gray-700 mt-1">
-            Analyze market gaps, track competitor moves, and schedule near-term sprint tasks.
-          </p>
-        </div>
-        {!founderProfile && (
-          <Link
-            to="/onboarding"
-            className="neo-btn-primary self-start md:self-auto px-6 py-2.5"
+  const handleCastVouch = async (startupId) => {
+    try {
+      const res = await fetch(`/api/startups/${startupId}/vouch`, {
+        method: 'POST'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (selectedStartup && selectedStartup.id === startupId) {
+          setSelectedStartup({ ...selectedStartup, score: data.startup.score });
+        }
+        setVouchedStartups(prev => [...prev, startupId]);
+        confetti({
+          particleCount: 80,
+          spread: 60,
+          colors: ['#A3E635', '#FCD34D', '#EF4444']
+        });
+      }
+    } catch (e) {
+      console.error('Failed to cast advisory vouch:', e);
+    }
+  };
+
+  const renderFitRadarModal = () => {
+    if (!radarVisible || !radarPartner) return null;
+
+    const isVcOrAngel = radarPartner.role === 'vc' || radarPartner.role === 'angel';
+    
+    const matchesSector = isVcOrAngel
+      ? (founderProfile.industry && radarPartner.focusSectors?.toLowerCase().includes(founderProfile.industry.toLowerCase())) || 
+        (radarPartner.industry && founderProfile.industry?.toLowerCase().includes(radarPartner.industry.toLowerCase()))
+      : (founderProfile.industry && radarPartner.industry?.toLowerCase().includes(founderProfile.industry.toLowerCase()));
+    
+    const sectorScore = matchesSector ? 96 : 74;
+
+    const matchesGeo = isVcOrAngel
+      ? (founderProfile.geography && radarPartner.geographyFocus?.toLowerCase().includes(founderProfile.geography.toLowerCase())) ||
+        (radarPartner.geography && founderProfile.geography?.toLowerCase().includes(radarPartner.geography.toLowerCase()))
+      : (founderProfile.geography && radarPartner.geography?.toLowerCase().includes(founderProfile.geography.toLowerCase()));
+      
+    const geoScore = matchesGeo ? 90 : 70;
+    const stageScore = 92;
+
+    const overallScore = Math.round((sectorScore + geoScore + stageScore) / 3);
+
+    let adviceText = "";
+    if (founderProfile.role === 'founder') {
+      adviceText = `This investor focuses heavily on ${radarPartner.industry || 'your sector'} plays in ${radarPartner.geography || 'your region'}. Their target ticket size matches your seed requirement. Advise scheduling a pitch brief.`;
+    } else {
+      adviceText = `This startup demonstrates strong execution milestones in ${radarPartner.industry || 'their sector'}. Their verified runway and score of ${radarPartner.score || 10} qualify them for your pipeline.`;
+    }
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm select-none">
+        <div className="neo-card bg-white border-[4px] border-black p-6 max-w-md w-full shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] relative text-black">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#3B82F6] opacity-10 rounded-full transform translate-x-8 -translate-y-8 pointer-events-none"></div>
+          
+          <div className="flex justify-between items-start border-b-[3px] border-black pb-3 mb-4">
+            <div>
+              <span className="inline-block bg-[#EF4444] text-white px-2 py-0.5 text-[8px] font-black uppercase tracking-wider border border-black mb-1">
+                AI MATCH FIT RADAR
+              </span>
+              <h3 className="font-outfit font-black text-sm uppercase text-black">
+                FIT DEEP-DIVE: {radarPartner.name}
+              </h3>
+            </div>
+            <button 
+              onClick={() => { setRadarVisible(false); setRadarPartner(null); }}
+              className="font-outfit font-black text-sm hover:text-red-500 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 border-2 border-black p-4 bg-[#F8F7F4]">
+              <div className="bg-[#A3E635] text-black border-2 border-black px-4 py-3 font-outfit font-black text-center shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-xl">
+                {overallScore}%
+              </div>
+              <div>
+                <span className="block text-[8px] font-black uppercase text-gray-500">OVERALL ALIGNMENT MATCH</span>
+                <span className="text-xs font-bold text-gray-700 leading-tight block mt-0.5">
+                  {overallScore >= 85 ? 'Strong Thesis Match' : 'Moderate Thesis Match'}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs font-bold text-gray-700">
+              <div className="flex justify-between items-center border-b border-gray-100 pb-1">
+                <span>Sector Alignment:</span>
+                <span className="font-mono text-black bg-[#FCD34D] px-1.5 py-0.5 border border-black text-[10px]">{sectorScore}%</span>
+              </div>
+              <div className="flex justify-between items-center border-b border-gray-100 pb-1">
+                <span>Geographic Fit:</span>
+                <span className="font-mono text-black bg-[#3B82F6]/20 px-1.5 py-0.5 border border-black text-[10px]">{geoScore}%</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Investment Stage Fit:</span>
+                <span className="font-mono text-black bg-[#A3E635]/20 px-1.5 py-0.5 border border-black text-[10px]">{stageScore}%</span>
+              </div>
+            </div>
+
+            <div className="border-2 border-black p-3.5 bg-yellow-50 text-left">
+              <span className="text-[9px] font-black uppercase text-gray-400 block mb-1">AI STRATEGIST INSIGHT</span>
+              <p className="text-[11px] font-bold text-gray-600 leading-relaxed font-inter">
+                {adviceText}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => { setRadarVisible(false); setRadarPartner(null); }}
+            className="w-full mt-5 py-2.5 bg-black text-white border-2 border-black font-black text-xs uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer text-center"
           >
-            <span>Configure Founder Profile</span>
+            Acknowledge Radar Scan
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const activeReport = partialReport || currentReport;
+
+  // Unconfigured state redirect
+  if (!founderProfile) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-24 text-center">
+        <div className="neo-card p-12 text-center bg-white space-y-4 border-[3px] border-black shadow-neo-button select-none">
+          <HelpCircle size={48} className="mx-auto text-[#FB923C] animate-bounce" />
+          <h2 className="text-xl sm:text-2xl font-black uppercase">No Active Profile</h2>
+          <p className="font-outfit font-semibold text-gray-600">
+            Please define your profile constraints and vertical focus first to boot the strategy operating system.
+          </p>
+          <Link to="/onboarding" className="neo-btn-primary inline-flex mt-2">
+            <span>Launch Onboarding</span>
             <ArrowRight size={16} />
           </Link>
-        )}
+        </div>
       </div>
+    );
+  }
 
-      {founderProfile ? (
+  // 1. FOUNDER DASHBOARD VIEW
+  if (founderProfile.role === 'founder') {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        
+        {/* Startup Header Info */}
+        <div className="neo-card bg-white text-black p-8 mb-8 border-[4px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] select-none relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          {/* Decorative floating red circle shape inside the header */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#EF4444] border-[4px] border-black rounded-full opacity-80 pointer-events-none hidden md:block"></div>
+          
+          <div className="relative z-10 space-y-2">
+            <span className="inline-block bg-[#A3E635] text-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wider border-2 border-black">
+              {myStartup?.stage || founderProfile.startupStage} stage
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-black">
+              {myStartup?.name || founderProfile.name || 'My Startup'}
+            </h2>
+            <p className="font-outfit font-bold text-gray-600 flex items-center gap-1.5 text-xs sm:text-sm">
+              <MapPin size={14} className="text-[#3B82F6]" /> {myStartup?.geography || founderProfile.geography} • {myStartup?.industry || founderProfile.industry}
+            </p>
+          </div>
+          
+          <div className="relative z-10 flex items-center gap-4 bg-white border-[3px] border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex-wrap sm:flex-nowrap">
+            <div className="text-center border-r-[3px] border-black pr-5">
+              <span className="block text-[9px] font-black uppercase text-gray-500">STARTUP SCORE</span>
+              <span className="text-3xl font-black text-[#EF4444]">{myStartup?.score || 10}</span>
+            </div>
+            <div className="text-center pl-1.5">
+              <span className="block text-[9px] font-black uppercase text-gray-500">ACTIVE GOAL</span>
+              <span className="text-xs font-black uppercase text-[#3B82F6]">{founderProfile.currentGoal}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Layout Grid */}
         <div className="grid grid-cols-12 gap-6">
-          {/* Bento Left: Profile & Launcher */}
-          <div className="col-span-12 lg:col-span-5 space-y-6 flex flex-col justify-stretch">
-            {/* Widget 1: Founder Profile Context */}
-            <BentoCard 
-              title="Active Profile Wedge" 
-              badge={founderProfile.startupStage}
-              badgeColor="bg-[#C084FC]"
-              className="h-auto"
-            >
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm font-outfit font-bold">
-                  <div>
-                    <span className="text-gray-500 block uppercase text-[10px] tracking-wide">Industry</span>
-                    <span className="text-black uppercase break-words">{founderProfile.industry}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 block uppercase text-[10px] tracking-wide">Geography</span>
-                    <span className="text-black uppercase inline-flex items-center gap-1">
-                      <MapPin size={12} className="text-[#FB923C]" />
-                      {founderProfile.geography}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 block uppercase text-[10px] tracking-wide">Founder Type</span>
-                    <span className="text-black uppercase text-xs">
-                      {founderProfile.founderType.replace(/_/g, ' ')}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 block uppercase text-[10px] tracking-wide">Current Goal</span>
-                    <span className="text-black uppercase text-xs">
-                      {founderProfile.currentGoal}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="bg-[#F8F7F4] border-2 border-black p-3 text-xs font-semibold font-inter">
-                  <span className="text-gray-500 block uppercase text-[9px] font-black tracking-wider mb-1">Product Wedge</span>
-                  <span className="italic text-gray-800 break-words">"{founderProfile.product}"</span>
-                </div>
-
-                <Link 
-                  to="/onboarding" 
-                  className="neo-btn-secondary py-2 text-xs w-full text-center"
-                >
-                  <RefreshCw size={12} className="animate-hover-spin" />
-                  <span>Re-configure Profile</span>
-                </Link>
-              </div>
-            </BentoCard>
-
-            {/* Widget 2: Strategic Query Launcher */}
-            <BentoCard 
-              title="Simulation Launcher" 
-              badge="Agent network"
-              badgeColor="bg-[#A3E635]"
-              className="flex-1"
-            >
-              <form onSubmit={triggerSimulation} className="space-y-4 flex flex-col justify-between h-full">
-                <div className="space-y-4">
-                  {/* Query text input */}
-                  <div>
-                    <label className="block text-xs font-black uppercase text-gray-700 mb-1.5">
-                      Define Strategic Inquiry / Query
-                    </label>
+          
+          {/* Left Column: Strategy builder and simulation */}
+          <div className="col-span-12 lg:col-span-8 space-y-6">
+            
+            {/* Strategy Input Card */}
+            <BentoCard title="AI Strategy Workspace" badge="Multi-Agent Analysis" badgeColor="bg-[#A3E635]">
+              <form onSubmit={triggerSimulation} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-black uppercase text-gray-400 mb-1.5">
+                    What strategy or target wedge do you want to validate?
+                  </label>
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <input
                       type="text"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
-                      placeholder="e.g. How to compete with Third Wave local cold brew prices?"
-                      required
+                      placeholder="e.g. Validate willingness to pay for premium organic cold brew delivery..."
                       disabled={isRunning}
-                      className="neo-input text-sm"
+                      required
+                      className="neo-input flex-1"
                     />
+                    <button
+                      type="submit"
+                      disabled={isRunning || !query.trim()}
+                      className="neo-btn-primary px-6 shrink-0 py-2.5 font-outfit text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isRunning ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
+                      <span>TRIGGER AGENT SIMULATION</span>
+                    </button>
                   </div>
+                </div>
 
-                  {/* Preset Suggestions */}
-                  <div className="space-y-1.5">
-                    <span className="text-[10px] font-black uppercase text-gray-400 block">Suggested Inquiries</span>
-                    <div className="flex flex-col gap-1.5">
-                      {getSuggestions().map((s, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => setQuery(s)}
-                          disabled={isRunning}
-                          className="text-left text-xs p-2 bg-[#F8F7F4] hover:bg-[#A3E635]/20 border-2 border-black border-dashed font-semibold text-gray-700 hover:text-black cursor-pointer transition-colors block truncate"
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                {/* Preset Suggestions */}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] font-black text-gray-500 uppercase shrink-0">Suggestions:</span>
+                  {getSuggestions().map((s, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setQuery(s)}
+                      disabled={isRunning}
+                      className="text-[10px] font-bold text-[#A3E635] hover:text-black border border-[#A3E635] hover:bg-[#A3E635] px-2 py-0.5 transition-colors cursor-pointer"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Report Type */}
-                    <div>
-                      <label className="block text-xs font-black uppercase text-gray-700 mb-1">Report Type</label>
-                      <select
-                        value={reportType}
-                        onChange={(e) => setReportType(e.target.value)}
-                        disabled={isRunning}
-                        className="neo-input py-2 text-xs"
-                      >
-                        <option value="idea_validation">Idea Validation</option>
-                        <option value="market_pulse">Market Pulse</option>
-                        <option value="competitor_brief">Competitor Brief</option>
-                        <option value="gtm_strategy">GTM Strategy</option>
-                        <option value="investor_memo">Investor Memo</option>
-                        <option value="risk_radar">Risk Radar</option>
-                        <option value="execution_plan">Execution Plan</option>
-                      </select>
-                    </div>
-
-                    {/* Focus Area */}
-                    <div>
-                      <label className="block text-xs font-black uppercase text-gray-700 mb-1">Focus Area</label>
-                      <select
-                        value={focusArea}
-                        onChange={(e) => setFocusArea(e.target.value)}
-                        disabled={isRunning}
-                        className="neo-input py-2 text-xs"
-                      >
-                        <option value="market">Market & Feeds</option>
-                        <option value="product">Product Wedge</option>
-                        <option value="capital">Capital & Costs</option>
-                        <option value="operations">Operations/Runway</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  {/* Custom Sources */}
+                {/* Strategy parameters */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-gray-100">
                   <div>
-                    <label className="block text-xs font-black uppercase text-gray-700 mb-1">
-                      Target URLs to Rank / Ground (Optional)
-                    </label>
+                    <label className="block text-[8px] font-black uppercase text-gray-400 mb-1">Report Output Type</label>
+                    <select
+                      value={reportType}
+                      onChange={(e) => setReportType(e.target.value)}
+                      disabled={isRunning}
+                      className="w-full text-xs font-bold border-2 border-black p-1.5 bg-white focus:outline-none"
+                    >
+                      <option value="idea_validation">Idea Validation</option>
+                      <option value="gtm_strategy">GTM Direction</option>
+                      <option value="competitor_brief">Competitor Wedge</option>
+                      <option value="investor_memo">Investor Strategy Memo</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[8px] font-black uppercase text-gray-400 mb-1">Analysis Focus</label>
+                    <select
+                      value={focusArea}
+                      onChange={(e) => setFocusArea(e.target.value)}
+                      disabled={isRunning}
+                      className="w-full text-xs font-bold border-2 border-black p-1.5 bg-white focus:outline-none"
+                    >
+                      <option value="market">Market & Customer</option>
+                      <option value="risks">Risks & Feasibility</option>
+                      <option value="differentiation">Competitor Wedge</option>
+                      <option value="economics">Unit Economics</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-[8px] font-black uppercase text-gray-400 mb-1">Custom sources URLs (comma separated)</label>
                     <input
                       type="text"
                       value={customSources}
                       onChange={(e) => setCustomSources(e.target.value)}
-                      placeholder="e.g. https://crunchbase.com, https://news.ycombinator.com"
                       disabled={isRunning}
-                      className="neo-input text-xs"
+                      placeholder="e.g. https://example.com/data"
+                      className="w-full text-xs font-bold border-2 border-black p-1.5 bg-white focus:outline-none"
                     />
                   </div>
                 </div>
-
-                {/* Auth Prompt for Anonymous User */}
-                {!user && (
-                  <div className="bg-[#FB923C]/10 border-2 border-black border-dashed p-3 text-xs font-semibold text-gray-800 space-y-2">
-                    <div className="flex items-start gap-2">
-                      <AlertCircle size={16} className="shrink-0 text-[#FB923C] mt-0.5" />
-                      <span>You are running in guest mode. Strategy reports generated won't be saved to your permanent library.</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={openAuthModal}
-                      className="w-full bg-white hover:bg-gray-100 border-2 border-black text-black font-black py-1.5 active:translate-x-[0.5px] active:translate-y-[0.5px] active:shadow-none transition-all text-[10px] uppercase tracking-wide cursor-pointer"
-                    >
-                      Sign In / Sign Up
-                    </button>
-                  </div>
-                )}
-
-                {/* Error Banner */}
-                {streamError && (
-                  <div className="bg-[#F472B6] border-2 border-black p-3 text-xs font-bold text-black flex items-start gap-2">
-                    <AlertCircle size={16} className="shrink-0" />
-                    <span>{streamError}</span>
-                  </div>
-                )}
-
-                {/* Trigger Button */}
-                <button
-                  type="submit"
-                  disabled={isRunning || !query.trim()}
-                  className={`w-full ${
-                    isRunning ? 'bg-gray-400' : 'bg-[#A3E635]'
-                  } border-[3px] border-black text-black font-black py-3 shadow-neo-button active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer uppercase text-sm mt-4 select-none`}
-                >
-                  <Play size={16} className={isRunning ? 'animate-spin' : ''} />
-                  <span>{isRunning ? 'AGENT SIMULATION RUNNING...' : 'TRIGGER AGENT SIMULATION'}</span>
-                </button>
               </form>
             </BentoCard>
-          </div>
 
-          {/* Bento Right: Terminal & Strategy Summary */}
-          <div className="col-span-12 lg:col-span-7 space-y-6 flex flex-col justify-stretch">
-            {/* Widget 3: Streaming Log Console */}
-            <div className="flex-1">
-              <AgentConsole logs={logs} isRunning={isRunning} />
-            </div>
+            {/* Agent console logs */}
+            {(isRunning || logs.length > 0 || streamError) && (
+              <BentoCard title="Agent Logs Console" badge="Live Stream" badgeColor="bg-[#FB923C]">
+                <AgentConsole logs={logs} isRunning={isRunning} error={streamError} />
+              </BentoCard>
+            )}
 
-            {/* Widget 4: Strategy Thesis / Summary */}
-            <BentoCard 
-              title="Active Strategy Thesis" 
-              badge={currentReport ? "STRATEGIST DECISION" : "COMPILING..."}
-              badgeColor={currentReport ? "bg-[#F472B6]" : "bg-[#FB923C] animate-pulse"}
-            >
-              {activeReport ? (
-                <div className="space-y-4 flex flex-col justify-between h-full">
-                  <div className="space-y-2">
-                    <h3 className="font-outfit font-black text-lg text-black uppercase">
-                      {activeReport.title || 'Compiling strategy thesis...'}
+            {/* Strategic Report View */}
+            {activeReport && (
+              <BentoCard title="Active Strategy Report" badge={currentReport ? "Analysis Done" : "Drafting..."} badgeColor="bg-[#C084FC]">
+                <div className="space-y-4">
+                  <div className="border-[3px] border-black p-5 bg-[#F8F7F4] select-text">
+                    <h3 className="font-outfit font-black text-sm uppercase text-black border-b-2 border-black pb-2 mb-3">
+                      {activeReport.title || 'Compiling Strategic Brief...'}
                     </h3>
-                    <div className="text-sm font-semibold font-inter text-gray-700 leading-relaxed max-h-[140px] overflow-y-auto pr-1">
-                      {renderTextWithCitations(
-                        activeReport.sections?.executiveSnapshot || activeReport.sections?.executiveBrief || activeReport.sections?.thesis,
-                        activeReport.sources
-                      ) || <div className="text-gray-400 italic">Synthesizing executive snapshot...</div>}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 pt-2">
-                      <div className="bg-[#F8F7F4] border border-black p-2.5 text-xs">
-                        <span className="font-black text-gray-500 uppercase block text-[8px] mb-0.5">Positioning</span>
-                        <div className="font-bold text-gray-800 line-clamp-2">
-                          {renderTextWithCitations(
-                            activeReport.sections?.opportunityThesis || activeReport.sections?.positioning,
-                            activeReport.sources
-                          ) || <span className="text-gray-400 italic font-normal">Analyzing market positioning...</span>}
-                        </div>
-                      </div>
-                      <div className="bg-[#F8F7F4] border border-black p-2.5 text-xs">
-                        <span className="font-black text-gray-500 uppercase block text-[8px] mb-0.5">Intelligence Mode</span>
-                        <span className="font-bold text-gray-800 uppercase block">
-                          {activeReport.intelligenceMode?.replace(/_/g, ' ') || 'LOCAL DEMO'}
-                        </span>
-                      </div>
+                    <div className="text-xs font-bold text-gray-700 space-y-4 leading-relaxed font-inter">
+                      {activeReport.markdown ? (
+                        <div className="whitespace-pre-wrap">{activeReport.markdown}</div>
+                      ) : (
+                        <div className="text-gray-400 italic">Assembling framework and ground rules...</div>
+                      )}
                     </div>
                   </div>
 
-                  {currentReport ? (
+                  {currentReport && (
                     <Link
                       to={`/reports/${currentReport.id}`}
                       className="neo-btn-primary py-2.5 w-full text-center mt-4 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2"
                     >
                       <FileText size={14} />
-                      <span>VIEW FULL STRATEGIC BRIEF ({currentReport.sources?.length || 0} SOURCES)</span>
+                      <span>VIEW FULL STRATEGIC BRIEF</span>
                     </Link>
-                  ) : (
-                    <div className="bg-[#F8F7F4] border-2 border-black border-dashed py-2.5 text-center text-xs font-black uppercase tracking-wider text-gray-500 mt-4 select-none animate-pulse">
-                      Brief Compilation In Progress...
-                    </div>
                   )}
                 </div>
+              </BentoCard>
+            )}
+
+            {/* Action Sprint Checklist */}
+            {activeReport && activeReport.sections?.actionPlan && (
+              <BentoCard title="Action Plan & Sprint Task Tracker" badge="Interactive Roadmap" badgeColor="bg-[#A3E635]">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {['sevenDaySprint', 'thirtyDayRoadmap', 'validationChecklist'].map((sectionKey) => {
+                    const title = sectionKey === 'sevenDaySprint' ? '7-Day Sprint' : sectionKey === 'thirtyDayRoadmap' ? '30-Day Roadmap' : 'Risk Validation';
+                    const items = activeReport.sections.actionPlan[sectionKey] || [];
+                    const completedCount = items.filter(i => i.completed).length;
+
+                    return (
+                      <div key={sectionKey} className="border-[3px] border-black p-4 bg-[#F8F7F4] space-y-3">
+                        <h3 className="font-outfit font-black text-sm uppercase border-b-2 border-black pb-1.5 flex items-center justify-between">
+                          <span>{title}</span>
+                          <span className="text-[10px] bg-white border border-black px-1.5 text-black font-mono">
+                            {completedCount} / {items.length}
+                          </span>
+                        </h3>
+                        <div className="space-y-2 max-h-[260px] overflow-y-auto">
+                          {items.map((item, idx) => (
+                            <div 
+                              key={idx}
+                              onClick={() => currentReport && handleCheckboxToggle(sectionKey, idx, !item.completed)}
+                              className="flex items-start gap-2.5 p-2 bg-white border-2 border-black hover:bg-white/80 cursor-pointer select-none transition-all"
+                            >
+                              <button type="button" className="shrink-0 text-black mt-0.5">
+                                {item.completed ? (
+                                  <div className="bg-[#A3E635] border-2 border-black p-0.5"><Check size={12} strokeWidth={3} /></div>
+                                ) : (
+                                  <div className="w-4 h-4 border-2 border-black bg-white"></div>
+                                )}
+                              </button>
+                              <span className={`text-xs font-semibold font-inter ${item.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                                {item.text}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </BentoCard>
+            )}
+
+          </div>
+
+          {/* Right Column: Schemes and Matching */}
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            
+            {/* Matched Government Schemes */}
+            <BentoCard title="Matched Subsidies & Schemes" badge="Government Incentives" badgeColor="bg-[#FB923C]">
+              {govSchemes.length === 0 ? (
+                <div className="text-center py-6 text-gray-500 text-xs font-bold font-outfit uppercase">
+                  No matching subsidies found for your region.
+                </div>
               ) : (
-                <div className="flex flex-col items-center justify-center text-center p-8 text-gray-400 select-none flex-1">
-                  <Compass size={40} className="mb-2 animate-bounce" />
-                  <span className="font-outfit font-black uppercase text-xs tracking-wider">No active thesis compiled</span>
-                  <p className="text-xs text-gray-500 max-w-xs mt-1">
-                    Select a focus query and click "Trigger Agent Simulation" to compile strategy recommendations.
-                  </p>
+                <div className="space-y-3">
+                  {govSchemes.map((scheme) => (
+                    <div key={scheme.id} className="border-2 border-black p-3 bg-white hover:-translate-y-0.5 transition-transform">
+                      <h4 className="font-outfit font-black text-xs uppercase text-black">{scheme.name}</h4>
+                      <p className="text-[11px] text-gray-600 font-bold mt-1 leading-relaxed">{scheme.description}</p>
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                        <span className="text-[10px] font-black uppercase text-[#A3E635]">{scheme.incentive}</span>
+                        <a href={scheme.link} target="_blank" rel="noopener noreferrer" className="text-[10px] font-black uppercase underline hover:text-[#C084FC]">
+                          Apply schemes
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </BentoCard>
+
+            {/* Term Sheet Diluter Negotiator Panel */}
+            {negotiatingPartner && (
+              <BentoCard title="Term Sheet Diluter" badge="DEAL ROOM" badgeColor="bg-[#EF4444]">
+                {dealClosed ? (
+                  <div className="border-2 border-black p-5 bg-white text-center space-y-3">
+                    <div className="w-10 h-10 rounded-full bg-[#A3E635] border-2 border-black flex items-center justify-center mx-auto text-black font-black">✓</div>
+                    <h4 className="font-outfit font-black text-xs uppercase">Deal Closed!</h4>
+                    <p className="text-[10px] text-gray-500 font-bold leading-tight">
+                      Cap Table registered. Term Sheet successfully closed with {negotiatingPartner.name}.
+                    </p>
+                    <button
+                      onClick={() => setNegotiatingPartner(null)}
+                      className="w-full py-1.5 bg-white border-2 border-black text-black font-black text-[10px] uppercase cursor-pointer hover:bg-gray-50"
+                    >
+                      Exit Negotiator
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="border-2 border-black p-3 bg-gray-50 text-left">
+                      <span className="text-[9px] font-black uppercase text-gray-400 block">Investor</span>
+                      <h4 className="font-outfit font-black text-xs uppercase text-black">{negotiatingPartner.name}</h4>
+                      <span className="text-[9px] bg-[#3B82F6] text-white border border-black px-1.5 py-0.5 mt-1 inline-block uppercase font-black">
+                        {negotiatingPartner.role}
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex justify-between items-center mb-0.5">
+                          <label className="text-[9px] font-black uppercase text-gray-500">Investment Amount</label>
+                          <span className="text-[10px] font-bold font-mono border border-black bg-white px-1">
+                            ${(investmentVal / 1000).toFixed(0)}k
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="50000"
+                          max="2000000"
+                          step="25000"
+                          value={investmentVal}
+                          onChange={(e) => setInvestmentVal(Number(e.target.value))}
+                          className="w-full accent-black cursor-pointer"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-0.5">
+                          <label className="text-[9px] font-black uppercase text-gray-500">Pre-Money Valuation</label>
+                          <span className="text-[10px] font-bold font-mono border border-black bg-white px-1">
+                            ${(preVal / 1000000).toFixed(2)}M
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="500000"
+                          max="10000000"
+                          step="100000"
+                          value={preVal}
+                          onChange={(e) => setPreVal(Number(e.target.value))}
+                          className="w-full accent-black cursor-pointer"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-0.5">
+                          <label className="text-[9px] font-black uppercase text-gray-500">Option Pool Size</label>
+                          <span className="text-[10px] font-bold font-mono border border-black bg-white px-1">
+                            {optionPool}%
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="5"
+                          max="25"
+                          step="1"
+                          value={optionPool}
+                          onChange={(e) => setOptionPool(Number(e.target.value))}
+                          className="w-full accent-black cursor-pointer"
+                        />
+                      </div>
+
+                      {negotiatingPartner.role === 'angel' && (
+                        <div className="border-2 border-black p-2 bg-white select-none">
+                          <label className="flex items-center gap-2 cursor-pointer font-black text-[9px] uppercase">
+                            <input
+                              type="checkbox"
+                              checked={syndicateActive}
+                              onChange={(e) => setSyndicateActive(e.target.checked)}
+                              className="accent-black cursor-pointer w-3.5 h-3.5 border border-black"
+                            />
+                            <span>Launch Angel Syndicate Pool</span>
+                          </label>
+                          {syndicateActive && (
+                            <span className="block text-[8px] font-bold text-gray-450 mt-0.5">
+                              Aggregating 3 additional angels (+35% syndicate volume)
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="border-2 border-black p-3 bg-white space-y-1 select-text text-left">
+                      <span className="text-[9px] font-black uppercase text-gray-400 block mb-1">Cap Table Projection</span>
+                      {(() => {
+                        const effectiveInvestment = syndicateActive ? investmentVal * 1.35 : investmentVal;
+                        const postMoney = preVal + effectiveInvestment;
+                        const investorShare = (effectiveInvestment / postMoney) * 100;
+                        const founderShare = 100 - investorShare - optionPool;
+                        return (
+                          <div className="space-y-0.5 text-[11px] font-bold text-gray-700">
+                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                              <span>Post-Money Valuation:</span>
+                              <span className="font-mono text-black">${(postMoney / 1000000).toFixed(2)}M</span>
+                            </div>
+                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                              <span>Founders Ownership:</span>
+                              <span className="font-mono text-[#3B82F6]">{founderShare.toFixed(1)}%</span>
+                            </div>
+                            <div className="flex justify-between border-b border-gray-100 pb-0.5">
+                              <span>Investor Ownership:</span>
+                              <span className="font-mono text-[#EF4444]">{investorShare.toFixed(1)}%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Option Pool:</span>
+                              <span className="font-mono text-gray-600">{optionPool}%</span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setDealClosed(true);
+                          confetti({
+                            particleCount: 100,
+                            spread: 60,
+                            colors: ['#EF4444', '#FCD34D', '#3B82F6']
+                          });
+                        }}
+                        className="flex-1 py-2 bg-[#A3E635] text-black border-2 border-black font-black text-[10px] uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer text-center"
+                      >
+                        Accept & Close Deal
+                      </button>
+                      <button
+                        onClick={() => setNegotiatingPartner(null)}
+                        className="py-2 px-3 border-2 border-black font-black text-[10px] uppercase bg-white hover:bg-gray-50 cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </BentoCard>
+            )}
+
+            {/* Investor Matching */}
+            <BentoCard title="AI Investor Matches" badge="VC & Angel Matching" badgeColor="bg-[#C084FC]">
+              {matchingPartners.length === 0 ? (
+                <div className="text-center py-6 text-gray-500 text-xs font-bold font-outfit uppercase">
+                  Searching for investors...
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {matchingPartners.map((partner) => {
+                    const isPending = connections.some(c => c.receiverId === partner.id && c.status === 'pending');
+                    const isConnected = connections.some(c => c.receiverId === partner.id && c.status === 'accepted');
+
+                    return (
+                      <div key={partner.id} className="border-2 border-black p-3 bg-white flex justify-between items-center">
+                        <div>
+                          <h4 className="font-outfit font-black text-xs uppercase text-black">{partner.name}</h4>
+                          <span className="text-[10px] font-black uppercase text-gray-400">{partner.role}</span>
+                        </div>
+                        {isConnected ? (
+                          <div className="flex gap-1.5">
+                            <button
+                              onClick={() => {
+                                setRadarPartner(partner);
+                                setRadarVisible(true);
+                              }}
+                              className="px-2 py-1.5 border-2 border-black font-outfit font-black text-[9px] uppercase cursor-pointer bg-[#FCD34D] text-black hover:bg-yellow-400 transition-all"
+                            >
+                              Radar Fit
+                            </button>
+                            <button
+                              onClick={() => {
+                                setNegotiatingPartner(partner);
+                                setDealClosed(false);
+                              }}
+                              className="px-3 py-1.5 border-2 border-black font-outfit font-black text-[10px] uppercase cursor-pointer bg-[#3B82F6] text-white hover:bg-blue-600 transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                            >
+                              Negotiate Terms
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-1.5">
+                            <button
+                              onClick={() => {
+                                setRadarPartner(partner);
+                                setRadarVisible(true);
+                              }}
+                              className="px-2 py-1.5 border-2 border-black font-outfit font-black text-[9px] uppercase cursor-pointer bg-[#FCD34D] text-black hover:bg-yellow-400 transition-all"
+                            >
+                              Radar Fit
+                            </button>
+                            <button
+                              onClick={() => !isPending && handleConnectRequest(partner.id)}
+                              disabled={isPending}
+                              className={`px-3 py-1.5 border-2 border-black font-outfit font-black text-[10px] uppercase cursor-pointer ${
+                                isPending ? 'bg-gray-100 text-gray-400' : 'bg-white hover:bg-gray-50'
+                              }`}
+                            >
+                              {isPending ? 'Requested' : 'Pitch Startup'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </BentoCard>
+
+          </div>
+
+        </div>
+
+        {renderFitRadarModal()}
+      </div>
+    );
+  }
+
+  // 2. VC DASHBOARD VIEW
+  if (founderProfile.role === 'vc') {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        
+        {/* VC Dashboard Header */}
+        <div className="neo-card bg-white text-black p-8 mb-8 border-[4px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] select-none relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          {/* Decorative floating blue shape inside header */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#3B82F6] border-[4px] border-black transform rotate-12 opacity-80 pointer-events-none hidden md:block"></div>
+          
+          <div className="relative z-10 space-y-2">
+            <span className="inline-block bg-[#C084FC] text-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wider border-2 border-black">
+              VC Deal Flow Console
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-black">
+              {founderProfile.name}
+            </h2>
+            <p className="font-outfit font-bold text-gray-600 flex items-center gap-1.5 text-xs sm:text-sm">
+              <MapPin size={14} className="text-[#3B82F6]" /> {founderProfile.geography} Focus • Preferred Stages: {founderProfile.investmentStage}
+            </p>
+          </div>
+          
+          <div className="relative z-10 flex items-center gap-4 bg-white border-[3px] border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex-wrap sm:flex-nowrap">
+            <div className="text-center border-r-[3px] border-black pr-5">
+              <span className="block text-[9px] font-black uppercase text-gray-500">INVESTMENT BUDGET</span>
+              <span className="text-lg font-black text-[#EF4444]">{founderProfile.ticketSize || 'Unlimited'}</span>
+            </div>
+            <div className="text-center pl-1.5">
+              <span className="block text-[9px] font-black uppercase text-gray-500">WATCHED PIPELINE</span>
+              <span className="text-sm font-black text-[#3B82F6]">{trendingStartups.length} Startups</span>
+            </div>
+          </div>
+        </div>
+
+        {/* VC Deal Flow Grid */}
+        <div className="grid grid-cols-12 gap-6">
+          
+          {/* Left Column: Trending Deal Flow */}
+          <div className="col-span-12 lg:col-span-8 space-y-6">
+            <BentoCard title="Trending Startups Pipeline" badge="Ranked by Startup Score" badgeColor="bg-[#A3E635]">
+              {trendingStartups.length === 0 ? (
+                <div className="text-center py-12 text-gray-500 font-outfit font-black text-xs uppercase">
+                  No active startups registered on the platform yet.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {trendingStartups.map((startup) => (
+                    <div 
+                      key={startup.id} 
+                      onClick={() => setSelectedStartup(startup)}
+                      className={`border-[3px] border-black p-5 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer hover:translate-y-[-2px] transition-transform ${
+                        selectedStartup?.id === startup.id ? 'bg-gray-50 shadow-neo-button border-[#C084FC]' : ''
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-black text-[#A3E635] border-2 border-black flex items-center justify-center font-black text-lg uppercase">
+                          {startup.name.slice(0, 2)}
+                        </div>
+                        <div>
+                          <h4 className="font-outfit font-black text-base uppercase text-black flex items-center gap-2">
+                            {startup.name}
+                            <span className="text-[9px] bg-[#A3E635] text-black border border-black px-1.5 py-0.5">
+                              Stage: {startup.stage}
+                            </span>
+                          </h4>
+                          <p className="text-xs font-bold text-gray-500 mt-1 max-w-md line-clamp-1">{startup.pitch || startup.solution}</p>
+                          <span className="text-[10px] font-black uppercase text-gray-400 block mt-1">{startup.geography} • {startup.industry}</span>
+                        </div>
+                      </div>
+
+                      <div className="bg-gray-100 border border-black px-3 py-2 text-center font-outfit shrink-0">
+                        <span className="block text-[8px] font-black text-gray-500 uppercase">SCORE</span>
+                        <span className="text-lg font-black">{startup.score || 10}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </BentoCard>
           </div>
 
-          {/* Widget 5: Action Plan & Task Tracker (Full width below) */}
-          {activeReport && activeReport.sections?.actionPlan && (
-            <div className="col-span-12">
-              <BentoCard 
-                title="Action Plan & Sprint Task Tracker" 
-                badge={currentReport ? "Interactive Checklist" : "Drafting Tasks..."} 
-                badgeColor="bg-[#C084FC]"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* 7-Day Sprint Checklist */}
-                  <div className="border-[3px] border-black p-4 bg-[#F8F7F4] space-y-3">
-                    <h3 className="font-outfit font-black text-sm uppercase text-[#FB923C] border-b-2 border-black pb-1.5 flex items-center justify-between">
-                      <span>7-Day Validation Sprint</span>
-                      <span className="text-[10px] bg-white border border-black px-1.5 text-black font-mono">
-                        {activeReport.sections.actionPlan.sevenDaySprint?.filter(i => i.completed).length || 0} / {activeReport.sections.actionPlan.sevenDaySprint?.length || 0}
-                      </span>
-                    </h3>
-                    <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                      {activeReport.sections.actionPlan.sevenDaySprint?.map((item, idx) => (
-                        <div 
-                          key={item.id || idx}
-                          onClick={() => currentReport && handleCheckboxToggle('sevenDaySprint', idx, !item.completed)}
-                          className={`flex items-start gap-2.5 p-2 bg-white border-2 border-black hover:bg-white/80 ${currentReport ? 'active:translate-x-[1px] active:translate-y-[1px] cursor-pointer' : 'cursor-wait'} select-none transition-all`}
-                        >
-                          <button type="button" className="shrink-0 text-black mt-0.5" disabled={!currentReport}>
-                            {item.completed ? (
-                              <div className="bg-[#A3E635] border-2 border-black p-0.5"><Check size={12} strokeWidth={3} /></div>
-                            ) : (
-                              <div className="w-4 h-4 border-2 border-black bg-white"></div>
-                            )}
-                          </button>
-                          <span className={`text-xs font-semibold font-inter ${item.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
-                            {item.text}
-                          </span>
-                        </div>
-                      ))}
+          {/* Right Column: Selected Startup details */}
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            <BentoCard title="Deal Intelligence" badge="Startup Details" badgeColor="bg-[#C084FC]">
+              {selectedStartup ? (
+                <div className="space-y-4">
+                  <div className="border-2 border-black p-4 bg-[#F8F7F4]">
+                    <h3 className="font-outfit font-black text-lg uppercase text-black">{selectedStartup.name}</h3>
+                    <p className="text-xs text-gray-500 mt-0.5 uppercase font-bold">{selectedStartup.industry} • {selectedStartup.geography}</p>
+                    
+                    <div className="mt-4 space-y-2 text-xs font-bold font-inter">
+                      <div>
+                        <span className="block text-[9px] font-black text-gray-400 uppercase">PROBLEM</span>
+                        <p className="text-gray-700">{selectedStartup.problem || 'No description'}</p>
+                      </div>
+                      <div className="mt-2">
+                        <span className="block text-[9px] font-black text-gray-400 uppercase">SOLUTION</span>
+                        <p className="text-gray-700">{selectedStartup.solution || 'No description'}</p>
+                      </div>
+                      <div className="mt-2">
+                        <span className="block text-[9px] font-black text-gray-400 uppercase">TEAM STATUS</span>
+                        <p className="text-gray-700">{selectedStartup.teamStatus || selectedStartup.team_status || 'Not specified'}</p>
+                      </div>
+                      <div className="mt-2">
+                        <span className="block text-[9px] font-black text-gray-400 uppercase">CURRENT NEEDS</span>
+                        <p className="text-[#C084FC]">{selectedStartup.needs || 'No requirements'}</p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* 30-Day Roadmap */}
-                  <div className="border-[3px] border-black p-4 bg-[#F8F7F4] space-y-3">
-                    <h3 className="font-outfit font-black text-sm uppercase text-[#C084FC] border-b-2 border-black pb-1.5 flex items-center justify-between">
-                      <span>30-Day Milestone Roadmap</span>
-                      <span className="text-[10px] bg-white border border-black px-1.5 text-black font-mono">
-                        {activeReport.sections.actionPlan.thirtyDayRoadmap?.filter(i => i.completed).length || 0} / {activeReport.sections.actionPlan.thirtyDayRoadmap?.length || 0}
-                      </span>
-                    </h3>
-                    <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                      {activeReport.sections.actionPlan.thirtyDayRoadmap?.map((item, idx) => (
-                        <div 
-                          key={item.id || idx}
-                          onClick={() => currentReport && handleCheckboxToggle('thirtyDayRoadmap', idx, !item.completed)}
-                          className={`flex items-start gap-2.5 p-2 bg-white border-2 border-black hover:bg-white/80 ${currentReport ? 'active:translate-x-[1px] active:translate-y-[1px] cursor-pointer' : 'cursor-wait'} select-none transition-all`}
-                        >
-                          <button type="button" className="shrink-0 text-black mt-0.5" disabled={!currentReport}>
-                            {item.completed ? (
-                              <div className="bg-[#A3E635] border-2 border-black p-0.5"><Check size={12} strokeWidth={3} /></div>
-                            ) : (
-                              <div className="w-4 h-4 border-2 border-black bg-white"></div>
-                            )}
-                          </button>
-                          <span className={`text-xs font-semibold font-inter ${item.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
-                            {item.text}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <Link
+                    to={`/reports/${selectedStartup.id}`}
+                    className="neo-btn-primary py-2.5 w-full text-center text-xs font-black uppercase flex items-center justify-center gap-1.5"
+                  >
+                    <Sparkles size={14} />
+                    <span>Run AI Due Diligence Report</span>
+                  </Link>
 
-                  {/* Validation Checklist */}
-                  <div className="border-[3px] border-black p-4 bg-[#F8F7F4] space-y-3">
-                    <h3 className="font-outfit font-black text-sm uppercase text-[#F472B6] border-b-2 border-black pb-1.5 flex items-center justify-between">
-                      <span>Risk Validation Checklist</span>
-                      <span className="text-[10px] bg-white border border-black px-1.5 text-black font-mono">
-                        {activeReport.sections.actionPlan.validationChecklist?.filter(i => i.completed).length || 0} / {activeReport.sections.actionPlan.validationChecklist?.length || 0}
-                      </span>
-                    </h3>
-                    <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
-                      {activeReport.sections.actionPlan.validationChecklist?.map((item, idx) => (
-                        <div 
-                          key={item.id || idx}
-                          onClick={() => currentReport && handleCheckboxToggle('validationChecklist', idx, !item.completed)}
-                          className={`flex items-start gap-2.5 p-2 bg-white border-2 border-black hover:bg-white/80 ${currentReport ? 'active:translate-x-[1px] active:translate-y-[1px] cursor-pointer' : 'cursor-wait'} select-none transition-all`}
-                        >
-                          <button type="button" className="shrink-0 text-black mt-0.5" disabled={!currentReport}>
-                            {item.completed ? (
-                              <div className="bg-[#A3E635] border-2 border-black p-0.5"><Check size={12} strokeWidth={3} /></div>
-                            ) : (
-                              <div className="w-4 h-4 border-2 border-black bg-white"></div>
-                            )}
-                          </button>
-                          <span className={`text-xs font-semibold font-inter ${item.completed ? 'line-through text-gray-400' : 'text-gray-800'}`}>
-                            {item.text}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => {
+                      setRadarPartner(selectedStartup);
+                      setRadarVisible(true);
+                    }}
+                    className="w-full py-2.5 bg-[#FCD34D] text-black border-2 border-black font-outfit font-black text-xs uppercase hover:bg-yellow-400 cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <span>Inspect AI Fit Radar</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleConnectRequest(selectedStartup.ownerId || selectedStartup.owner_id)}
+                    className="w-full py-2.5 bg-black text-white border-2 border-black font-outfit font-black text-xs uppercase hover:bg-gray-900 cursor-pointer"
+                  >
+                    Schedule Deal Call
+                  </button>
+
+                  <button
+                    onClick={() => handleCastVouch(selectedStartup.id)}
+                    disabled={vouchedStartups.includes(selectedStartup.id)}
+                    className={`w-full py-2.5 border-2 border-black font-outfit font-black text-xs uppercase cursor-pointer transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] ${
+                      vouchedStartups.includes(selectedStartup.id)
+                        ? 'bg-gray-105 text-gray-400 border-gray-350 shadow-none pointer-events-none'
+                        : 'bg-[#A3E635] text-black hover:bg-[#92cf2e]'
+                    }`}
+                  >
+                    {vouchedStartups.includes(selectedStartup.id)
+                      ? 'Vouched (Consensus Updated)'
+                      : 'Cast Advisory Vouch (+25 Score)'}
+                  </button>
                 </div>
-              </BentoCard>
-            </div>
-          )}
+              ) : (
+                <div className="text-center py-12 text-gray-400 select-none font-outfit font-black text-xs uppercase">
+                  Select a startup from the deal flow list to view details
+                </div>
+              )}
+            </BentoCard>
+          </div>
 
-          {/* Widget 6: Verified Grounding Citations */}
-          {activeReport && activeReport.sources && activeReport.sources.length > 0 && (
-            <div className="col-span-12">
-              <BentoCard title="Verified Grounding Citations" badge={currentReport ? "References Assembled" : "Researching..."} badgeColor="bg-[#A3E635]">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {activeReport.sources.map((source, index) => (
+        </div>
+
+        {renderFitRadarModal()}
+      </div>
+    );
+  }
+
+  // 3. ANGEL INVESTOR DASHBOARD VIEW
+  if (founderProfile.role === 'angel') {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        
+        {/* Angel Dashboard Header */}
+        <div className="neo-card bg-white text-black p-8 mb-8 border-[4px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] select-none relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          {/* Decorative floating yellow shape inside header */}
+          <svg className="absolute -top-6 -right-6 w-28 h-28 opacity-80 pointer-events-none hidden md:block" viewBox="0 0 100 100">
+            <polygon points="50,10 90,90 10,90" stroke="black" strokeWidth="6" fill="#FCD34D" />
+          </svg>
+          
+          <div className="relative z-10 space-y-2">
+            <span className="inline-block bg-[#FB923C] text-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wider border-2 border-black">
+              Angel Investor Network
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-black">
+              {founderProfile.name}
+            </h2>
+            <p className="font-outfit font-bold text-gray-600 flex items-center gap-1.5 text-xs sm:text-sm">
+              <MapPin size={14} className="text-[#3B82F6]" /> {founderProfile.geography} • Angel Backer
+            </p>
+          </div>
+          
+          <div className="relative z-10 flex items-center gap-4 bg-white border-[3px] border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex-wrap sm:flex-nowrap">
+            <div className="text-center border-r-[3px] border-black pr-5">
+              <span className="block text-[9px] font-black uppercase text-gray-500">ANNUAL BUDGET</span>
+              <span className="text-lg font-black text-[#EF4444]">{founderProfile.budget || 'Flexible'}</span>
+            </div>
+            <div className="text-center pl-1.5">
+              <span className="block text-[9px] font-black uppercase text-gray-500">SECTORS SUPPORTED</span>
+              <span className="text-xs font-black uppercase text-[#3B82F6]">{founderProfile.industry || 'All'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Angel Grid */}
+        <div className="grid grid-cols-12 gap-6">
+          
+          {/* Left Column: Local / Pre-seed Opportunities */}
+          <div className="col-span-12 lg:col-span-8 space-y-6">
+            <BentoCard title="Discover Early Opportunities" badge="Pre-seed & Idea Stage" badgeColor="bg-[#FB923C]">
+              {trendingStartups.length === 0 ? (
+                <div className="text-center py-12 text-gray-500 font-outfit font-black text-xs uppercase">
+                  No active startups found.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {trendingStartups.map((startup) => (
                     <div 
-                      key={index} 
-                      id={`source-card-${index}`}
-                      className="border-[3px] border-black p-3.5 bg-white hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[3px_3px_0px_0px_#000000] transition-all duration-150 space-y-2 flex flex-col justify-between"
+                      key={startup.id} 
+                      onClick={() => setSelectedStartup(startup)}
+                      className={`border-2 border-black p-4 bg-white flex flex-col justify-between cursor-pointer hover:-translate-y-0.5 transition-transform ${
+                        selectedStartup?.id === startup.id ? 'border-[#FB923C] bg-gray-50' : ''
+                      }`}
                     >
                       <div>
-                        <div className="flex items-start justify-between gap-2">
-                          <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-black font-mono bg-[#A3E635] text-black border-2 border-black rounded-none">
-                            {index + 1}
+                        <div className="flex justify-between items-start gap-2 mb-2">
+                          <span className="text-[9px] bg-black text-[#A3E635] px-1.5 py-0.5 font-bold font-mono">
+                            Score: {startup.score || 10}
                           </span>
-                          <span className="text-[10px] font-black uppercase text-gray-500 bg-[#F8F7F4] border border-black px-1.5 py-0.5 max-w-[200px] truncate">
-                            {source.domain || (source.url ? new URL(source.url).hostname : 'source')}
-                          </span>
+                          <span className="text-[9px] font-black uppercase text-gray-400">{startup.stage}</span>
                         </div>
-                        <h4 className="font-outfit font-black text-xs text-black uppercase mt-2 line-clamp-1">
-                          {source.title}
-                        </h4>
-                        <p className="text-[11px] font-semibold text-gray-600 line-clamp-2 mt-1">
-                          {source.summary || source.snippet || 'Verified web reference for strategy grounding.'}
-                        </p>
+                        <h4 className="font-outfit font-black text-sm uppercase text-black">{startup.name}</h4>
+                        <p className="text-[11px] font-semibold text-gray-600 line-clamp-3 mt-2">{startup.pitch || startup.solution}</p>
                       </div>
-                      {source.url && (
-                        <a 
-                          href={source.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="inline-flex items-center gap-1 text-[10px] font-black uppercase underline text-[#C084FC] hover:text-black mt-2 self-start cursor-pointer"
-                        >
-                          <span>Visit Source</span>
-                          <ExternalLink size={10} strokeWidth={3} />
-                        </a>
-                      )}
+
+                      <div className="border-t border-gray-100 pt-3 mt-4 flex items-center justify-between text-[10px] font-black uppercase text-gray-400">
+                        <span>{startup.geography}</span>
+                        <span className="text-[#FB923C]">Match: 95%</span>
+                      </div>
                     </div>
                   ))}
                 </div>
-              </BentoCard>
-            </div>
-          )}
+              )}
+            </BentoCard>
+          </div>
+
+          {/* Right Column: Due diligence & connect */}
+          <div className="col-span-12 lg:col-span-4 space-y-6">
+            <BentoCard title="Angel Discovery Desk" badge="Thesis Alignment" badgeColor="bg-[#A3E635]">
+              {selectedStartup ? (
+                <div className="space-y-4">
+                  <div className="border-2 border-black p-4 bg-[#F8F7F4]">
+                    <h3 className="font-outfit font-black text-md uppercase text-black">{selectedStartup.name}</h3>
+                    <p className="text-[10px] text-gray-400 mt-0.5 uppercase font-bold">{selectedStartup.geography} • {selectedStartup.industry}</p>
+                    
+                    <div className="mt-4 space-y-2 text-xs font-bold font-inter">
+                      <div>
+                        <span className="block text-[8px] font-black text-gray-400 uppercase">PROBLEM</span>
+                        <p className="text-gray-700">{selectedStartup.problem || 'No description'}</p>
+                      </div>
+                      <div className="mt-2">
+                        <span className="block text-[8px] font-black text-gray-400 uppercase">SOLUTION</span>
+                        <p className="text-gray-700">{selectedStartup.solution || 'No description'}</p>
+                      </div>
+                      <div className="mt-2">
+                        <span className="block text-[8px] font-black text-gray-400 uppercase">LOOKING FOR</span>
+                        <p className="text-[#FB923C]">{selectedStartup.needs || 'No requirements specified'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Link
+                    to={`/reports/${selectedStartup.id}`}
+                    className="neo-btn-primary py-2.5 w-full text-center text-xs font-black uppercase flex items-center justify-center gap-1.5"
+                  >
+                    <Trophy size={14} />
+                    <span>View AI Feasibility report</span>
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      setRadarPartner(selectedStartup);
+                      setRadarVisible(true);
+                    }}
+                    className="w-full py-2.5 bg-[#FCD34D] text-black border-2 border-black font-outfit font-black text-xs uppercase hover:bg-yellow-400 cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <span>Inspect AI Fit Radar</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleConnectRequest(selectedStartup.ownerId || selectedStartup.owner_id)}
+                    className="w-full py-2.5 bg-black text-white border-2 border-black font-outfit font-black text-xs uppercase hover:bg-gray-900 cursor-pointer"
+                  >
+                    Back Startup (Invest)
+                  </button>
+
+                  <button
+                    onClick={() => handleCastVouch(selectedStartup.id)}
+                    disabled={vouchedStartups.includes(selectedStartup.id)}
+                    className={`w-full py-2.5 border-2 border-black font-outfit font-black text-xs uppercase cursor-pointer transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] ${
+                      vouchedStartups.includes(selectedStartup.id)
+                        ? 'bg-gray-105 text-gray-400 border-gray-350 shadow-none pointer-events-none'
+                        : 'bg-[#A3E635] text-black hover:bg-[#92cf2e]'
+                    }`}
+                  >
+                    {vouchedStartups.includes(selectedStartup.id)
+                      ? 'Vouched (Consensus Updated)'
+                      : 'Cast Advisory Vouch (+25 Score)'}
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-400 select-none font-outfit font-black text-xs uppercase">
+                  Select an early stage startup to review thesis match
+                </div>
+              )}
+            </BentoCard>
+          </div>
+
         </div>
-      ) : (
-        /* Unconfigured State */
-        <div className="neo-card p-12 text-center bg-white space-y-4 max-w-xl mx-auto select-none">
-          <HelpCircle size={48} className="mx-auto text-[#FB923C] animate-bounce" />
-          <h2 className="text-xl sm:text-2xl font-black uppercase">No Active Profile</h2>
-          <p className="font-outfit font-semibold text-gray-600">
-            Please define your founder constraints and sector product details first to boot the strategy operating system.
-          </p>
-          <Link
-            to="/onboarding"
-            className="neo-btn-primary inline-flex mt-2"
-          >
-            <span>Launch Onboarding</span>
-            <ArrowRight size={16} />
-          </Link>
-        </div>
-      )}
-    </div>
-  );
+
+        {renderFitRadarModal()}
+      </div>
+    );
+  }
+
+  return null;
 }

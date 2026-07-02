@@ -14,6 +14,56 @@ export default function RunwayPlanner() {
   const [defaultAlive, setDefaultAlive] = useState(false);
   const [hoveredMonth, setHoveredMonth] = useState(null);
 
+  const [scenarioInput, setScenarioInput] = useState('');
+  const [simulating, setSimulating] = useState(false);
+  const [simulationLog, setSimulationLog] = useState('');
+
+  const runSimulation = async (e) => {
+    e.preventDefault();
+    if (!scenarioInput.trim()) return;
+
+    setSimulating(true);
+    setSimulationLog('');
+    try {
+      const res = await fetch('/api/runway/simulate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          cash,
+          burn,
+          revenue,
+          growth,
+          scenarioText: scenarioInput
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const sim = data.simulation;
+        
+        setCash(prev => Math.max(0, prev + sim.cashDelta));
+        setBurn(prev => Math.max(0, prev + sim.burnDelta));
+        setGrowth(prev => Math.max(0, Math.min(100, prev + sim.growthDelta)));
+        setSimulationLog(sim.explanation);
+        setScenarioInput('');
+
+        confetti({
+          particleCount: 50,
+          spread: 40,
+          colors: ['#A3E635', '#EF4444', '#3B82F6']
+        });
+      } else {
+        setSimulationLog('Simulation failed. Please try again.');
+      }
+    } catch (err) {
+      setSimulationLog('Failed to connect to simulation engine.');
+    } finally {
+      setSimulating(false);
+    }
+  };
+
   useEffect(() => {
     calculateFinancials();
   }, [cash, burn, revenue, growth]);
@@ -243,6 +293,42 @@ export default function RunwayPlanner() {
                 />
               </div>
             </div>
+          </BentoCard>
+
+          {/* AI Business Scenario Simulator */}
+          <BentoCard title="AI Scenario Simulator" badge="NATURAL LANGUAGE" badgeColor="bg-[#EF4444]">
+            <form onSubmit={runSimulation} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-500 mb-1.5">
+                  Type a business event to simulate (e.g. raise $500k, hire 3 devs)
+                </label>
+                <input
+                  type="text"
+                  value={scenarioInput}
+                  onChange={(e) => setScenarioInput(e.target.value)}
+                  placeholder="e.g. raise 250k seed round, hire senior backend dev..."
+                  disabled={simulating}
+                  className="w-full p-2.5 border-2 border-black font-outfit text-xs focus:outline-none bg-gray-50 text-black"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={simulating || !scenarioInput.trim()}
+                className="w-full py-2.5 bg-[#EF4444] text-white border-2 border-black font-black text-xs uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {simulating ? <RefreshCw size={12} className="animate-spin" /> : null}
+                <span>SIMULATE DECISION</span>
+              </button>
+              
+              {simulationLog && (
+                <div className="border-2 border-black p-3 bg-yellow-50 text-left space-y-1.5 select-text">
+                  <span className="text-[9px] font-black uppercase text-[#EF4444] block">SIMULATION IMPACT LOG</span>
+                  <p className="text-[10px] font-bold text-gray-700 leading-relaxed whitespace-pre-line">
+                    {simulationLog}
+                  </p>
+                </div>
+              )}
+            </form>
           </BentoCard>
 
           {/* Widget 2: Key Strategic Indicators */}

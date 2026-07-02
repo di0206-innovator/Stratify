@@ -378,7 +378,7 @@ test('admin endpoints block non-admins and allow authorized admins', async () =>
         users: [
             {
                 id: 'admin-id',
-                email: 'admin@neuralbi.io',
+                email: 'admin@stratify.co',
                 name: 'Admin User',
                 passwordHash: adminPasswordHash,
                 emailVerified: true,
@@ -430,7 +430,7 @@ test('admin endpoints block non-admins and allow authorized admins', async () =>
         const adminLogin = await fetch(`${url}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: 'admin@neuralbi.io', password: 'SecurePass123!' })
+            body: JSON.stringify({ email: 'admin@stratify.co', password: 'SecurePass123!' })
         });
         const adminCookie = adminLogin.headers.get('set-cookie');
 

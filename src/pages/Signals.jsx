@@ -12,7 +12,26 @@ export default function Signals({ founderProfile }) {
   const [impactFilter, setImpactFilter] = useState('all');
   const [mode, setMode] = useState('demo');
 
-  const fetchSignals = async (forceRefresh = false) => {
+  const fetchSignals = async () => {
+    if (!founderProfile) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('/api/signals/history');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch signal history: HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      setSignals(data.signals || []);
+      setMode('live');
+    } catch (err) {
+      setError(err.message || 'Failed to sync with signal history.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sweepSignals = async () => {
     if (!founderProfile) return;
     setLoading(true);
     setError(null);
@@ -31,20 +50,15 @@ export default function Signals({ founderProfile }) {
         throw new Error(`Failed to sweep signals: HTTP ${response.status}`);
       }
 
-      const data = await response.json();
-      setSignals(data.signals || []);
-      setMode(data.mode || 'demo');
+      await fetchSignals();
 
-      if (forceRefresh) {
-        confetti({
-          particleCount: 50,
-          spread: 40,
-          colors: ['#FB923C', '#A3E635', '#000000']
-        });
-      }
+      confetti({
+        particleCount: 50,
+        spread: 40,
+        colors: ['#FB923C', '#A3E635', '#000000']
+      });
     } catch (err) {
       setError(err.message || 'Failed to sync with signal feeds.');
-    } finally {
       setLoading(false);
     }
   };
@@ -110,7 +124,7 @@ export default function Signals({ founderProfile }) {
         
         {founderProfile && (
           <button
-            onClick={() => fetchSignals(true)}
+            onClick={sweepSignals}
             disabled={loading}
             className="neo-btn-primary flex items-center gap-2"
           >

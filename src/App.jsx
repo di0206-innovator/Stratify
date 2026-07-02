@@ -9,6 +9,16 @@ import Reports from './pages/Reports';
 import ReportDetail from './pages/ReportDetail';
 import RunwayPlanner from './pages/RunwayPlanner';
 import AdminDashboard from './pages/AdminDashboard';
+import Feed from './pages/Feed';
+import StartupProfile from './pages/StartupProfile';
+import PitchBrief from './pages/PitchBrief';
+import EquityPlanner from './pages/EquityPlanner';
+import BountyBoard from './pages/BountyBoard';
+import Timeline from './pages/Timeline';
+import Opportunities from './pages/Opportunities';
+import Explore from './pages/Explore';
+import FounderMemory from './pages/FounderMemory';
+import Settings from './pages/Settings';
 import { supabase } from './lib/supabase';
 
 // Intercept window.fetch to automatically append Clerk or Supabase session token if authenticated
@@ -59,12 +69,12 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('neuralbi_theme') || 'light';
+    return localStorage.getItem('stratify_theme') || 'light';
   });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('neuralbi_theme', theme);
+    localStorage.setItem('stratify_theme', theme);
   }, [theme]);
 
   const openAuthModal = () => setIsAuthModalOpen(true);
@@ -96,7 +106,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    const cachedProfile = localStorage.getItem('neuralbi_founder_profile');
+    const cachedProfile = localStorage.getItem('stratify_founder_profile');
     if (cachedProfile) {
       try {
         setFounderProfile(JSON.parse(cachedProfile));
@@ -168,13 +178,25 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-neo-canvas flex flex-col justify-between">
-        <div>
-          {/* Top Navigation */}
-          <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} theme={theme} setTheme={setTheme} />
+      <div className="min-h-screen bg-memphis-mesh relative overflow-x-hidden flex flex-col justify-between">
+        {/* Absolute Background Memphis Geometric Shapes */}
+        <div className="memphis-shape w-96 h-96 rounded-full bg-[#EF4444] border-[8px] border-black -top-20 -right-20 animate-float-slow hidden xl:block" style={{ zIndex: 0 }} />
+        
+        <svg className="memphis-shape w-40 h-40 bottom-10 left-[45%] animate-float-medium hidden lg:block" viewBox="0 0 100 100" style={{ zIndex: 0 }}>
+          <polygon points="50,10 90,90 10,90" stroke="black" strokeWidth="6" fill="#FBBF24" />
+        </svg>
 
-          {/* Main Pages */}
-          <main className="pb-16">
+        <svg className="memphis-shape w-48 h-32 bottom-24 -left-12 animate-float-fast hidden xl:block" viewBox="0 0 150 100" style={{ zIndex: 0 }}>
+          <polygon points="10,90 120,90 140,10 30,10" stroke="black" strokeWidth="6" fill="#3B82F6" />
+        </svg>
+
+        <div className="relative z-10 flex flex-col justify-between min-h-screen w-full">
+          <div>
+            {/* Top Navigation */}
+            <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} theme={theme} setTheme={setTheme} />
+  
+            {/* Main Pages */}
+            <main className="pb-16 relative z-10">
             <Routes>
               {/* Dashboard Route: If not onboarded, redirect to /onboarding */}
               <Route 
@@ -205,6 +227,18 @@ export default function App() {
                 } 
               />
 
+              {/* Startup Feed */}
+              <Route 
+                path="/feed" 
+                element={<Feed user={user} founderProfile={founderProfile} />} 
+              />
+
+              {/* Startup Showcase Profile */}
+              <Route 
+                path="/startups/:id" 
+                element={<StartupProfile />} 
+              />
+
               {/* Signals */}
               <Route 
                 path="/signals" 
@@ -227,6 +261,53 @@ export default function App() {
               <Route 
                 path="/runway" 
                 element={<RunwayPlanner />} 
+              />
+
+              {/* Equity Cap Split Planner */}
+              <Route 
+                path="/equity" 
+                element={<EquityPlanner />} 
+              />
+
+              {/* Micro Bounty Board */}
+              <Route 
+                path="/bounties" 
+                element={<BountyBoard founderProfile={founderProfile} user={user} />} 
+              />
+
+              {/* Pitch Brief Builder Dashboard */}
+              <Route 
+                path="/briefs" 
+                element={<PitchBrief mode="builder" founderProfile={founderProfile} />} 
+              />
+
+              {/* Public whitelist-guarded Pitch Brief Data Room */}
+              <Route 
+                path="/brief/:id" 
+                element={<PitchBrief mode="public" />} 
+              />
+
+              {/* Founder Memory */}
+              <Route path="/memory" element={<FounderMemory founderProfile={founderProfile} user={user} />} />
+              <Route path="/settings" element={<Settings user={user} />} />
+              <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
+
+              {/* Timeline */}
+              <Route 
+                path="/timeline" 
+                element={<Timeline founderProfile={founderProfile} user={user} />} 
+              />
+
+              {/* Opportunities */}
+              <Route 
+                path="/opportunities" 
+                element={<Opportunities founderProfile={founderProfile} user={user} />} 
+              />
+
+              {/* Explore */}
+              <Route 
+                path="/explore" 
+                element={<Explore founderProfile={founderProfile} user={user} />} 
               />
 
               {/* Admin Console */}
@@ -258,11 +339,12 @@ export default function App() {
         <footer className="w-full bg-neo-canvas border-t-[3px] border-black py-4 select-none">
           <div className="max-w-7xl mx-auto px-4 text-center">
             <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-gray-500">
-              © {new Date().getFullYear()} NEURALBI LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.
+              © {new Date().getFullYear()} STRATIFY LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.
             </span>
           </div>
         </footer>
       </div>
+    </div>
 
       {/* Auth Modal */}
       <AuthModal 

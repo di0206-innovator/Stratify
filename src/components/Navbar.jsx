@@ -1,16 +1,53 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield, Sun, Moon, Terminal } from 'lucide-react';
+import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield, Sun, Moon, Terminal, Users, Cpu } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabase';
 
 export default function Navbar({ founderProfile, user, setUser, openAuthModal, theme, setTheme }) {
   const location = useLocation();
+  const [stats, setStats] = React.useState({ startups: 4, matches: 2, updates: 8 });
+  const [isHoveredStat, setIsHoveredStat] = React.useState(null);
+
+  const fetchStats = async () => {
+    try {
+      const startupsRes = await fetch('/api/startups/trending');
+      const startupsData = startupsRes.ok ? await startupsRes.json() : { startups: [] };
+      
+      const matchesRes = await fetch('/api/matches');
+      const matchesData = matchesRes.ok ? await matchesRes.json() : { matches: [] };
+      
+      const postsRes = await fetch('/api/posts');
+      const postsData = postsRes.ok ? await postsRes.json() : { posts: [] };
+
+      setStats({
+        startups: startupsData.startups?.length || 4,
+        matches: matchesData.matches?.length || 2,
+        updates: postsData.posts?.length || 8
+      });
+    } catch (e) {
+      console.warn('Failed to fetch navbar stats:', e);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchStats();
+    const interval = setInterval(fetchStats, 15000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const navItems = [
-    { path: '/', label: 'OS Dashboard', icon: LayoutDashboard },
-    { path: '/signals', label: 'Signals Hub', icon: Radio },
-    { path: '/runway', label: 'Runway Planner', icon: TrendingUp },
+    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/feed', label: 'Feed', icon: Radio },
+    { path: '/timeline', label: 'Timeline', icon: TrendingUp },
+    { path: '/memory', label: 'Memory', icon: Cpu },
+    { path: '/signals', label: 'Signals', icon: Radio },
+    { path: '/explore', label: 'Explore', icon: Users },
+    { path: '/opportunities', label: 'Opportunities', icon: UserCog },
+    { path: '/runway', label: 'Runway', icon: TrendingUp },
+    { path: '/equity', label: 'Cap Table', icon: Users },
+    { path: '/bounties', label: 'Bounties', icon: Cpu },
+    { path: '/briefs', label: 'Briefs', icon: FileText },
     { path: '/reports', label: 'Reports', icon: FileText },
   ];
 
@@ -38,7 +75,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
       confetti({
         particleCount: 30,
         spread: 30,
-        colors: ['#000', '#F8F7F4']
+        colors: ['#EF4444', '#FCD34D', '#3B82F6']
       });
     } catch (err) {
       console.error('Logout failed:', err);
@@ -46,78 +83,150 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-neo-canvas border-b-[3px] border-black select-none">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 min-h-[4.75rem] flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
-          <div className="bg-[#A3E635] border-[3px] border-black px-3 py-1 font-outfit font-black text-lg tracking-tighter uppercase transform -rotate-2 group-hover:rotate-0 transition-transform shadow-neo-button">
-            NeuralBI
+    <header className="w-full bg-white border-b-[4px] border-black select-none sticky top-0 z-50">
+      {/* Top Segmented Column Stats Grid */}
+      <div className="grid grid-cols-12 border-b-[4px] border-black text-black">
+        {/* Brand Segment */}
+        <div className="col-span-12 lg:col-span-4 flex items-center px-5 py-3.5 border-b-[4px] lg:border-b-0 lg:border-r-[4px] border-black bg-white">
+          <div className="relative w-8 h-8 mr-3.5 flex-shrink-0">
+            <div className="absolute w-5 h-5 rounded-full bg-[#EF4444] border-2 border-black -top-1 -right-1" />
+            <svg className="absolute w-6 h-6 bottom-0 left-0" viewBox="0 0 100 100">
+              <polygon points="50,10 90,90 10,90" stroke="black" strokeWidth="12" fill="#FCD34D" />
+            </svg>
           </div>
-          <span className="font-outfit font-black text-sm uppercase tracking-wider hidden sm:inline-block ml-1">
-            Founder Strategy OS
-          </span>
-        </Link>
+          <div>
+            <span className="font-outfit font-black text-xl tracking-tighter uppercase block leading-none">
+              Stratify
+            </span>
+            <span className="font-outfit font-black text-[9px] uppercase tracking-widest text-gray-500 block mt-0.5">
+              Recursive . Global Startup . OS
+            </span>
+          </div>
+        </div>
 
+        {/* Startups Stat */}
+        <div 
+          className="col-span-3 lg:col-span-2 flex flex-col items-center justify-center p-2.5 border-r-[4px] border-black bg-white transition-all"
+          onMouseEnter={() => setIsHoveredStat('startups')}
+          onMouseLeave={() => setIsHoveredStat(null)}
+          style={{ transform: isHoveredStat === 'startups' ? 'scale(1.02)' : 'none' }}
+        >
+          <span className="font-outfit font-black text-xl lg:text-2xl leading-none">
+            {stats.startups}
+          </span>
+          <span className="font-outfit font-black text-[8px] uppercase tracking-wider text-gray-500 mt-1">
+            Startups
+          </span>
+        </div>
+
+        {/* Matches Stat */}
+        <div 
+          className="col-span-3 lg:col-span-2 flex flex-col items-center justify-center p-2.5 border-r-[4px] border-black bg-[#FCD34D] text-black transition-all"
+          onMouseEnter={() => setIsHoveredStat('matches')}
+          onMouseLeave={() => setIsHoveredStat(null)}
+          style={{ transform: isHoveredStat === 'matches' ? 'scale(1.02)' : 'none' }}
+        >
+          <span className="font-outfit font-black text-xl lg:text-2xl leading-none">
+            {stats.matches}
+          </span>
+          <span className="font-outfit font-black text-[8px] uppercase tracking-wider text-black mt-1">
+            Matches
+          </span>
+        </div>
+
+        {/* Updates Stat */}
+        <div 
+          className="col-span-3 lg:col-span-2 flex flex-col items-center justify-center p-2.5 border-r-[4px] border-black bg-[#3B82F6] text-white transition-all"
+          onMouseEnter={() => setIsHoveredStat('updates')}
+          onMouseLeave={() => setIsHoveredStat(null)}
+          style={{ transform: isHoveredStat === 'updates' ? 'scale(1.02)' : 'none' }}
+        >
+          <span className="font-outfit font-black text-xl lg:text-2xl leading-none">
+            {stats.updates}
+          </span>
+          <span className="font-outfit font-black text-[8px] uppercase tracking-wider text-white/90 mt-1">
+            Updates
+          </span>
+        </div>
+
+        {/* AI Engine Status */}
+        <div className="col-span-3 lg:col-span-1 flex flex-col items-center justify-center p-2.5 border-r-[4px] border-black bg-[#EF4444] text-white">
+          <span className="font-outfit font-black text-xs uppercase leading-none">
+            Gemini
+          </span>
+          <span className="font-outfit font-black text-[8px] uppercase tracking-wider text-white/95 mt-1">
+            AI Engine
+          </span>
+        </div>
+
+        {/* State Indicator */}
+        <div className="col-span-6 lg:col-span-1 flex items-center justify-center p-2.5 bg-white border-r-[4px] lg:border-r-0 border-black">
+          <span className="relative flex h-2 w-2 mr-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          </span>
+          <span className="font-outfit font-black text-[10px] uppercase">
+            IDLE
+          </span>
+        </div>
+
+        {/* Settings/Theme toggler inside grid */}
+        <div className="col-span-6 lg:col-span-1 flex items-center justify-center p-2.5 bg-white border-t-[4px] lg:border-t-0 border-black">
+          <div className="flex items-center border-2 border-black bg-white select-none">
+            <button
+              onClick={() => setTheme('light')}
+              className={`p-1.5 transition-colors ${theme === 'light' ? 'bg-[#FCD34D]' : 'hover:bg-gray-100'} border-r-2 border-black cursor-pointer`}
+              title="Light"
+            >
+              <Sun size={11} className="text-black" />
+            </button>
+            <button
+              onClick={() => setTheme('dark')}
+              className={`p-1.5 transition-colors ${theme === 'dark' ? 'bg-[#3B82F6]' : 'hover:bg-gray-100'} cursor-pointer`}
+              title="Dark"
+            >
+              <Moon size={11} className="text-black" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs and Actions Row */}
+      <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
         {/* Navigation Tabs */}
-        <nav className="flex items-center gap-3 h-full py-1.5 flex-wrap md:flex-nowrap">
+        <nav className="flex items-center gap-2.5 py-1.5 flex-wrap">
           {activeNavItems.map((item) => {
             const isActive = location.pathname === item.path;
-            const Icon = item.icon;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-black uppercase border-[3px] border-black transition-all ${
+                className={`px-4 py-2 text-xs font-black uppercase border-[3px] border-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
                   isActive
-                    ? 'bg-[#C084FC] translate-x-[2px] translate-y-[2px] shadow-none'
-                    : 'bg-white hover:bg-[#F1EFEB] shadow-neo-button active:translate-x-[2px] active:translate-y-[2px] active:shadow-none'
+                    ? 'bg-[#EF4444] text-white shadow-none translate-x-[2px] translate-y-[2px] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none'
+                    : 'bg-white text-black hover:bg-gray-50'
                 }`}
               >
-                <Icon size={16} />
-                <span className="hidden md:inline">{item.label}</span>
+                {item.label}
               </Link>
             );
           })}
         </nav>
 
-        {/* Profile indicator & User Authentication */}
-        <div className="flex items-center gap-3.5 flex-wrap sm:flex-nowrap">
-          {/* Theme Toggler Buttons */}
-          <div className="flex items-center border-[3px] border-black bg-white select-none shadow-neo-button">
-            <button
-              onClick={() => setTheme('light')}
-              className={`p-1.5 transition-colors ${theme === 'light' ? 'bg-[#A3E635]' : 'hover:bg-gray-100'} border-r-2 border-black cursor-pointer`}
-              title="Light Mode"
-            >
-              <Sun size={13} className="text-black" />
-            </button>
-            <button
-              onClick={() => setTheme('dark')}
-              className={`p-1.5 transition-colors ${theme === 'dark' ? 'bg-[#C084FC]' : 'hover:bg-gray-100'} border-r-2 border-black cursor-pointer`}
-              title="Cyberpunk Dark"
-            >
-              <Moon size={13} className="text-black" />
-            </button>
-            <button
-              onClick={() => setTheme('retro')}
-              className={`p-1.5 transition-colors ${theme === 'retro' ? 'bg-[#FB923C]' : 'hover:bg-gray-100'} cursor-pointer`}
-              title="Matrix Retro"
-            >
-              <Terminal size={13} className="text-black" />
-            </button>
-          </div>
+        {/* Profile & Auth Status */}
+        <div className="flex items-center gap-3">
           {founderProfile ? (
             <Link
               to="/onboarding"
-              className="flex items-center gap-2 px-3 py-2 bg-[#F472B6] border-[3px] border-black text-xs font-black uppercase shadow-neo-button hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[3px] active:translate-y-[3px] transition-all"
+              className="flex items-center gap-2 px-3 py-2 bg-[#FCD34D] border-[3px] border-black text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
             >
-              <UserCog size={14} />
-              <span className="hidden lg:inline">{founderProfile.industry}</span>
+              <UserCog size={13} />
+              <span>{founderProfile.role === 'vc' ? 'VC' : founderProfile.role === 'angel' ? 'Angel' : 'Founder'} Workspace</span>
             </Link>
           ) : (
             <Link
               to="/onboarding"
-              className="px-3 py-2 bg-[#FB923C] border-[3px] border-black text-xs font-black uppercase shadow-neo-button hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              className="px-3 py-2 bg-[#FCD34D] border-[3px] border-black text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
             >
               Set Profile
             </Link>
@@ -125,12 +234,12 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
 
           {user ? (
             <div className="flex items-center gap-2">
-              <span className="hidden lg:inline-block text-[10px] font-black uppercase border-[3px] border-black px-2.5 py-2 bg-white select-none">
+              <Link to="/settings" className="hidden sm:inline-block text-[10px] font-black uppercase border-[3px] border-black px-2.5 py-2 bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
                 {user.username || user.email}
-              </span>
+              </Link>
               <button
                 onClick={handleLogout}
-                className="px-3 py-2 bg-neo-pink border-[3px] border-black text-xs font-black uppercase shadow-neo-button hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[3px] active:translate-y-[3px] transition-all cursor-pointer"
+                className="px-3 py-2 bg-white border-[3px] border-black text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
               >
                 Sign Out
               </button>
@@ -138,7 +247,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           ) : (
             <button
               onClick={openAuthModal}
-              className="px-3 py-2 bg-neo-lime border-[3px] border-black text-xs font-black uppercase shadow-neo-button hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[3px] active:translate-y-[3px] transition-all cursor-pointer"
+              className="px-4 py-2 bg-[#3B82F6] text-white border-[3px] border-black text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
             >
               Sign In
             </button>

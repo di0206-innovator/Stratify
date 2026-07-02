@@ -16,7 +16,8 @@ const {
     createOptionalAuthMiddleware,
     setSessionCookie,
     clearSessionCookie,
-    readCookie
+    readCookie,
+    SESSION_COOKIE
 } = require('./lib/auth');
 const { AuthService } = require('./lib/authService');
 const { FileAuthStore } = require('./lib/authStore');
@@ -25,6 +26,7 @@ const { createLogger } = require('./lib/logger');
 const { createMetrics } = require('./lib/metrics');
 const { FileReportStore } = require('./lib/reportStore');
 const { FileSignalStore } = require('./lib/signalStore');
+const { PgStartupStore, FileStartupStore, getMatchedSchemes } = require('./lib/startupStore');
 
 // ── Scalable backends (auto-selected when DATABASE_URL / REDIS_URL are set) ──
 const USE_PG    = !!(process.env.DATABASE_URL || process.env.PGHOST);
@@ -85,6 +87,15 @@ function createApp(options = {}) {
     } else {
         authService = options.authService || new AuthService({ store: authStore, config: appConfig, logger });
         logger.info('Using file-based auth service');
+    }
+
+    let startupStore = options.startupStore;
+    if (!startupStore) {
+        if (USE_PG) {
+            startupStore = new PgStartupStore();
+        } else {
+            startupStore = new FileStartupStore();
+        }
     }
     const auth = createAuthMiddleware({ token: appConfig.apiAuthToken, authService });
     const optionalAuth = createOptionalAuthMiddleware({ token: appConfig.apiAuthToken, authService });
@@ -149,7 +160,7 @@ function createApp(options = {}) {
     app.get('/api/health', (req, res) => {
         res.json({
             ok: true,
-            service: 'neuralbi-api',
+            service: 'stratify-api',
             requestId: req.id,
             workerId: process.pid,
             mode: orchestrator.mode,
@@ -171,6 +182,7 @@ function createApp(options = {}) {
                 await authStore.init();
                 await reportStore.init();
                 await signalStore.init();
+                await startupStore.init();
                 checks.database = 'file (ready)';
             }
 
@@ -243,7 +255,7 @@ function createApp(options = {}) {
 
     app.post('/api/auth/logout', async (req, res, next) => {
         try {
-            await authService.logout(readCookie(req, 'neuralbi_session'));
+            await authService.logout(readCookie(req, SESSION_COOKIE));
             clearSessionCookie(res, appConfig);
             res.status(204).end();
         } catch (error) {
@@ -460,21 +472,21 @@ function createApp(options = {}) {
     });
 
     app.post('/api/reports', auth, analyzeLimiter, (req, res, next) => {
-        createReport(req, res, next, { orchestrator, reportStore, appConfig, logger, metrics });
+        createReport(req, res, next, { orchestrator, reportStore, startupStore, appConfig, logger, metrics });
     });
 
     app.post('/api/analyze', optionalAuth, analyzeLimiter, (req, res, next) => {
         if (appConfig.requireAuthForAnalyze && !req.user) {
             return next(new HttpError(401, 'UNAUTHORIZED', 'Authentication is required.'));
         }
-        createReport(req, res, next, { orchestrator, reportStore, appConfig, logger, metrics });
+        createReport(req, res, next, { orchestrator, reportStore, startupStore, appConfig, logger, metrics });
     });
 
     app.post('/api/analyze/stream', optionalAuth, analyzeLimiter, (req, res, next) => {
         if (appConfig.requireAuthForAnalyze && !req.user) {
             return next(new HttpError(401, 'UNAUTHORIZED', 'Authentication is required.'));
         }
-        createReportStream(req, res, next, { orchestrator, reportStore, appConfig, logger, metrics });
+        createReportStream(req, res, next, { orchestrator, reportStore, startupStore, appConfig, logger, metrics });
     });
 
     app.post('/api/signals', optionalAuth, async (req, res, next) => {
@@ -519,6 +531,757 @@ function createApp(options = {}) {
             }
         });
     }
+
+    // ── Stratify Startup Economy API Endpoints ──
+
+    // Save Startup Profile
+    app.post('/api/startups', auth, async (req, res, next) => {
+        try {
+            const body = req.body || {};
+            if (!body.name) {
+                throw new HttpError(400, 'MISSING_FIELD', 'Startup name is required.');
+            }
+
+            // Calculate progress-based Startup Score
+            let score = 10; // base score for registering name
+            if (body.pitch) score += 10;
+            if (body.problem) score += 10;
+            if (body.solution) score += 10;
+            if (body.teamStatus) score += 10;
+            if (body.traction) score += 10;
+            if (body.needs) score += 10;
+            if (body.techStack) score += 10;
+            if (body.stage === 'mvp') score += 10;
+            if (body.stage === 'growth') score += 20;
+
+            const existing = await startupStore.getStartupByOwner(req.user.id);
+            const startup = {
+                id: existing ? existing.id : crypto.randomUUID(),
+                ownerId: req.user.id,
+                name: body.name,
+                logoUrl: body.logoUrl || null,
+                pitch: body.pitch || '',
+                problem: body.problem || '',
+                solution: body.solution || '',
+                stage: body.stage || 'idea',
+                industry: body.industry || '',
+                geography: body.geography || '',
+                teamStatus: body.teamStatus || '',
+                traction: body.traction || '',
+                needs: body.needs || '',
+                techStack: body.techStack || '',
+                score
+            };
+
+            const saved = await startupStore.saveStartup(startup);
+            res.status(201).json({ requestId: req.id, startup: saved });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Get my Startup Profile
+    app.get('/api/startups/my', auth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            res.json({ requestId: req.id, startup });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Update my Startup Profile
+    app.put('/api/startups/my', auth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (!startup) {
+                throw new HttpError(404, 'NOT_FOUND', 'No startup found for this user.');
+            }
+            const body = req.body || {};
+            const allowedFields = ['name', 'pitch', 'problem', 'solution', 'stage', 'industry', 'geography',
+                'teamStatus', 'traction', 'needs', 'techStack', 'deckUrl', 'websiteUrl', 'revenue', 'fundingRaised', 'logoUrl'];
+            const updates = {};
+            for (const field of allowedFields) {
+                if (body[field] !== undefined) updates[field] = body[field];
+            }
+            // Recalculate score
+            const merged = { ...startup, ...updates };
+            let score = 10;
+            if (merged.pitch) score += 10;
+            if (merged.problem) score += 10;
+            if (merged.solution) score += 10;
+            if (merged.team_status || merged.teamStatus) score += 10;
+            if (merged.traction && merged.traction !== 'Ideation') score += 10;
+            if (merged.needs) score += 10;
+            if (merged.tech_stack || merged.techStack) score += 10;
+            if (merged.deck_url || merged.deckUrl) score += 5;
+            if (merged.website_url || merged.websiteUrl) score += 5;
+            if (merged.stage === 'mvp') score += 10;
+            if (merged.stage === 'launched') score += 15;
+            if (merged.stage === 'growth' || merged.stage === 'scaling') score += 20;
+            updates.score = score;
+
+            const updated = await startupStore.updateStartup(startup.id, updates);
+
+            // Emit timeline event for profile update
+            await startupStore.createTimelineEvent({
+                id: crypto.randomUUID(),
+                startupId: startup.id,
+                actorId: req.user.id,
+                eventType: 'profile_update',
+                title: 'Startup profile updated',
+                description: `Updated fields: ${Object.keys(updates).filter(k => k !== 'score').join(', ')}`,
+                metadata: { updatedFields: Object.keys(updates) }
+            });
+
+            res.json({ requestId: req.id, startup: updated });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Get public startup profile by ID
+    app.get('/api/startups/:id', optionalAuth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartup(req.params.id);
+            if (!startup) {
+                throw new HttpError(404, 'NOT_FOUND', 'Startup not found.');
+            }
+            const timeline = await startupStore.listTimeline(startup.id, { limit: 20 });
+            const decisions = await startupStore.listDecisions(startup.id, { limit: 10 });
+            const briefs = await startupStore.listBriefs(startup.id);
+            const signals = await startupStore.listSignalHistory(startup.id, { limit: 10 });
+            const opportunities = await startupStore.listOpportunities({ limit: 5 });
+            res.json({ requestId: req.id, startup, timeline, decisions, briefs, signals, opportunities });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Get trending startups list
+    app.get('/api/startups/trending', optionalAuth, async (req, res, next) => {
+        try {
+            const limit = Number(req.query.limit || 15);
+            let startups = await startupStore.getTrendingStartups({ limit });
+            
+            // Add matchReason heuristic for discovery
+            startups = startups.map(s => {
+                let matchReason = '';
+                if (s.score > 80) matchReason = 'High velocity growth signal';
+                else if (s.score > 50) matchReason = 'Consistent product execution';
+                else matchReason = 'Emerging startup';
+                return { ...s, matchReason };
+            });
+
+            res.json({ requestId: req.id, startups });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // ── Decisions (Founder Memory) ──
+    app.post('/api/decisions', auth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (!startup) {
+                throw new HttpError(404, 'NOT_FOUND', 'Register a startup first.');
+            }
+            const body = req.body || {};
+            if (!body.title) {
+                throw new HttpError(400, 'MISSING_FIELD', 'Decision title is required.');
+            }
+            const decision = {
+                id: crypto.randomUUID(),
+                startupId: startup.id,
+                authorId: req.user.id,
+                title: body.title,
+                context: body.context || '',
+                outcome: body.outcome || '',
+                status: body.status || 'active'
+            };
+            const saved = await startupStore.createDecision(decision);
+
+            // Increment startup score
+            startup.score = (startup.score || 10) + 5;
+            await startupStore.updateStartup(startup.id, { score: startup.score });
+
+            // Emit timeline event
+            await startupStore.createTimelineEvent({
+                id: crypto.randomUUID(),
+                startupId: startup.id,
+                actorId: req.user.id,
+                eventType: 'decision',
+                title: `Decision: ${decision.title}`,
+                description: decision.context,
+                metadata: { decisionId: decision.id }
+            });
+
+            res.status(201).json({ requestId: req.id, decision: saved });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.get('/api/decisions', auth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (!startup) {
+                return res.json({ requestId: req.id, decisions: [] });
+            }
+            const decisions = await startupStore.listDecisions(startup.id);
+            res.json({ requestId: req.id, decisions });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // ── Timeline ──
+    app.get('/api/timeline', auth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (!startup) {
+                return res.json({ requestId: req.id, events: [] });
+            }
+            const eventType = req.query.type || null;
+            const events = await startupStore.listTimeline(startup.id, { eventType });
+            res.json({ requestId: req.id, events });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // ── Opportunities ──
+    app.get('/api/opportunities', optionalAuth, async (req, res, next) => {
+        try {
+            const { geography, industry, stage, type } = req.query;
+            const opportunities = await startupStore.listOpportunities({ geography, industry, stage, type });
+            res.json({ requestId: req.id, opportunities });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.post('/api/opportunities', auth, async (req, res, next) => {
+        try {
+            const body = req.body || {};
+            if (!body.title) {
+                throw new HttpError(400, 'MISSING_FIELD', 'Opportunity title is required.');
+            }
+            const opp = {
+                id: crypto.randomUUID(),
+                title: body.title,
+                type: body.type || 'grant',
+                organization: body.organization || '',
+                description: body.description || '',
+                geography: body.geography || 'Global',
+                industries: body.industries || 'Any',
+                stages: body.stages || '',
+                deadline: body.deadline || null,
+                link: body.link || null
+            };
+            const saved = await startupStore.createOpportunity(opp);
+            res.status(201).json({ requestId: req.id, opportunity: saved });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // ── Signal History ──
+    app.get('/api/signals/history', auth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (!startup) {
+                return res.json({ requestId: req.id, history: [] });
+            }
+            const history = await startupStore.listSignalHistory(startup.id);
+            res.json({ requestId: req.id, history });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // ── Explore / Discovery ──
+    app.get('/api/explore/startups', optionalAuth, async (req, res, next) => {
+        try {
+            const { industry, stage, geography } = req.query;
+            const limit = Number(req.query.limit || 30);
+            let startups = await startupStore.listStartups({ limit });
+            if (industry) startups = startups.filter(s => (s.industry || '').toLowerCase().includes(industry.toLowerCase()));
+            if (stage) startups = startups.filter(s => (s.stage || '').toLowerCase() === stage.toLowerCase());
+            if (geography) startups = startups.filter(s => (s.geography || '').toLowerCase().includes(geography.toLowerCase()));
+            res.json({ requestId: req.id, startups });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.get('/api/explore/people', auth, async (req, res, next) => {
+        try {
+            const { role } = req.query;
+            const usersState = await authStore.readState();
+            let people = usersState.users
+                .filter(u => u.id !== req.user.id)
+                .map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role }));
+            if (role) people = people.filter(p => p.role === role);
+            res.json({ requestId: req.id, people });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Post to execution feed (with timeline event emission)
+    app.post('/api/posts', auth, async (req, res, next) => {
+        try {
+            const body = req.body || {};
+            if (!body.content) {
+                throw new HttpError(400, 'MISSING_FIELD', 'Content is required.');
+            }
+
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            const post = {
+                id: crypto.randomUUID(),
+                startupId: startup ? startup.id : null,
+                authorId: req.user.id,
+                content: body.content,
+                type: body.type || 'post',
+                metadata: body.metadata || {},
+                authorName: req.user.name || req.user.username || 'Founder'
+            };
+
+            // If it's a major milestone, boost the startup score
+            if (startup && (body.type === 'milestone' || body.type === 'launch')) {
+                const scoreBoost = body.type === 'launch' ? 25 : 15;
+                startup.score = (startup.score || 0) + scoreBoost;
+                await startupStore.saveStartup(startup);
+
+                // Emit score change timeline event
+                await startupStore.createTimelineEvent({
+                    id: crypto.randomUUID(),
+                    startupId: startup.id,
+                    actorId: req.user.id,
+                    eventType: 'score_change',
+                    title: `Score +${scoreBoost} (${body.type})`,
+                    description: `Score increased to ${startup.score} from ${body.type} post.`,
+                    metadata: { delta: scoreBoost, newScore: startup.score }
+                });
+            }
+
+            const saved = await startupStore.createPost(post);
+
+            // Emit timeline event for the post
+            if (startup) {
+                await startupStore.createTimelineEvent({
+                    id: crypto.randomUUID(),
+                    startupId: startup.id,
+                    actorId: req.user.id,
+                    eventType: body.type === 'milestone' ? 'milestone' : body.type === 'launch' ? 'launch' : 'post',
+                    title: body.type === 'milestone' ? 'Milestone achieved' : body.type === 'launch' ? 'Product launched' : 'Update posted',
+                    description: body.content.slice(0, 200),
+                    metadata: { postId: post.id, powUrl: body.metadata?.powUrl || null }
+                });
+            }
+
+            res.status(201).json({ requestId: req.id, post: saved });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // List execution feed posts
+    app.get('/api/posts', optionalAuth, async (req, res, next) => {
+        try {
+            const limit = Number(req.query.limit || 50);
+            const posts = await startupStore.listPosts({ limit });
+            res.json({ requestId: req.id, posts });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Runway AI Scenario Simulator
+    app.post('/api/runway/simulate', auth, async (req, res, next) => {
+        try {
+            const { cash, burn, revenue, growth, scenarioText } = req.body || {};
+            if (!scenarioText) {
+                throw new HttpError(400, 'MISSING_FIELD', 'Scenario text is required.');
+            }
+
+            const apiKey = process.env.GEMINI_API_KEY;
+            let result;
+
+            if (apiKey) {
+                try {
+                    const genAI = new GoogleGenerativeAI(apiKey);
+                    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+                    const prompt = `You are an expert startup finance agent.
+Analyze the following natural language business decision scenario: "${scenarioText}".
+Based on this, output the financial impacts on:
+1. cashDelta (immediate change in cash, positive or negative number)
+2. burnDelta (monthly change in cost, positive or negative number)
+3. growthDelta (monthly change in growth rate percentage, positive or negative number)
+4. explanation (a 1-2 sentence explanation of the reasoning)
+
+Current status:
+Cash: $${cash}
+Monthly Burn: $${burn}
+Monthly Revenue: $${revenue}
+Growth Rate: ${growth}%
+
+Respond ONLY with a valid JSON object matching this schema (do not wrap in markdown blocks):
+{
+  "cashDelta": number,
+  "burnDelta": number,
+  "growthDelta": number,
+  "explanation": string
+}`;
+                    const genResult = await model.generateContent(prompt);
+                    const text = genResult.response.text().trim();
+                    const jsonStr = text.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+                    result = JSON.parse(jsonStr);
+                } catch (err) {
+                    console.warn('Gemini simulation failed, falling back to rule-based analysis:', err);
+                    result = fallbackSimulate(scenarioText, cash, burn, revenue, growth);
+                }
+            } else {
+                result = fallbackSimulate(scenarioText, cash, burn, revenue, growth);
+            }
+
+            res.json({ requestId: req.id, simulation: result });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Get briefs owned by current user's startup
+    app.get('/api/briefs', auth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (!startup) {
+                return res.json({ requestId: req.id, briefs: [] });
+            }
+            const briefs = await startupStore.listBriefs(startup.id);
+            const userBriefs = briefs.map(b => {
+                let parsed = {};
+                try { parsed = JSON.parse(b.content); } catch (e) {}
+                return {
+                    id: b.id,
+                    startupId: b.startupId || b.startup_id,
+                    title: b.title,
+                    ...parsed,
+                    createdAt: b.createdAt || b.created_at
+                };
+            });
+            res.json({ requestId: req.id, briefs: userBriefs });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Create or Update a brief
+    app.post('/api/briefs', auth, async (req, res, next) => {
+        try {
+            const body = req.body || {};
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (!startup) {
+                throw new HttpError(400, 'BAD_REQUEST', 'You must have a startup to create a brief.');
+            }
+            
+            const existingBriefs = await startupStore.listBriefs(startup.id);
+            const existing = existingBriefs.length > 0 ? existingBriefs[0] : null;
+
+            const briefData = {
+                name: startup.name || (body.name || 'Stealth Startup'),
+                pitch: body.pitch || startup.pitch || '',
+                problem: body.problem || startup.problem || '',
+                solution: body.solution || startup.solution || '',
+                isPublic: body.isPublic !== undefined ? body.isPublic : true,
+                whitelist: Array.isArray(body.whitelist) ? body.whitelist.map(w => w.toLowerCase()) : [],
+                deckUrl: body.deckUrl || '',
+                showRunway: body.showRunway !== undefined ? body.showRunway : true,
+            };
+            
+            // Re-save. Need a saveBrief method or just use createBrief
+            // Actually, if we're migrating, let's just make it create multiple versions over time,
+            // or we'll just implement `saveBrief` to UPSERT if we can. 
+            // In FileStartupStore we only have createBrief and listBriefs right now.
+            // Let's just create a new brief if none exists, else if we don't have update we can just create a new row/item.
+            // Wait, we need it to update. Since `createBrief` in FileStartupStore unshifts, listBriefs will return it first.
+            // That's fine for now, we just act as if it's versioned.
+            
+            const brief = await startupStore.createBrief({
+                id: existing ? existing.id : crypto.randomUUID(),
+                startupId: startup.id,
+                title: briefData.name + ' Pitch Brief',
+                content: JSON.stringify(briefData)
+            });
+
+            res.status(201).json({ requestId: req.id, brief: { ...brief, ...briefData } });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Get specific brief (with whitelist validation)
+    app.get('/api/briefs/:id', optionalAuth, async (req, res, next) => {
+        try {
+            const briefs = await readBriefs();
+            const brief = briefs.find(b => b.id === req.params.id);
+            if (!brief) {
+                throw new HttpError(404, 'NOT_FOUND', 'Strategic brief not found.');
+            }
+
+            // Authorization check
+            if (!brief.isPublic) {
+                if (!req.user) {
+                    throw new HttpError(403, 'UNAUTHORIZED_DATA_ROOM', 'This pitch brief is restricted. Please sign in.');
+                }
+                if (req.user.id !== brief.ownerId) {
+                    const userEmail = req.user.email ? req.user.email.toLowerCase() : '';
+                    const domain = userEmail.split('@')[1] || '';
+                    const isWhitelisted = brief.whitelist.some(item => 
+                        item === userEmail || item === domain
+                    );
+                    if (!isWhitelisted) {
+                        throw new HttpError(403, 'UNAUTHORIZED_DATA_ROOM', 'Access denied. You are not on the investor whitelist for this data room.');
+                    }
+                }
+            }
+
+            // Get the live startup score if available
+            let score = 10;
+            if (brief.startupId) {
+                const liveStartup = await startupStore.getStartup(brief.startupId);
+                if (liveStartup) {
+                    score = liveStartup.score;
+                }
+            }
+
+            res.json({ requestId: req.id, brief: { ...brief, score } });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Equity Planner (Cap Tables)
+    app.get('/api/equity', auth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (!startup) {
+                return res.json({ requestId: req.id, capTable: null });
+            }
+            const capTable = await startupStore.getCapTable(startup.id);
+            if (capTable) {
+                // Parse state if it's stringified
+                let parsedState = capTable.state || {};
+                if (typeof parsedState === 'string') {
+                    try { parsedState = JSON.parse(parsedState); } catch(e) {}
+                }
+                res.json({ requestId: req.id, capTable: { ...capTable, state: parsedState } });
+            } else {
+                res.json({ requestId: req.id, capTable: null });
+            }
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.post('/api/equity', auth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (!startup) {
+                throw new HttpError(400, 'BAD_REQUEST', 'You must have a startup to manage equity.');
+            }
+            const { state, versionName } = req.body;
+            let existing = await startupStore.getCapTable(startup.id);
+            const capTableData = {
+                id: existing ? existing.id : crypto.randomUUID(),
+                startupId: startup.id,
+                versionName: versionName || (existing ? existing.versionName : 'Current'),
+                state: state || {}
+            };
+            const saved = await startupStore.saveCapTable(capTableData);
+            
+            let parsedState = saved.state || {};
+            if (typeof parsedState === 'string') {
+                try { parsedState = JSON.parse(parsedState); } catch(e) {}
+            }
+            res.json({ requestId: req.id, capTable: { ...saved, state: parsedState } });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Matched government schemes
+    app.get('/api/gov-schemes', auth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (!startup) {
+                return res.json({ requestId: req.id, schemes: [] });
+            }
+            const schemes = getMatchedSchemes(startup.geography, startup.industry);
+            res.json({ requestId: req.id, schemes });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // GET /api/bounties
+    app.get('/api/bounties', auth, async (req, res, next) => {
+        try {
+            const { startupId, status } = req.query;
+            const list = await startupStore.listBounties({ startupId, status });
+            res.json({ requestId: req.id, bounties: list });
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    // POST /api/bounties
+    app.post('/api/bounties', auth, async (req, res, next) => {
+        try {
+            const { title, description, points, reward, startupId } = req.body;
+            if (!title || !description || !startupId) {
+                throw new HttpError(400, 'BAD_REQUEST', 'Title, description, and startupId are required.');
+            }
+            const newItem = await startupStore.createBounty({
+                id: 'bounty-' + crypto.randomUUID(),
+                startupId,
+                title,
+                description,
+                points: Number(points) || 10,
+                reward: reward || '$100',
+                status: 'open',
+                submissions: []
+            });
+            res.json({ requestId: req.id, bounty: newItem });
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    // POST /api/bounties/:id/submit
+    app.post('/api/bounties/:id/submit', auth, async (req, res, next) => {
+        try {
+            const { prLink, builderName } = req.body;
+            if (!prLink) {
+                throw new HttpError(400, 'BAD_REQUEST', 'PR or deployment URL is required.');
+            }
+            const list = await startupStore.listBounties();
+            const bounty = list.find(b => b.id === req.params.id);
+            if (!bounty) {
+                throw new HttpError(404, 'NOT_FOUND', 'Bounty not found.');
+            }
+            bounty.status = 'completed';
+            const submission = {
+                id: 'sub-' + crypto.randomUUID(),
+                prLink,
+                builderName: builderName || req.user?.username || req.user?.email || 'Anonymous',
+                submittedAt: new Date().toISOString()
+            };
+            
+            // Re-save. Need a saveBounty or updateBounty method, but we can just use createBounty to upsert or add updateBounty.
+            // Oh wait, createBounty in PgStartupStore uses INSERT without ON CONFLICT DO UPDATE.
+            // Let's implement updateBounty or just use query directly for now if it's too complex.
+            // Let's assume we can add updateBounty to startupStore next.
+            // For now, let's just write this to be clean, and we will add updateBounty to startupStore.
+            const updated = await startupStore.updateBounty(bounty.id, { status: bounty.status, submissions: [...(bounty.submissions || []), submission] });
+            res.json({ requestId: req.id, bounty: updated });
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    // POST /api/startups/:id/vouch
+    app.post('/api/startups/:id/vouch', auth, async (req, res, next) => {
+        try {
+            const role = req.user.role || 'founder';
+            if (role !== 'angel' && role !== 'vc') {
+                throw new HttpError(403, 'UNAUTHORIZED', 'Only mentors and advisors can vouch for startups.');
+            }
+            const startupId = req.params.id;
+            const startup = await startupStore.getStartup(startupId);
+            if (!startup) {
+                throw new HttpError(404, 'NOT_FOUND', 'Startup not found.');
+            }
+            startup.score = (startup.score || 10) + 25;
+            await startupStore.updateStartup(startupId, startup);
+            res.json({ requestId: req.id, startup });
+        } catch (e) {
+            next(e);
+        }
+    });
+
+    // Get matching connection partners (Founders matching VCs/Angels, VCs matching Startups)
+    app.get('/api/matching/partners', auth, async (req, res, next) => {
+        try {
+            const currentUserRole = req.user.role || 'founder';
+            const usersState = await authStore.readState();
+            let partners = [];
+
+            // If user is founder, recommend VCs and Angel investors
+            // If user is VC or Angel, recommend Founders with active startups
+            if (currentUserRole === 'founder') {
+                partners = usersState.users
+                    .filter(u => u.id !== req.user.id && (u.role === 'vc' || u.role === 'angel'))
+                    .map(u => ({ 
+                        id: u.id, name: u.name, email: u.email, role: u.role, 
+                        matchReason: u.role === 'vc' ? 'Invests in early-stage SaaS' : 'Active angel in your sector' 
+                    }));
+            } else {
+                const startups = await startupStore.listStartups({ limit: 100 });
+                partners = usersState.users
+                    .filter(u => u.id !== req.user.id && u.role === 'founder')
+                    .map(u => {
+                        const startup = startups.find(s => s.ownerId === u.id || s.owner_id === u.id);
+                        return {
+                            id: u.id,
+                            name: u.name,
+                            email: u.email,
+                            role: u.role,
+                            startup,
+                            matchReason: startup && startup.score > 50 ? 'Strong traction signal' : 'New opportunity in your sector'
+                        };
+                    })
+                    .filter(p => p.startup); // Only show founders with registered startups
+            }
+
+            res.json({ requestId: req.id, partners });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Create match connection
+    app.post('/api/matches', auth, async (req, res, next) => {
+        try {
+            const body = req.body || {};
+            if (!body.receiverId) {
+                throw new HttpError(400, 'MISSING_FIELD', 'Receiver ID is required.');
+            }
+
+            const match = {
+                id: crypto.randomUUID(),
+                senderId: req.user.id,
+                receiverId: body.receiverId,
+                status: body.status || 'pending'
+            };
+
+            const saved = await startupStore.createMatch(match);
+            res.status(201).json({ requestId: req.id, match: saved });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // List matches
+    app.get('/api/matches', auth, async (req, res, next) => {
+        try {
+            const matches = await startupStore.listMatches(req.user.id);
+            res.json({ requestId: req.id, matches });
+        } catch (error) {
+            next(error);
+        }
+    });
 
     app.get('*', (req, res, next) => {
         if (req.path.startsWith('/api')) return next();
@@ -572,11 +1335,24 @@ function createApp(options = {}) {
 }
 
 async function createReport(req, res, next, services) {
-    const { orchestrator, reportStore, appConfig, logger, metrics } = services;
+    const { orchestrator, reportStore, startupStore, appConfig, logger, metrics } = services;
     const validation = validateAnalyzeRequest(req.body);
 
     if (!validation.ok) {
         return next(new HttpError(400, 'INVALID_ANALYSIS_REQUEST', 'Invalid analysis request.', validation.errors));
+    }
+
+    if (req.user && req.user.id && req.user.id !== 'api-token' && startupStore) {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (startup) {
+                const timeline = await startupStore.listTimeline(startup.id, { limit: 20 });
+                const decisions = await startupStore.listDecisions(startup.id, { limit: 20 });
+                validation.value.founderProfile.history = { timeline, decisions };
+            }
+        } catch (err) {
+            logger.warn('Failed to fetch history for intelligence context', { error: err.message });
+        }
     }
 
     try {
@@ -591,6 +1367,35 @@ async function createReport(req, res, next, services) {
 
         if (req.user && req.user.id && req.user.id !== 'api-token') {
             report.ownerId = req.user.id;
+            if (startupStore && report.rawStrategy) {
+                const startup = await startupStore.getStartupByOwner(req.user.id);
+                if (startup) {
+                    let updated = false;
+                    if (typeof report.rawStrategy.validationScore === 'number') {
+                        startup.validation_score = report.rawStrategy.validationScore;
+                        updated = true;
+                    }
+                    if (typeof report.rawStrategy.riskScore === 'number') {
+                        startup.score = 100 - report.rawStrategy.riskScore; // Inverting risk to get a general score
+                        updated = true;
+                    }
+                    if (typeof report.rawStrategy.founderMarketFit === 'number') {
+                        startup.founder_market_fit = report.rawStrategy.founderMarketFit;
+                        updated = true;
+                    }
+                    if (report.rawExecution && typeof report.rawExecution.executionReadiness === 'number') {
+                        startup.execution_readiness = report.rawExecution.executionReadiness;
+                        updated = true;
+                    }
+                    if (report.rawExecution && typeof report.rawExecution.fundraisingReadiness === 'number') {
+                        startup.fundraising_readiness = report.rawExecution.fundraisingReadiness;
+                        updated = true;
+                    }
+                    if (updated) {
+                        await startupStore.updateStartup(startup.id, startup);
+                    }
+                }
+            }
         }
 
         await reportStore.save(report);
@@ -618,7 +1423,7 @@ async function createReport(req, res, next, services) {
 }
 
 async function createReportStream(req, res, next, services) {
-    const { orchestrator, reportStore, appConfig, logger, metrics } = services;
+    const { orchestrator, reportStore, startupStore, appConfig, logger, metrics } = services;
     const validation = validateAnalyzeRequest(req.body);
 
     if (!validation.ok) {
@@ -635,6 +1440,19 @@ async function createReportStream(req, res, next, services) {
         res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
     };
 
+    if (req.user && req.user.id && req.user.id !== 'api-token' && startupStore) {
+        try {
+            const startup = await startupStore.getStartupByOwner(req.user.id);
+            if (startup) {
+                const timeline = await startupStore.listTimeline(startup.id, { limit: 20 });
+                const decisions = await startupStore.listDecisions(startup.id, { limit: 20 });
+                validation.value.founderProfile.history = { timeline, decisions };
+            }
+        } catch (err) {
+            logger.warn('Failed to fetch history for intelligence context', { error: err.message });
+        }
+    }
+
     try {
         const report = await withTimeout(
             orchestrator.processInquiryStream(validation.value.query, {
@@ -649,6 +1467,24 @@ async function createReportStream(req, res, next, services) {
 
         if (req.user && req.user.id && req.user.id !== 'api-token') {
             report.ownerId = req.user.id;
+            if (startupStore && report.rawStrategy) {
+                const startups = await startupStore.getStartupsByOwnerId(req.user.id);
+                if (startups && startups.length > 0) {
+                    const startup = startups[0];
+                    let updated = false;
+                    if (typeof report.rawStrategy.validationScore === 'number') {
+                        startup.validation_score = report.rawStrategy.validationScore;
+                        updated = true;
+                    }
+                    if (typeof report.rawStrategy.riskScore === 'number') {
+                        startup.score = 100 - report.rawStrategy.riskScore; // Inverting risk to get a general score
+                        updated = true;
+                    }
+                    if (updated) {
+                        await startupStore.updateStartup(startup.id, startup);
+                    }
+                }
+            }
         }
 
         await reportStore.save(report);

@@ -135,7 +135,7 @@ test('login requires verified email and creates expiring HttpOnly session', asyn
         assert.equal(loginBody.session.expiresAt.length > 0, true);
         assert.match(setCookie, /HttpOnly/);
         assert.match(setCookie, /SameSite=Lax/);
-        assert.doesNotMatch(JSON.stringify(loginBody), /neuralbi_session/);
+        assert.doesNotMatch(JSON.stringify(loginBody), /stratify_session/);
     } finally {
         server.close();
     }

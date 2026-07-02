@@ -1,7 +1,7 @@
 {
-  "name": "bi-agent-network",
+  "name": "stratify",
   "version": "1.0.0",
-  "description": "Business Intelligence Agent Network powered by Google Gemini",
+  "description": "Stratify — The Operating System for the Startup Economy",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

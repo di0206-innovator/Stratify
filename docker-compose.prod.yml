@@ -1,7 +1,7 @@
 version: '3.9'
 
 # ════════════════════════════════════════════════════════════════════
-#  NeuralBI — Production Override
+#  Stratify — Production Override
 #  Use with: docker compose -f docker-compose.yml -f docker-compose.prod.yml up
 #
 #  Scales app to N replicas (set via WORKERS env or default 4).
