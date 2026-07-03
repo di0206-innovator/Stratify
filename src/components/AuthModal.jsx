@@ -86,7 +86,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
             const errData = await res.json();
             throw new Error(errData.error?.message || 'Registration failed');
           }
-          setMessage(`Account created! A verification link was sent to ${email}.`);
+          setMessage(`Account created successfully! You can now log in.`);
         }
 
         setRegisteredEmail(email);

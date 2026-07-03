@@ -318,6 +318,22 @@ export default function EquityPlanner() {
                   <Shield size={12} />
                   <span>Generate Vesting Agreement Brief</span>
                 </button>
+
+                <button
+                  onClick={async () => {
+                    await saveState(shares);
+                    confetti({
+                      particleCount: 50,
+                      spread: 30,
+                      colors: ['#A3E635', '#000000']
+                    });
+                    alert('Cap table successfully saved to Stratify workspace registry!');
+                  }}
+                  className="w-full py-2 bg-[#A3E635] text-black border-2 border-black font-black text-[10px] uppercase hover:bg-[#92cf2e] cursor-pointer flex items-center justify-center gap-1.5 mt-2"
+                >
+                  <CheckCircle size={12} />
+                  <span>Save Cap Table to Registry</span>
+                </button>
               </div>
             ) : (
               <div className="text-center py-12 text-gray-400 font-outfit font-black text-xs uppercase">

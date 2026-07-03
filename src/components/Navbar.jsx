@@ -37,7 +37,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
   }, [user]);
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/feed', label: 'Feed', icon: Radio },
     { path: '/timeline', label: 'Timeline', icon: TrendingUp },
     { path: '/memory', label: 'Memory', icon: Cpu },
@@ -87,7 +87,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
       {/* Top Segmented Column Stats Grid */}
       <div className="grid grid-cols-12 border-b-[4px] border-black text-black">
         {/* Brand Segment */}
-        <div className="col-span-12 lg:col-span-4 flex items-center px-5 py-3.5 border-b-[4px] lg:border-b-0 lg:border-r-[4px] border-black bg-white">
+        <Link to="/dashboard" className="col-span-12 lg:col-span-4 flex items-center px-5 py-3.5 border-b-[4px] lg:border-b-0 lg:border-r-[4px] border-black bg-white cursor-pointer hover:bg-gray-50 transition-colors">
           <div className="relative w-8 h-8 mr-3.5 flex-shrink-0">
             <div className="absolute w-5 h-5 rounded-full bg-[#EF4444] border-2 border-black -top-1 -right-1" />
             <svg className="absolute w-6 h-6 bottom-0 left-0" viewBox="0 0 100 100">
@@ -102,7 +102,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               Recursive . Global Startup . OS
             </span>
           </div>
-        </div>
+        </Link>
 
         {/* Startups Stat */}
         <div 
@@ -192,16 +192,16 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
       </div>
 
       {/* Tabs and Actions Row */}
-      <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Navigation Tabs */}
-        <nav className="flex items-center gap-2.5 py-1.5 flex-wrap">
+        <nav className="flex items-center gap-2.5 py-1.5 overflow-x-auto whitespace-nowrap hide-scrollbar flex-nowrap pb-2 -mb-2 flex-1">
           {activeNavItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-4 py-2 text-xs font-black uppercase border-[3px] border-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
+                className={`flex-shrink-0 px-4 py-2 text-xs font-black uppercase border-[3px] border-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
                   isActive
                     ? 'bg-[#EF4444] text-white shadow-none translate-x-[2px] translate-y-[2px] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none'
                     : 'bg-white text-black hover:bg-gray-50'
@@ -214,7 +214,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
         </nav>
 
         {/* Profile & Auth Status */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-shrink-0">
           {founderProfile ? (
             <Link
               to="/onboarding"

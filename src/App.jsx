@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import AuthModal from './components/AuthModal';
 import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
 import Signals from './pages/Signals';
 import Reports from './pages/Reports';
 import ReportDetail from './pages/ReportDetail';
@@ -71,6 +72,14 @@ export default function App() {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('stratify_theme') || 'light';
   });
+
+  const email = user && user.email ? user.email.toLowerCase() : '';
+  const isAdmin = user && (
+    user.role === 'admin' || 
+    email === 'divyanshu.b.sinha@gmail.com' || 
+    email === 'divyanshusunstone@gmail.com' ||
+    email.startsWith('admin@')
+  );
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -178,29 +187,63 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-memphis-mesh relative overflow-x-hidden flex flex-col justify-between">
-        {/* Absolute Background Memphis Geometric Shapes */}
-        <div className="memphis-shape w-96 h-96 rounded-full bg-[#EF4444] border-[8px] border-black -top-20 -right-20 animate-float-slow hidden xl:block" style={{ zIndex: 0 }} />
-        
-        <svg className="memphis-shape w-40 h-40 bottom-10 left-[45%] animate-float-medium hidden lg:block" viewBox="0 0 100 100" style={{ zIndex: 0 }}>
-          <polygon points="50,10 90,90 10,90" stroke="black" strokeWidth="6" fill="#FBBF24" />
-        </svg>
+      <AppContent
+        founderProfile={founderProfile}
+        setFounderProfile={setFounderProfile}
+        currentReport={currentReport}
+        setCurrentReport={setCurrentReport}
+        user={user}
+        setUser={setUser}
+        isAuthModalOpen={isAuthModalOpen}
+        setIsAuthModalOpen={setIsAuthModalOpen}
+        theme={theme}
+        setTheme={setTheme}
+        openAuthModal={openAuthModal}
+        isAdmin={isAdmin}
+      />
+    </BrowserRouter>
+  );
+}
 
-        <svg className="memphis-shape w-48 h-32 bottom-24 -left-12 animate-float-fast hidden xl:block" viewBox="0 0 150 100" style={{ zIndex: 0 }}>
-          <polygon points="10,90 120,90 140,10 30,10" stroke="black" strokeWidth="6" fill="#3B82F6" />
-        </svg>
+function AppContent({
+  founderProfile, setFounderProfile, currentReport, setCurrentReport,
+  user, setUser, isAuthModalOpen, setIsAuthModalOpen,
+  theme, setTheme, openAuthModal, isAdmin
+}) {
+  const location = useLocation();
+  const isPublicPage = location.pathname === '/';
 
-        <div className="relative z-10 flex flex-col justify-between min-h-screen w-full">
-          <div>
-            {/* Top Navigation */}
+  return (
+    <div className="min-h-screen bg-memphis-mesh relative overflow-x-hidden flex flex-col justify-between">
+      {/* Absolute Background Memphis Geometric Shapes (only on workspace views) */}
+      {!isPublicPage && (
+        <>
+          <div className="memphis-shape w-96 h-96 rounded-full bg-[#EF4444] border-[8px] border-black -top-20 -right-20 animate-float-slow hidden xl:block" style={{ zIndex: 0 }} />
+          <svg className="memphis-shape w-40 h-40 bottom-10 left-[45%] animate-float-medium hidden lg:block" viewBox="0 0 100 100" style={{ zIndex: 0 }}>
+            <polygon points="50,10 90,90 10,90" stroke="black" strokeWidth="6" fill="#FBBF24" />
+          </svg>
+          <svg className="memphis-shape w-48 h-32 bottom-24 -left-12 animate-float-fast hidden xl:block" viewBox="0 0 150 100" style={{ zIndex: 0 }}>
+            <polygon points="10,90 120,90 140,10 30,10" stroke="black" strokeWidth="6" fill="#3B82F6" />
+          </svg>
+        </>
+      )}
+
+      <div className="relative z-10 flex flex-col min-h-screen w-full">
+        <div className="flex-1 flex flex-col">
+          {/* Top Navigation - hidden on public landing page */}
+          {!isPublicPage && (
             <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} theme={theme} setTheme={setTheme} />
-  
-            {/* Main Pages */}
-            <main className="pb-16 relative z-10">
+          )}
+
+          {/* Main Pages */}
+          <main className="flex-1 pb-16 relative z-10">
             <Routes>
-              {/* Dashboard Route: If not onboarded, redirect to /onboarding */}
+              {/* Public Landing Page */}
+              <Route path="/" element={<LandingPage openAuthModal={openAuthModal} user={user} />} />
+
+              {/* Private Dashboard */}
               <Route 
-                path="/" 
+                path="/dashboard" 
                 element={
                   founderProfile ? (
                     <Dashboard 
@@ -248,7 +291,7 @@ export default function App() {
               {/* Reports List */}
               <Route 
                 path="/reports" 
-                element={<Reports user={user} setUser={setUser} openAuthModal={openAuthModal} />} 
+                element={<Reports user={user} setUser={setUser} openAuthModal={openAuthModal} founderProfile={founderProfile} />} 
               />
 
               {/* Report Detail */}
@@ -290,7 +333,7 @@ export default function App() {
               {/* Founder Memory */}
               <Route path="/memory" element={<FounderMemory founderProfile={founderProfile} user={user} />} />
               <Route path="/settings" element={<Settings user={user} />} />
-              <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
+              <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" replace />} />
 
               {/* Timeline */}
               <Route 
@@ -310,41 +353,23 @@ export default function App() {
                 element={<Explore founderProfile={founderProfile} user={user} />} 
               />
 
-              {/* Admin Console */}
-              <Route 
-                path="/admin" 
-                element={
-                  user && (
-                    user.role === 'admin' || 
-                    (user.email && (
-                      user.email.toLowerCase() === 'divyanshu.b.sinha@gmail.com' || 
-                      user.email.toLowerCase() === 'divyanshusunstone@gmail.com' ||
-                      user.email.toLowerCase().startsWith('admin@')
-                    ))
-                  ) ? (
-                    <AdminDashboard />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                } 
-              />
-
               {/* Wildcard Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
         </div>
 
-        {/* Footer */}
-        <footer className="w-full bg-neo-canvas border-t-[3px] border-black py-4 select-none">
-          <div className="max-w-7xl mx-auto px-4 text-center">
-            <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-gray-500">
-              © {new Date().getFullYear()} STRATIFY LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.
-            </span>
-          </div>
-        </footer>
+        {/* Footer (hidden on public landing) */}
+        {!isPublicPage && (
+          <footer className="w-full bg-neo-canvas border-t-[3px] border-black py-4 select-none mt-auto">
+            <div className="max-w-7xl mx-auto px-4 text-center">
+              <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-gray-500">
+                © {new Date().getFullYear()} STRATIFY LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.
+              </span>
+            </div>
+          </footer>
+        )}
       </div>
-    </div>
 
       {/* Auth Modal */}
       <AuthModal 
@@ -352,6 +377,6 @@ export default function App() {
         onClose={() => setIsAuthModalOpen(false)} 
         onAuthSuccess={() => checkSession(null)} 
       />
-    </BrowserRouter>
+    </div>
   );
 }

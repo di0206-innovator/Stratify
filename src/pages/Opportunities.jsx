@@ -192,6 +192,13 @@ export default function Opportunities({ founderProfile }) {
 
                 <p className="text-sm font-medium text-gray-600 mb-3 line-clamp-3 flex-1">{opp.description}</p>
 
+                {opp.matchReason && (
+                  <div className="w-full mt-2 mb-3 text-xs font-bold text-gray-700 bg-[#FEF08A] border-[2px] border-black p-2">
+                    <span className="uppercase text-[9px] font-black mr-1 bg-black text-white px-1 py-0.5">MATCH</span>
+                    {opp.matchReason}
+                  </div>
+                )}
+
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {opp.geography && (
                     <span className="bg-gray-100 border-[2px] border-black px-2 py-0.5 text-[10px] font-black uppercase flex items-center gap-1">

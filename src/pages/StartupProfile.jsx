@@ -11,6 +11,7 @@ export default function StartupProfile() {
   const [signals, setSignals] = useState([]);
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hoveredNode, setHoveredNode] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,6 +92,121 @@ export default function StartupProfile() {
           <div className="bg-[#A3E635] text-black border-2 border-black px-5 py-3 font-outfit font-black text-center shadow-neo-button transform rotate-1">
             <span className="block text-[10px] tracking-wider uppercase opacity-85">STARTUP SCORE</span>
             <span className="text-3xl font-black">{startup.score || 10}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Interactive Startup Graph Visualization */}
+      <div className="neo-card bg-white border-[3px] border-black p-6 mb-8 shadow-neo-button">
+        <h3 className="text-lg font-black uppercase mb-4 flex items-center gap-1.5">
+          <Layers size={18} className="text-[#3B82F6]" /> Unified Startup Graph Nodes
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+          <div className="md:col-span-2 relative flex justify-center bg-gray-50 border-2 border-black py-4">
+            <svg className="w-full max-w-[500px] h-[300px]" viewBox="0 0 500 300">
+              {/* Connection lines */}
+              <line x1="250" y1="150" x2="110" y2="60" stroke="black" strokeWidth="3" strokeDasharray="6 4" />
+              <line x1="250" y1="150" x2="390" y2="60" stroke="black" strokeWidth="3" strokeDasharray="6 4" />
+              <line x1="250" y1="150" x2="80" y2="200" stroke="black" strokeWidth="3" strokeDasharray="6 4" />
+              <line x1="250" y1="150" x2="420" y2="200" stroke="black" strokeWidth="3" strokeDasharray="6 4" />
+              <line x1="250" y1="150" x2="250" y2="250" stroke="black" strokeWidth="3" strokeDasharray="6 4" />
+
+              {/* Orbit 1: Decisions */}
+              <g 
+                className="cursor-pointer"
+                onMouseEnter={() => setHoveredNode({
+                  title: 'Strategic Memory',
+                  count: `${decisions.length} Decisions`,
+                  desc: 'Core business hypotheses, pivots, and consensus outcomes recorded in persistent founder memory.'
+                })}
+                onMouseLeave={() => setHoveredNode(null)}
+              >
+                <circle cx="110" cy="60" r="28" fill="#FCD34D" stroke="black" strokeWidth="3" />
+                <text x="110" y="64" textAnchor="middle" className="font-outfit font-black text-[9px] fill-black uppercase">Memory</text>
+              </g>
+
+              {/* Orbit 2: Milestones */}
+              <g 
+                className="cursor-pointer"
+                onMouseEnter={() => setHoveredNode({
+                  title: 'Execution Timeline',
+                  count: `${timeline.length} Milestones`,
+                  desc: 'Consensus-verified progression and proof-of-work events logged by the startup.'
+                })}
+                onMouseLeave={() => setHoveredNode(null)}
+              >
+                <circle cx="390" cy="60" r="28" fill="#3B82F6" stroke="black" strokeWidth="3" />
+                <text x="390" y="64" textAnchor="middle" className="font-outfit font-black text-[9px] fill-white uppercase">Timeline</text>
+              </g>
+
+              {/* Orbit 3: Data Room / Briefs */}
+              <g 
+                className="cursor-pointer"
+                onMouseEnter={() => setHoveredNode({
+                  title: 'Pitch Briefs & Data Rooms',
+                  count: `${briefs.length} Briefs`,
+                  desc: 'Shareable strategic briefs, investment materials, and whitelisted pitch documents.'
+                })}
+                onMouseLeave={() => setHoveredNode(null)}
+              >
+                <circle cx="80" cy="200" r="28" fill="#C084FC" stroke="black" strokeWidth="3" />
+                <text x="80" y="204" textAnchor="middle" className="font-outfit font-black text-[9px] fill-black uppercase">Briefs</text>
+              </g>
+
+              {/* Orbit 4: Signals */}
+              <g 
+                className="cursor-pointer"
+                onMouseEnter={() => setHoveredNode({
+                  title: 'Market Intelligence Signals',
+                  count: `${signals.length} Signals`,
+                  desc: 'Relevant external market warnings, regulatory updates, and funding rounds linked to sector focus.'
+                })}
+                onMouseLeave={() => setHoveredNode(null)}
+              >
+                <circle cx="420" cy="200" r="28" fill="#EF4444" stroke="black" strokeWidth="3" />
+                <text x="420" y="204" textAnchor="middle" className="font-outfit font-black text-[9px] fill-white uppercase">Signals</text>
+              </g>
+
+              {/* Orbit 5: Opportunities */}
+              <g 
+                className="cursor-pointer"
+                onMouseEnter={() => setHoveredNode({
+                  title: 'Ecosystem Opportunities',
+                  count: `${opportunities.length} Matched`,
+                  desc: 'Sector-appropriate grants, accelerator programs, and building initiatives filtered by compatibility.'
+                })}
+                onMouseLeave={() => setHoveredNode(null)}
+              >
+                <circle cx="250" cy="250" r="28" fill="#FB923C" stroke="black" strokeWidth="3" />
+                <text x="250" y="254" textAnchor="middle" className="font-outfit font-black text-[9px] fill-black uppercase">Partners</text>
+              </g>
+
+              {/* Central Core: Startup */}
+              <circle cx="250" cy="150" r="35" fill="#A3E635" stroke="black" strokeWidth="4" />
+              <text x="250" y="154" textAnchor="middle" className="font-outfit font-black text-[11px] fill-black uppercase">CORE GRAPH</text>
+            </svg>
+          </div>
+
+          <div className="border-[3px] border-black p-4 bg-gray-50 h-[300px] flex flex-col justify-center">
+            {hoveredNode ? (
+              <>
+                <span className="font-outfit font-black text-[10px] uppercase text-gray-400 block mb-1">NODE DETAIL</span>
+                <h4 className="font-black text-lg uppercase mb-1">{hoveredNode.title}</h4>
+                <span className="inline-block bg-black text-[#A3E635] px-2 py-0.5 border border-black font-outfit font-black text-[9px] uppercase tracking-wider mb-3">
+                  {hoveredNode.count}
+                </span>
+                <p className="font-outfit font-bold text-gray-600 text-xs leading-relaxed">
+                  {hoveredNode.desc}
+                </p>
+              </>
+            ) : (
+              <div className="text-center">
+                <span className="font-outfit font-black text-xs text-gray-400 uppercase block mb-1">INTERACTIVE NODE EXPLORER</span>
+                <p className="font-outfit font-bold text-gray-500 text-xs">
+                  Hover over any node in the graph layout to view its structural relation and dynamic context within the startup operating system.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

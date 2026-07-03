@@ -347,3 +347,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   0% { transform: translate(0px, 0px) rotate(0deg); }
   100% { transform: translate(10px, -10px) rotate(15deg); }
 }
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

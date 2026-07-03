@@ -217,6 +217,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT DEFAULT '';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS skills TEXT DEFAULT '';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS linkedin_url TEXT DEFAULT '';
 ALTER TABLE users ADD COLUMN IF NOT EXISTS availability TEXT DEFAULT '';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS workspace_profile JSONB DEFAULT NULL;
 
 -- ─────────────────────────────────────────
 --  STARTUP PROFILE EXTENSIONS
@@ -225,6 +226,10 @@ ALTER TABLE startups ADD COLUMN IF NOT EXISTS deck_url TEXT DEFAULT '';
 ALTER TABLE startups ADD COLUMN IF NOT EXISTS website_url TEXT DEFAULT '';
 ALTER TABLE startups ADD COLUMN IF NOT EXISTS revenue TEXT DEFAULT '';
 ALTER TABLE startups ADD COLUMN IF NOT EXISTS funding_raised TEXT DEFAULT '';
+ALTER TABLE startups ADD COLUMN IF NOT EXISTS validation_score INTEGER DEFAULT NULL;
+ALTER TABLE startups ADD COLUMN IF NOT EXISTS execution_readiness INTEGER DEFAULT NULL;
+ALTER TABLE startups ADD COLUMN IF NOT EXISTS fundraising_readiness INTEGER DEFAULT NULL;
+ALTER TABLE startups ADD COLUMN IF NOT EXISTS founder_market_fit INTEGER DEFAULT NULL;
 
 -- ─────────────────────────────────────────
 --  DECISIONS (Founder memory: what was decided and why)

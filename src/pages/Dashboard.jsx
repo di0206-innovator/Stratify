@@ -1048,60 +1048,69 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
     );
   }
 
-  // 3. ANGEL INVESTOR DASHBOARD VIEW
-  if (founderProfile.role === 'angel') {
+  // 3. GOVERNMENT / INSTITUTION DASHBOARD VIEW
+  if (founderProfile.role === 'government') {
+    // Compute some mock ecosystem metrics based on trendingStartups
+    const regionalStartups = trendingStartups.filter(s => 
+      !founderProfile.geography || 
+      s.geography?.toLowerCase().includes(founderProfile.geography.toLowerCase()) || 
+      founderProfile.geography.toLowerCase().includes(s.geography?.toLowerCase())
+    );
+    const displayedStartups = regionalStartups.length > 0 ? regionalStartups : trendingStartups;
+    const avgScore = displayedStartups.length > 0 
+      ? Math.round(displayedStartups.reduce((acc, s) => acc + (s.score || 10), 0) / displayedStartups.length) 
+      : 0;
+
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         
-        {/* Angel Dashboard Header */}
+        {/* Government Dashboard Header */}
         <div className="neo-card bg-white text-black p-8 mb-8 border-[4px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] select-none relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          {/* Decorative floating yellow shape inside header */}
-          <svg className="absolute -top-6 -right-6 w-28 h-28 opacity-80 pointer-events-none hidden md:block" viewBox="0 0 100 100">
-            <polygon points="50,10 90,90 10,90" stroke="black" strokeWidth="6" fill="#FCD34D" />
-          </svg>
+          {/* Decorative floating blue shape inside header */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#3B82F6] border-[4px] border-black transform rotate-12 opacity-80 pointer-events-none hidden md:block"></div>
           
           <div className="relative z-10 space-y-2">
-            <span className="inline-block bg-[#FB923C] text-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wider border-2 border-black">
-              Angel Investor Network
+            <span className="inline-block bg-[#3B82F6] text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-wider border-2 border-black">
+              {founderProfile.programType || 'Sovereign Innovation Hub'}
             </span>
             <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-black">
               {founderProfile.name}
             </h2>
             <p className="font-outfit font-bold text-gray-600 flex items-center gap-1.5 text-xs sm:text-sm">
-              <MapPin size={14} className="text-[#3B82F6]" /> {founderProfile.geography} • Angel Backer
+              <MapPin size={14} className="text-[#3B82F6]" /> Region: {founderProfile.geography || 'Global'} • Support Focus: {founderProfile.supportFocus || 'Technology Ecosystem'}
             </p>
           </div>
           
           <div className="relative z-10 flex items-center gap-4 bg-white border-[3px] border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex-wrap sm:flex-nowrap">
             <div className="text-center border-r-[3px] border-black pr-5">
-              <span className="block text-[9px] font-black uppercase text-gray-500">ANNUAL BUDGET</span>
-              <span className="text-lg font-black text-[#EF4444]">{founderProfile.budget || 'Flexible'}</span>
+              <span className="block text-[9px] font-black uppercase text-gray-500">AVG ECOSYSTEM SCORE</span>
+              <span className="text-2xl font-black text-[#EF4444]">{avgScore} / 100</span>
             </div>
             <div className="text-center pl-1.5">
-              <span className="block text-[9px] font-black uppercase text-gray-500">SECTORS SUPPORTED</span>
-              <span className="text-xs font-black uppercase text-[#3B82F6]">{founderProfile.industry || 'All'}</span>
+              <span className="block text-[9px] font-black uppercase text-gray-500">MONITORED STARTUPS</span>
+              <span className="text-sm font-black text-[#3B82F6]">{displayedStartups.length} Registered</span>
             </div>
           </div>
         </div>
 
-        {/* Angel Grid */}
+        {/* Layout Grid */}
         <div className="grid grid-cols-12 gap-6">
           
-          {/* Left Column: Local / Pre-seed Opportunities */}
+          {/* Left Column: Regional Startups Pipeline */}
           <div className="col-span-12 lg:col-span-8 space-y-6">
-            <BentoCard title="Discover Early Opportunities" badge="Pre-seed & Idea Stage" badgeColor="bg-[#FB923C]">
-              {trendingStartups.length === 0 ? (
+            <BentoCard title="Regional Ecosystem Startups" badge="Eligibility Registry" badgeColor="bg-[#3B82F6]">
+              {displayedStartups.length === 0 ? (
                 <div className="text-center py-12 text-gray-500 font-outfit font-black text-xs uppercase">
-                  No active startups found.
+                  No active startups registered in your region yet.
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {trendingStartups.map((startup) => (
+                  {displayedStartups.map((startup) => (
                     <div 
                       key={startup.id} 
                       onClick={() => setSelectedStartup(startup)}
                       className={`border-2 border-black p-4 bg-white flex flex-col justify-between cursor-pointer hover:-translate-y-0.5 transition-transform ${
-                        selectedStartup?.id === startup.id ? 'border-[#FB923C] bg-gray-50' : ''
+                        selectedStartup?.id === startup.id ? 'border-[#3B82F6] bg-gray-50' : ''
                       }`}
                     >
                       <div>
@@ -1112,23 +1121,56 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                           <span className="text-[9px] font-black uppercase text-gray-400">{startup.stage}</span>
                         </div>
                         <h4 className="font-outfit font-black text-sm uppercase text-black">{startup.name}</h4>
-                        <p className="text-[11px] font-semibold text-gray-600 line-clamp-3 mt-2">{startup.pitch || startup.solution}</p>
+                        <p className="text-[11px] font-semibold text-gray-600 line-clamp-2 mt-2">{startup.pitch || startup.solution}</p>
                       </div>
 
-                      <div className="border-t border-gray-100 pt-3 mt-4 flex items-center justify-between text-[10px] font-black uppercase text-gray-400">
+                      <div className="border-t border-gray-100 pt-3 mt-4 flex items-center justify-between text-[10px] font-black uppercase text-gray-450">
                         <span>{startup.geography}</span>
-                        <span className="text-[#FB923C]">Match: 95%</span>
+                        <span className="text-[#3B82F6]">Wedge: {startup.industry}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
             </BentoCard>
+
+            {/* Support Schemes Directory */}
+            <BentoCard title="Ecosystem Grants & Support Schemes" badge="Institutional Support" badgeColor="bg-[#A3E635]">
+              <div className="space-y-4">
+                <div className="border-2 border-black p-4 bg-white">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-outfit font-black text-xs uppercase">1. Strategic Technology R&D Grant</h4>
+                      <p className="text-[11px] font-bold text-gray-600 mt-1">Offers co-funding for deep tech, AI infrastructure, and climate technology commercialization.</p>
+                    </div>
+                    <span className="text-[10px] bg-[#A3E635] text-black border border-black px-1.5 font-black uppercase">Active</span>
+                  </div>
+                  <div className="mt-3 flex justify-between items-center text-[10px] font-black uppercase">
+                    <span>Valued up to INR 50L (or $75,000 equivalent)</span>
+                    <span className="text-gray-400">Eligibility: Idea to Pre-seed</span>
+                  </div>
+                </div>
+
+                <div className="border-2 border-black p-4 bg-white">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-outfit font-black text-xs uppercase">2. Regional Growth and Expansion Incentive</h4>
+                      <p className="text-[11px] font-bold text-gray-600 mt-1">Sovereign payroll support rebate for early hires recruited in regional startup hubs.</p>
+                    </div>
+                    <span className="text-[10px] bg-[#A3E635] text-black border border-black px-1.5 font-black uppercase">Active</span>
+                  </div>
+                  <div className="mt-3 flex justify-between items-center text-[10px] font-black uppercase">
+                    <span>15% salary tax rebate for first 5 hires</span>
+                    <span className="text-gray-400">Eligibility: Seed to Series A</span>
+                  </div>
+                </div>
+              </div>
+            </BentoCard>
           </div>
 
-          {/* Right Column: Due diligence & connect */}
+          {/* Right Column: Selected Startup details */}
           <div className="col-span-12 lg:col-span-4 space-y-6">
-            <BentoCard title="Angel Discovery Desk" badge="Thesis Alignment" badgeColor="bg-[#A3E635]">
+            <BentoCard title="Ecosystem Assessment" badge="Startup Details" badgeColor="bg-[#3B82F6]">
               {selectedStartup ? (
                 <div className="space-y-4">
                   <div className="border-2 border-black p-4 bg-[#F8F7F4]">
@@ -1137,16 +1179,20 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                     
                     <div className="mt-4 space-y-2 text-xs font-bold font-inter">
                       <div>
-                        <span className="block text-[8px] font-black text-gray-400 uppercase">PROBLEM</span>
+                        <span className="block text-[8px] font-black text-gray-400 uppercase">PROBLEM STATEMENT</span>
                         <p className="text-gray-700">{selectedStartup.problem || 'No description'}</p>
                       </div>
                       <div className="mt-2">
-                        <span className="block text-[8px] font-black text-gray-400 uppercase">SOLUTION</span>
+                        <span className="block text-[8px] font-black text-gray-400 uppercase">SOLUTION STATEMENT</span>
                         <p className="text-gray-700">{selectedStartup.solution || 'No description'}</p>
                       </div>
                       <div className="mt-2">
-                        <span className="block text-[8px] font-black text-gray-400 uppercase">LOOKING FOR</span>
-                        <p className="text-[#FB923C]">{selectedStartup.needs || 'No requirements specified'}</p>
+                        <span className="block text-[8px] font-black text-gray-400 uppercase">PRODUCT STACK & TECH</span>
+                        <p className="text-gray-700">{selectedStartup.techStack || selectedStartup.tech_stack || 'Not specified'}</p>
+                      </div>
+                      <div className="mt-2">
+                        <span className="block text-[8px] font-black text-gray-400 uppercase">ECOSYSTEM REQUESTS & NEEDS</span>
+                        <p className="text-[#3B82F6]">{selectedStartup.needs || 'No requirements specified'}</p>
                       </div>
                     </div>
                   </div>
@@ -1155,8 +1201,8 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                     to={`/reports/${selectedStartup.id}`}
                     className="neo-btn-primary py-2.5 w-full text-center text-xs font-black uppercase flex items-center justify-center gap-1.5"
                   >
-                    <Trophy size={14} />
-                    <span>View AI Feasibility report</span>
+                    <FileText size={14} />
+                    <span>Run AI Impact & Grant Feasibility Report</span>
                   </Link>
 
                   <button
@@ -1166,33 +1212,26 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                     }}
                     className="w-full py-2.5 bg-[#FCD34D] text-black border-2 border-black font-outfit font-black text-xs uppercase hover:bg-yellow-400 cursor-pointer shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1.5"
                   >
-                    <span>Inspect AI Fit Radar</span>
+                    <span>Assess Regional Thesis Fit</span>
                   </button>
 
                   <button
-                    onClick={() => handleConnectRequest(selectedStartup.ownerId || selectedStartup.owner_id)}
-                    className="w-full py-2.5 bg-black text-white border-2 border-black font-outfit font-black text-xs uppercase hover:bg-gray-900 cursor-pointer"
+                    onClick={() => {
+                      confetti({
+                        particleCount: 100,
+                        spread: 60,
+                        colors: ['#3B82F6', '#A3E635']
+                      });
+                      alert(`Regional tech grant eligibility pre-approval sent to ${selectedStartup.name}!`);
+                    }}
+                    className="w-full py-2.5 bg-[#A3E635] text-black border-2 border-black font-outfit font-black text-xs uppercase hover:bg-[#92cf2e] cursor-pointer"
                   >
-                    Back Startup (Invest)
-                  </button>
-
-                  <button
-                    onClick={() => handleCastVouch(selectedStartup.id)}
-                    disabled={vouchedStartups.includes(selectedStartup.id)}
-                    className={`w-full py-2.5 border-2 border-black font-outfit font-black text-xs uppercase cursor-pointer transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] ${
-                      vouchedStartups.includes(selectedStartup.id)
-                        ? 'bg-gray-105 text-gray-400 border-gray-350 shadow-none pointer-events-none'
-                        : 'bg-[#A3E635] text-black hover:bg-[#92cf2e]'
-                    }`}
-                  >
-                    {vouchedStartups.includes(selectedStartup.id)
-                      ? 'Vouched (Consensus Updated)'
-                      : 'Cast Advisory Vouch (+25 Score)'}
+                    Approve Ecosystem Grant
                   </button>
                 </div>
               ) : (
                 <div className="text-center py-12 text-gray-400 select-none font-outfit font-black text-xs uppercase">
-                  Select an early stage startup to review thesis match
+                  Select a startup in your region to inspect grant eligibility
                 </div>
               )}
             </BentoCard>

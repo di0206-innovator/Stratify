@@ -271,6 +271,31 @@ function createApp(options = {}) {
         });
     });
 
+    app.get('/api/users/profile', auth, async (req, res, next) => {
+        try {
+            res.json({
+                requestId: req.id,
+                role: req.user.role,
+                workspaceProfile: req.user.workspaceProfile || null
+            });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.post('/api/users/profile', auth, async (req, res, next) => {
+        try {
+            const profile = req.body || {};
+            await authService.updateWorkspaceProfile(req.user.id, profile);
+            res.json({
+                requestId: req.id,
+                message: 'Workspace profile updated successfully.'
+            });
+        } catch (error) {
+            next(error);
+        }
+    });
+
     app.post('/api/auth/request-password-reset', loginLimiter, async (req, res, next) => {
         try {
             await authService.requestPasswordReset(req.body && req.body.email);
@@ -755,7 +780,19 @@ function createApp(options = {}) {
         try {
             const { geography, industry, stage, type } = req.query;
             const opportunities = await startupStore.listOpportunities({ geography, industry, stage, type });
-            res.json({ requestId: req.id, opportunities });
+            
+            // Add match reasoning based on context
+            const enriched = opportunities.map(opp => {
+                let matchReason = null;
+                if (industry && opp.industries?.toLowerCase().includes(industry.toLowerCase())) {
+                    matchReason = `Highly relevant to your sector (${industry})`;
+                } else if (geography && opp.geography?.toLowerCase().includes(geography.toLowerCase())) {
+                    matchReason = `Local opportunity in ${geography}`;
+                }
+                return { ...opp, matchReason };
+            });
+            
+            res.json({ requestId: req.id, opportunities: enriched });
         } catch (error) {
             next(error);
         }
@@ -809,7 +846,35 @@ function createApp(options = {}) {
             if (industry) startups = startups.filter(s => (s.industry || '').toLowerCase().includes(industry.toLowerCase()));
             if (stage) startups = startups.filter(s => (s.stage || '').toLowerCase() === stage.toLowerCase());
             if (geography) startups = startups.filter(s => (s.geography || '').toLowerCase().includes(geography.toLowerCase()));
-            res.json({ requestId: req.id, startups });
+            
+            const enriched = startups.map(s => {
+                let matchReason = null;
+                if (req.user) {
+                    const prof = req.user.workspaceProfile || {};
+                    let score = 70;
+                    if (req.user.role === 'vc') {
+                        const sectorsMatch = prof.industry && prof.industry.toLowerCase().split(',').some(sec => (s.industry || '').toLowerCase().includes(sec.trim()));
+                        const stageMatch = prof.investmentStage && (s.stage || '').toLowerCase() === prof.investmentStage.toLowerCase();
+                        const geoMatch = prof.geography && (s.geography || '').toLowerCase() === prof.geography.toLowerCase();
+                        if (sectorsMatch) score += 15;
+                        if (stageMatch) score += 10;
+                        if (geoMatch) score += 5;
+                        matchReason = `${score}% thesis fit with your VC fund`;
+                    } else if (req.user.role === 'government') {
+                        const sectorsMatch = prof.industry && prof.industry.toLowerCase().split(',').some(sec => (s.industry || '').toLowerCase().includes(sec.trim()));
+                        const geoMatch = prof.geography && (s.geography || '').toLowerCase() === prof.geography.toLowerCase();
+                        if (sectorsMatch) score += 15;
+                        if (geoMatch) score += 15;
+                        matchReason = `${score}% eligibility alignment for your sovereign program`;
+                    } else {
+                        // Founder matching with other startups
+                        matchReason = `Shares similar sector focus`;
+                    }
+                }
+                return { ...s, matchReason };
+            });
+
+            res.json({ requestId: req.id, startups: enriched });
         } catch (error) {
             next(error);
         }
@@ -1218,31 +1283,92 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
             const usersState = await authStore.readState();
             let partners = [];
 
-            // If user is founder, recommend VCs and Angel investors
-            // If user is VC or Angel, recommend Founders with active startups
+            // If user is founder, recommend VCs and Government institutions
+            // If user is VC or Government, recommend Founders with active startups
             if (currentUserRole === 'founder') {
+                const startups = await startupStore.listStartups({ limit: 100 });
+                const myStartup = startups.find(s => s.ownerId === req.user.id || s.owner_id === req.user.id);
+
                 partners = usersState.users
-                    .filter(u => u.id !== req.user.id && (u.role === 'vc' || u.role === 'angel'))
-                    .map(u => ({ 
-                        id: u.id, name: u.name, email: u.email, role: u.role, 
-                        matchReason: u.role === 'vc' ? 'Invests in early-stage SaaS' : 'Active angel in your sector' 
-                    }));
+                    .filter(u => u.id !== req.user.id && (u.role === 'vc' || u.role === 'government'))
+                    .map(u => {
+                        const prof = u.workspaceProfile || {};
+                        let score = 70;
+                        let matchReason = '';
+
+                        if (u.role === 'vc') {
+                            const sectorsMatch = myStartup && prof.industry && prof.industry.toLowerCase().split(',').some(sec => myStartup.industry.toLowerCase().includes(sec.trim()));
+                            const stageMatch = myStartup && prof.investmentStage && myStartup.stage.toLowerCase() === prof.investmentStage.toLowerCase();
+                            const geoMatch = myStartup && prof.geography && prof.geography.toLowerCase() === myStartup.geography.toLowerCase();
+
+                            if (sectorsMatch) score += 15;
+                            if (stageMatch) score += 10;
+                            if (geoMatch) score += 5;
+
+                            matchReason = `${score}% alignment: Fits VC focus on ${prof.industry || 'Tech'} at ${prof.investmentStage || 'Early'} stage in ${prof.geography || 'Global'}.`;
+                        } else {
+                            // Government/Institution
+                            const sectorsMatch = myStartup && prof.industry && prof.industry.toLowerCase().split(',').some(sec => myStartup.industry.toLowerCase().includes(sec.trim()));
+                            const geoMatch = myStartup && prof.geography && prof.geography.toLowerCase() === myStartup.geography.toLowerCase();
+
+                            if (sectorsMatch) score += 15;
+                            if (geoMatch) score += 15;
+
+                            matchReason = `${score}% alignment: Matches regional support program for ${prof.industry || 'Innovation'} in ${prof.geography || 'your region'}.`;
+                        }
+
+                        return {
+                            id: u.id,
+                            name: u.name,
+                            email: u.email,
+                            role: u.role,
+                            matchReason
+                        };
+                    });
             } else {
                 const startups = await startupStore.listStartups({ limit: 100 });
+                const myProfile = req.user.workspaceProfile || {};
+
                 partners = usersState.users
                     .filter(u => u.id !== req.user.id && u.role === 'founder')
                     .map(u => {
                         const startup = startups.find(s => s.ownerId === u.id || s.owner_id === u.id);
+                        if (!startup) return null;
+
+                        let score = 70;
+                        let matchReason = '';
+
+                        if (req.user.role === 'vc') {
+                            const sectorsMatch = myProfile.industry && myProfile.industry.toLowerCase().split(',').some(sec => startup.industry.toLowerCase().includes(sec.trim()));
+                            const stageMatch = myProfile.investmentStage && startup.stage.toLowerCase() === myProfile.investmentStage.toLowerCase();
+                            const geoMatch = myProfile.geography && myProfile.geography.toLowerCase() === startup.geography.toLowerCase();
+
+                            if (sectorsMatch) score += 15;
+                            if (stageMatch) score += 10;
+                            if (geoMatch) score += 5;
+
+                            matchReason = `${score}% alignment: Fits your VC thesis in ${startup.industry} (${startup.stage}) located in ${startup.geography}.`;
+                        } else {
+                            // Government
+                            const sectorsMatch = myProfile.industry && myProfile.industry.toLowerCase().split(',').some(sec => startup.industry.toLowerCase().includes(sec.trim()));
+                            const geoMatch = myProfile.geography && myProfile.geography.toLowerCase() === startup.geography.toLowerCase();
+
+                            if (sectorsMatch) score += 15;
+                            if (geoMatch) score += 15;
+
+                            matchReason = `${score}% alignment: Eligible for your sovereign program focusing on ${startup.industry} in ${startup.geography}.`;
+                        }
+
                         return {
                             id: u.id,
                             name: u.name,
                             email: u.email,
                             role: u.role,
                             startup,
-                            matchReason: startup && startup.score > 50 ? 'Strong traction signal' : 'New opportunity in your sector'
+                            matchReason
                         };
                     })
-                    .filter(p => p.startup); // Only show founders with registered startups
+                    .filter(p => p !== null);
             }
 
             res.json({ requestId: req.id, partners });

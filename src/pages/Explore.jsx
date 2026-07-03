@@ -6,6 +6,7 @@ export default function Explore({ user, founderProfile }) {
   const [startups, setStartups] = useState([]);
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [matchingId, setMatchingId] = useState(null);
   const [activeTab, setActiveTab] = useState('startups'); // 'startups' or 'people'
   const [search, setSearch] = useState('');
   
@@ -37,6 +38,24 @@ export default function Explore({ user, founderProfile }) {
       console.error('Fetch error:', e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleConnect = async (personId) => {
+    setMatchingId(personId);
+    try {
+      const res = await fetch('/api/matches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receiverId: personId })
+      });
+      if (res.ok) {
+        setPeople(prev => prev.map(p => p.id === personId ? { ...p, requested: true } : p));
+      }
+    } catch (e) {
+      console.error('Failed to match:', e);
+    } finally {
+      setMatchingId(null);
     }
   };
 
@@ -196,6 +215,13 @@ export default function Explore({ user, founderProfile }) {
                   {person.role || 'Member'}
                 </span>
               </div>
+              <button 
+                onClick={() => handleConnect(person.id)}
+                disabled={person.requested || matchingId === person.id}
+                className="ml-auto px-4 py-2 border-[3px] border-black bg-[#A3E635] text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all disabled:opacity-50 disabled:shadow-none disabled:translate-x-[2px] disabled:translate-y-[2px]"
+              >
+                {person.requested ? 'Sent' : (matchingId === person.id ? '...' : 'Connect')}
+              </button>
             </div>
           ))}
           {filteredPeople.length === 0 && (

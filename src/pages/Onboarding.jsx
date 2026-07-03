@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, Coffee, Briefcase, Landmark, User, Heart } from 'lucide-react';
+import { ArrowRight, Sparkles, Coffee, Landmark, Building, HelpCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function Onboarding({ founderProfile, setFounderProfile }) {
   const navigate = useNavigate();
-  const [role, setRole] = useState('founder'); // 'founder', 'vc', 'angel'
+  const [role, setRole] = useState('founder'); // 'founder', 'vc', 'government'
   
   const [formData, setFormData] = useState({
-    // Founder fields
+    // Founder specific fields
     name: '',
     industry: '',
     geography: '',
@@ -19,12 +19,23 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
     budget: '',
     timeline: '',
     currentGoal: 'validate idea',
-    // VC/Angel fields
+    
+    // VC specific fields
     firmName: '',
     sectors: '',
     ticketSize: '',
     investmentStage: 'pre_seed',
-    thesis: ''
+    thesis: '',
+    investmentIntent: 'Growth equity partnerships',
+
+    // Gov specific fields
+    orgName: '',
+    region: '',
+    mandate: '',
+    programType: 'Grants & Subsidies',
+    sectorPriorities: '',
+    supportFocus: 'R&D Commercialization',
+    ecosystemGoals: 'Job creation and regional technology growth'
   });
 
   const handleChange = (e) => {
@@ -38,7 +49,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
       particleCount: 50,
       spread: 40,
       origin: { y: 0.8 },
-      colors: selectedRole === 'founder' ? ['#A3E635', '#000000'] : selectedRole === 'vc' ? ['#C084FC', '#000000'] : ['#FB923C', '#000000']
+      colors: selectedRole === 'founder' ? ['#A3E635', '#000000'] : selectedRole === 'vc' ? ['#C084FC', '#000000'] : ['#3B82F6', '#000000']
     });
   };
 
@@ -65,29 +76,35 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
         industry: formData.sectors || 'AI, SaaS',
         ticketSize: formData.ticketSize || '$250k - $1M',
         investmentStage: formData.investmentStage || 'seed',
-        thesis: formData.thesis || 'Investing in early-stage builders'
+        thesis: formData.thesis || 'Investing in early-stage builders',
+        intent: formData.investmentIntent
       } : {
-        name: formData.name || 'Angel Investor',
-        geography: formData.geography || 'Local',
-        industry: formData.sectors || 'All sectors',
-        budget: formData.budget || '$25k - $100k',
-        investmentStage: formData.investmentStage || 'pre_seed',
-        thesis: formData.thesis || 'Backing passionate founders early'
+        name: formData.orgName || 'Ecosystem Support Agency',
+        geography: formData.region || 'Local Region',
+        industry: formData.sectorPriorities || 'All Technology Sectors',
+        mandate: formData.mandate || 'Fostering regional startup ecosystem growth',
+        programType: formData.programType,
+        supportFocus: formData.supportFocus,
+        ecosystemGoals: formData.ecosystemGoals
       })
     };
 
-    // Save profile locally
+    // Save profile locally (for backwards compatibility)
     setFounderProfile(profile);
     localStorage.setItem('stratify_founder_profile', JSON.stringify(profile));
 
-    // Try to post startup to the backend if the role is founder
-    if (role === 'founder') {
-      try {
+    // Save to the database / backend
+    try {
+      await fetch('/api/users/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profile)
+      });
+
+      if (role === 'founder') {
         await fetch('/api/startups', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: profile.name,
             pitch: profile.product,
@@ -102,41 +119,41 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
             techStack: 'Not specified'
           })
         });
-      } catch (err) {
-        console.warn('Backend startup save skipped or failed:', err);
       }
+    } catch (err) {
+      console.warn('Backend profile/startup save failed:', err);
     }
 
     confetti({
       particleCount: 150,
       spread: 80,
       origin: { y: 0.6 },
-      colors: ['#A3E635', '#C084FC', '#FB923C', '#000000']
+      colors: ['#A3E635', '#C084FC', '#3B82F6', '#000000']
     });
 
     setTimeout(() => {
-      navigate('/');
+      navigate('/dashboard');
     }, 600);
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
+    <div className="max-w-4xl mx-auto px-4 py-12 text-black">
       {/* Header */}
       <div className="text-center mb-10 select-none">
-        <div className="inline-flex items-center gap-2 bg-[#A3E635] border-[3px] border-black px-4 py-1.5 font-outfit font-black text-sm uppercase tracking-wider mb-4 shadow-neo-button transform -rotate-1">
+        <div className="inline-flex items-center gap-2 bg-[#A3E635] border-[3px] border-black px-4 py-1.5 font-outfit font-black text-xs uppercase tracking-wider mb-4 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transform -rotate-1">
           <Sparkles size={16} /> WELCOME TO STRATIFY
         </div>
         <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight mb-3">
-          Join the Startup Economy
+          Initialize Your Workspace
         </h1>
-        <p className="font-outfit font-bold text-gray-700 max-w-xl mx-auto">
-          Choose your role in the platform. Stratify unifies founders, VCs, and angel investors into a single, context-aware intelligence network.
+        <p className="font-outfit font-bold text-gray-700 max-w-xl mx-auto text-xs sm:text-sm">
+          Select your vertical and complete the workspace registry. Stratify structures its operation dashboard, memory loops, and discovery engines based on your role.
         </p>
       </div>
 
       {/* Role Selection */}
       <div className="mb-10">
-        <h3 className="text-center text-sm font-black uppercase mb-4 text-gray-500">Select your vertical</h3>
+        <h3 className="text-center text-xs font-black uppercase mb-4 text-gray-500">Select your vertical</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Founder Role */}
           <button
@@ -144,16 +161,16 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
             onClick={() => selectRole('founder')}
             className={`flex flex-col items-center p-6 border-[3px] border-black text-center cursor-pointer transition-all ${
               role === 'founder'
-                ? 'bg-[#A3E635] shadow-neo-button translate-x-[-2px] translate-y-[-2px]'
-                : 'bg-white hover:bg-gray-50 hover:shadow-neo-button'
+                ? 'bg-[#A3E635] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]'
+                : 'bg-white hover:bg-gray-50 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
             }`}
           >
             <div className="bg-white border-2 border-black p-3 rounded-full mb-3">
               <Coffee size={24} className="text-black" />
             </div>
-            <span className="font-black text-lg uppercase">Startup Founder</span>
-            <p className="text-xs font-bold text-gray-600 mt-2">
-              Build your startup, validate ideas, get strategic checklists, and discover investors.
+            <span className="font-black text-sm uppercase">Startup Founder</span>
+            <p className="text-[10px] font-bold text-gray-600 mt-2">
+              Build your startup, validate hypotheses, manage runway, and compile investor pitch briefs.
             </p>
           </button>
 
@@ -163,46 +180,46 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
             onClick={() => selectRole('vc')}
             className={`flex flex-col items-center p-6 border-[3px] border-black text-center cursor-pointer transition-all ${
               role === 'vc'
-                ? 'bg-[#C084FC] shadow-neo-button translate-x-[-2px] translate-y-[-2px]'
-                : 'bg-white hover:bg-gray-50 hover:shadow-neo-button'
+                ? 'bg-[#C084FC] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]'
+                : 'bg-white hover:bg-gray-50 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
             }`}
           >
             <div className="bg-white border-2 border-black p-3 rounded-full mb-3">
               <Landmark size={24} className="text-black" />
             </div>
-            <span className="font-black text-lg uppercase">Venture Capital</span>
-            <p className="text-xs font-bold text-gray-600 mt-2">
-              Track startups, source custom deal flow, monitor watchlists, and filter by thesis.
+            <span className="font-black text-sm uppercase">VC / Investor</span>
+            <p className="text-[10px] font-bold text-gray-600 mt-2">
+              Source deal flow, track thesis alignment, analyze startup risks, and manage watchlists.
             </p>
           </button>
 
-          {/* Angel Role */}
+          {/* Gov / Institution Role */}
           <button
             type="button"
-            onClick={() => selectRole('angel')}
+            onClick={() => selectRole('government')}
             className={`flex flex-col items-center p-6 border-[3px] border-black text-center cursor-pointer transition-all ${
-              role === 'angel'
-                ? 'bg-[#FB923C] shadow-neo-button translate-x-[-2px] translate-y-[-2px]'
-                : 'bg-white hover:bg-gray-50 hover:shadow-neo-button'
+              role === 'government'
+                ? 'bg-[#3B82F6] text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] translate-x-[-2px] translate-y-[-2px]'
+                : 'bg-white hover:bg-gray-50 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
             }`}
           >
             <div className="bg-white border-2 border-black p-3 rounded-full mb-3">
-              <User size={24} className="text-black" />
+              <Building size={24} className="text-black" />
             </div>
-            <span className="font-black text-lg uppercase">Angel Investor</span>
-            <p className="text-xs font-bold text-gray-600 mt-2">
-              Back early-stage founders, discover student projects, and source local startups.
+            <span className="font-black text-sm uppercase">Gov / Institution</span>
+            <p className="text-[10px] font-bold text-gray-600 mt-2">
+              Promote grant schemes, assess regional ecosystem health, eligibility, and impact outreach.
             </p>
           </button>
         </div>
       </div>
 
       {/* Role-Specific Form */}
-      <form onSubmit={handleSubmit} className="neo-card space-y-6 bg-white border-[3px] border-black p-8 shadow-neo-button">
+      <form onSubmit={handleSubmit} className="neo-card space-y-6 bg-white border-[3px] border-black p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
         {role === 'founder' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Startup Name</label>
+              <label className="block text-xs font-black uppercase mb-2">Startup Name</label>
               <input
                 type="text"
                 name="name"
@@ -214,7 +231,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Target Industry / Sector</label>
+              <label className="block text-xs font-black uppercase mb-2">Target Industry / Sector</label>
               <input
                 type="text"
                 name="industry"
@@ -226,7 +243,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Focus Geography / City</label>
+              <label className="block text-xs font-black uppercase mb-2">Focus Geography / City</label>
               <input
                 type="text"
                 name="geography"
@@ -238,7 +255,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Startup Stage</label>
+              <label className="block text-xs font-black uppercase mb-2">Startup Stage</label>
               <select
                 name="startupStage"
                 value={formData.startupStage}
@@ -252,7 +269,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-black uppercase mb-2">Product wedge & Core Innovation</label>
+              <label className="block text-xs font-black uppercase mb-2">Product wedge & Core Innovation</label>
               <input
                 type="text"
                 name="product"
@@ -264,7 +281,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Target Customer Persona</label>
+              <label className="block text-xs font-black uppercase mb-2">Target Customer Persona</label>
               <input
                 type="text"
                 name="targetCustomer"
@@ -276,7 +293,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Team Size</label>
+              <label className="block text-xs font-black uppercase mb-2">Team Size</label>
               <input
                 type="text"
                 name="teamSize"
@@ -287,7 +304,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Available Budget / Runway</label>
+              <label className="block text-xs font-black uppercase mb-2">Available Budget / Runway</label>
               <input
                 type="text"
                 name="budget"
@@ -298,7 +315,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Strategic Time Window</label>
+              <label className="block text-xs font-black uppercase mb-2">Strategic Time Window</label>
               <input
                 type="text"
                 name="timeline"
@@ -309,7 +326,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-black uppercase mb-2">Current Strategic Goal</label>
+              <label className="block text-xs font-black uppercase mb-2">Current Strategic Goal</label>
               <select
                 name="currentGoal"
                 value={formData.currentGoal}
@@ -328,7 +345,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
         {role === 'vc' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-black uppercase mb-2">VC Firm Name</label>
+              <label className="block text-xs font-black uppercase mb-2">VC Firm / Fund Name</label>
               <input
                 type="text"
                 name="firmName"
@@ -340,7 +357,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Geography Focus</label>
+              <label className="block text-xs font-black uppercase mb-2">Geography Focus</label>
               <input
                 type="text"
                 name="geography"
@@ -352,7 +369,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Target Sectors / Industries</label>
+              <label className="block text-xs font-black uppercase mb-2">Target Sectors / Industries</label>
               <input
                 type="text"
                 name="sectors"
@@ -364,7 +381,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Preferred Investment Stage</label>
+              <label className="block text-xs font-black uppercase mb-2">Preferred Investment Stage</label>
               <select
                 name="investmentStage"
                 value={formData.investmentStage}
@@ -378,7 +395,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Average Ticket Size</label>
+              <label className="block text-xs font-black uppercase mb-2">Average Ticket Size</label>
               <input
                 type="text"
                 name="ticketSize"
@@ -388,8 +405,19 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
                 className="neo-input"
               />
             </div>
+            <div>
+              <label className="block text-xs font-black uppercase mb-2">Investment Intent</label>
+              <input
+                type="text"
+                name="investmentIntent"
+                value={formData.investmentIntent}
+                onChange={handleChange}
+                placeholder="e.g. Lead investor, co-investor, syndicates"
+                className="neo-input"
+              />
+            </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-black uppercase mb-2">Investment Thesis</label>
+              <label className="block text-xs font-black uppercase mb-2">Investment Thesis</label>
               <textarea
                 name="thesis"
                 value={formData.thesis}
@@ -402,76 +430,89 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
           </div>
         )}
 
-        {role === 'angel' && (
+        {role === 'government' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Full Name / Profile Name</label>
+              <label className="block text-xs font-black uppercase mb-2">Organization Name</label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="orgName"
+                value={formData.orgName}
                 onChange={handleChange}
-                placeholder="e.g. Naval Ravikant"
+                placeholder="e.g. Innovation Karnataka, Tech Singapore"
                 required
                 className="neo-input"
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Your Location</label>
+              <label className="block text-xs font-black uppercase mb-2">Region / Mandate Geography</label>
               <input
                 type="text"
-                name="geography"
-                value={formData.geography}
+                name="region"
+                value={formData.region}
                 onChange={handleChange}
-                placeholder="e.g. Bengaluru, San Francisco"
+                placeholder="e.g. Karnataka, Singapore, EU"
                 required
                 className="neo-input"
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Sectors you back</label>
+              <label className="block text-xs font-black uppercase mb-2">Sector Priorities</label>
               <input
                 type="text"
-                name="sectors"
-                value={formData.sectors}
+                name="sectorPriorities"
+                value={formData.sectorPriorities}
                 onChange={handleChange}
-                placeholder="e.g. Consumer Tech, AI, HealthTech"
+                placeholder="e.g. DeepTech, BioTech, AgTech, Climate"
                 required
                 className="neo-input"
               />
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Preferred Investment Stage</label>
+              <label className="block text-xs font-black uppercase mb-2">Program Types Available</label>
               <select
-                name="investmentStage"
-                value={formData.investmentStage}
+                name="programType"
+                value={formData.programType}
                 onChange={handleChange}
                 className="neo-input"
               >
-                <option value="idea">Idea Stage</option>
-                <option value="pre_seed">Pre-seed</option>
-                <option value="seed">Seed Stage</option>
+                <option value="Grants & Subsidies">Grants & Subsidies</option>
+                <option value="Tax Rebates">Tax Rebates & SR&ED Credits</option>
+                <option value="Co-working & Incubations">Co-working Space & Incubation</option>
+                <option value="Equity Co-investments">Equity Co-investments / Sovereign Fund</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-black uppercase mb-2">Annual Investment Budget</label>
+              <label className="block text-xs font-black uppercase mb-2">Institution Support Focus</label>
               <input
                 type="text"
-                name="budget"
-                value={formData.budget}
+                name="supportFocus"
+                value={formData.supportFocus}
                 onChange={handleChange}
-                placeholder="e.g. $50k - $250k"
+                placeholder="e.g. R&D Commercialization, Startup Incubation"
+                className="neo-input"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-black uppercase mb-2">Mandate Mandate Statement</label>
+              <input
+                type="text"
+                name="mandate"
+                value={formData.mandate}
+                onChange={handleChange}
+                placeholder="e.g. Deploy INR 200 Cr to support 1000 technical founders"
+                required
                 className="neo-input"
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-black uppercase mb-2">Investment Conviction & Thesis</label>
+              <label className="block text-xs font-black uppercase mb-2">Ecosystem Goals</label>
               <textarea
-                name="thesis"
-                value={formData.thesis}
+                name="ecosystemGoals"
+                value={formData.ecosystemGoals}
                 onChange={handleChange}
-                placeholder="e.g. Backing technical builders with high agency at the absolute earliest stage..."
-                rows={4}
+                placeholder="What indicators determine regional ecosystem success for your agency..."
+                rows={3}
                 className="neo-input"
               />
             </div>
@@ -482,10 +523,10 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
         <div className="pt-4 border-t-[3px] border-black flex justify-end">
           <button
             type="submit"
-            className="neo-btn-primary text-base px-8 py-3"
+            className="neo-btn-primary text-xs px-8 py-3 flex items-center justify-center gap-2"
           >
-            <span>LAUNCH STRATEGY SYSTEM</span>
-            <ArrowRight size={18} />
+            <span>LAUNCH ECOSYSTEM WORKSPACE</span>
+            <ArrowRight size={16} />
           </button>
         </div>
       </form>
