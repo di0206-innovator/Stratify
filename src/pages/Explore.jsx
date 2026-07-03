@@ -196,7 +196,13 @@ export default function Explore({ user, founderProfile }) {
             </Link>
           ))}
           {filteredStartups.length === 0 && (
-            <div className="col-span-full py-12 text-center text-gray-500 font-bold">No startups found matching your criteria.</div>
+            <div className="col-span-full border-2 border-dashed border-gray-400 p-12 text-center bg-white font-outfit select-none">
+              <span className="block text-[10px] font-black uppercase text-gray-400 mb-2">ECOSYSTEM EXPLORER</span>
+              <h4 className="font-black text-lg uppercase text-black mb-1">No Startups Found</h4>
+              <p className="font-bold text-gray-500 text-xs max-w-sm mx-auto leading-relaxed">
+                Adjust your industry/stage filters above, or define a new workspace vertical to bootstrap deal flow.
+              </p>
+            </div>
           )}
         </div>
       ) : (
@@ -225,7 +231,13 @@ export default function Explore({ user, founderProfile }) {
             </div>
           ))}
           {filteredPeople.length === 0 && (
-            <div className="col-span-full py-12 text-center text-gray-500 font-bold">No people found matching your criteria.</div>
+            <div className="col-span-full border-2 border-dashed border-gray-400 p-12 text-center bg-white font-outfit select-none">
+              <span className="block text-[10px] font-black uppercase text-gray-400 mb-2">ECOSYSTEM REGISTRY</span>
+              <h4 className="font-black text-lg uppercase text-black mb-1">No Members Found</h4>
+              <p className="font-bold text-gray-500 text-xs max-w-sm mx-auto leading-relaxed">
+                Try searching for other keywords, or build consensus by initiating outbound partnership invites.
+              </p>
+            </div>
           )}
         </div>
       )}

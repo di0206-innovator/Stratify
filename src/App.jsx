@@ -211,7 +211,17 @@ function AppContent({
   theme, setTheme, openAuthModal, isAdmin
 }) {
   const location = useLocation();
-  const isPublicPage = location.pathname === '/';
+  const isPublicRoute = location.pathname === '/' || location.pathname.startsWith('/brief/');
+
+  if (!user && !isPublicRoute) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (user && !founderProfile && !isPublicRoute && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  const isPublicPage = isPublicRoute;
 
   return (
     <div className="min-h-screen bg-memphis-mesh relative overflow-x-hidden flex flex-col justify-between">
@@ -318,11 +328,7 @@ function AppContent({
                 element={<BountyBoard founderProfile={founderProfile} user={user} />} 
               />
 
-              {/* Pitch Brief Builder Dashboard */}
-              <Route 
-                path="/briefs" 
-                element={<PitchBrief mode="builder" founderProfile={founderProfile} />} 
-              />
+
 
               {/* Public whitelist-guarded Pitch Brief Data Room */}
               <Route 

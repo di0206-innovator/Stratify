@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield, Sun, Moon, Terminal, Users, Cpu } from 'lucide-react';
+import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield, Sun, Moon, Terminal, Users, Cpu, Settings } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabase';
 
@@ -36,19 +36,34 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
     return () => clearInterval(interval);
   }, [user]);
 
-  const navItems = [
+  const [activeDropdown, setActiveDropdown] = React.useState(null); // 'execution' | 'intel' | null
+
+  React.useEffect(() => {
+    const handleOutsideClick = () => {
+      setActiveDropdown(null);
+    };
+    window.addEventListener('click', handleOutsideClick);
+    return () => window.removeEventListener('click', handleOutsideClick);
+  }, []);
+
+  const coreNavItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/feed', label: 'Feed', icon: Radio },
-    { path: '/timeline', label: 'Timeline', icon: TrendingUp },
-    { path: '/memory', label: 'Memory', icon: Cpu },
-    { path: '/signals', label: 'Signals', icon: Radio },
     { path: '/explore', label: 'Explore', icon: Users },
-    { path: '/opportunities', label: 'Opportunities', icon: UserCog },
+    { path: '/reports', label: 'Insights & Briefs', icon: FileText },
+    { path: '/feed', label: 'Feed', icon: Radio },
+  ];
+
+  const executionItems = [
     { path: '/runway', label: 'Runway', icon: TrendingUp },
     { path: '/equity', label: 'Cap Table', icon: Users },
     { path: '/bounties', label: 'Bounties', icon: Cpu },
-    { path: '/briefs', label: 'Briefs', icon: FileText },
-    { path: '/reports', label: 'Reports', icon: FileText },
+    { path: '/opportunities', label: 'Opportunities', icon: UserCog },
+  ];
+
+  const intelItems = [
+    { path: '/signals', label: 'Signals', icon: Radio },
+    { path: '/memory', label: 'Memory', icon: Cpu },
+    { path: '/timeline', label: 'Timeline', icon: TrendingUp },
   ];
 
   const email = user && user.email ? user.email.toLowerCase() : '';
@@ -59,9 +74,9 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
     email.startsWith('admin@')
   );
 
-  const activeNavItems = isAdmin 
-    ? [...navItems, { path: '/admin', label: 'Admin Console', icon: Shield }]
-    : navItems;
+  const activeCoreNavItems = isAdmin 
+    ? [...coreNavItems, { path: '/admin', label: 'Admin Console', icon: Shield }]
+    : coreNavItems;
 
   const handleLogout = async () => {
     try {
@@ -194,8 +209,8 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
       {/* Tabs and Actions Row */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Navigation Tabs */}
-        <nav className="flex items-center gap-2.5 py-1.5 overflow-x-auto whitespace-nowrap hide-scrollbar flex-nowrap pb-2 -mb-2 flex-1">
-          {activeNavItems.map((item) => {
+        <nav className="flex items-center gap-2.5 py-1.5 overflow-visible flex-wrap md:flex-nowrap flex-1">
+          {activeCoreNavItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
@@ -211,6 +226,80 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               </Link>
             );
           })}
+
+          {/* Execution Dropdown */}
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveDropdown(activeDropdown === 'execution' ? null : 'execution');
+              }}
+              className={`flex-shrink-0 px-4 py-2 text-xs font-black uppercase border-[3px] border-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 cursor-pointer ${
+                executionItems.some(item => location.pathname === item.path)
+                  ? 'bg-[#3B82F6] text-white'
+                  : 'bg-white text-black hover:bg-gray-50'
+              }`}
+            >
+              <span>Execution</span>
+              <span className="text-[10px]">▼</span>
+            </button>
+            {activeDropdown === 'execution' && (
+              <div className="absolute left-0 mt-2 w-48 bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-[100] py-1">
+                {executionItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setActiveDropdown(null)}
+                      className={`block px-4 py-2 text-xs font-black uppercase hover:bg-gray-100 transition-colors border-b-2 border-black last:border-b-0 ${
+                        isActive ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'text-black'
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Memory & Intel Dropdown */}
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveDropdown(activeDropdown === 'intel' ? null : 'intel');
+              }}
+              className={`flex-shrink-0 px-4 py-2 text-xs font-black uppercase border-[3px] border-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 cursor-pointer ${
+                intelItems.some(item => location.pathname === item.path)
+                  ? 'bg-[#C084FC] text-black'
+                  : 'bg-white text-black hover:bg-gray-50'
+              }`}
+            >
+              <span>Intel & Memory</span>
+              <span className="text-[10px]">▼</span>
+            </button>
+            {activeDropdown === 'intel' && (
+              <div className="absolute left-0 mt-2 w-48 bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-[100] py-1">
+                {intelItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setActiveDropdown(null)}
+                      className={`block px-4 py-2 text-xs font-black uppercase hover:bg-gray-100 transition-colors border-b-2 border-black last:border-b-0 ${
+                        isActive ? 'bg-[#C084FC]/25 text-[#C084FC] font-black' : 'text-black'
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* Profile & Auth Status */}
@@ -234,8 +323,9 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
 
           {user ? (
             <div className="flex items-center gap-2">
-              <Link to="/settings" className="hidden sm:inline-block text-[10px] font-black uppercase border-[3px] border-black px-2.5 py-2 bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
-                {user.username || user.email}
+              <Link to="/settings" className="flex items-center gap-1.5 text-[10px] font-black uppercase border-[3px] border-black px-2.5 py-2 bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all" title="Settings & Account">
+                <Settings size={12} />
+                <span className="hidden sm:inline">{user.username || user.email}</span>
               </Link>
               <button
                 onClick={handleLogout}

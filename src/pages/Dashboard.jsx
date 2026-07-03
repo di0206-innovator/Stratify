@@ -26,6 +26,9 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
   const [partialReport, setPartialReport] = useState(null);
   const [govSchemes, setGovSchemes] = useState([]);
   const [myStartup, setMyStartup] = useState(null);
+  const [mySignals, setMySignals] = useState([]);
+  const [myTimeline, setMyTimeline] = useState([]);
+  const [myBriefs, setMyBriefs] = useState([]);
 
   // Negotiation states
   const [negotiatingPartner, setNegotiatingPartner] = useState(null);
@@ -95,7 +98,31 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
           const myStartupRes = await fetch('/api/startups/my');
           if (myStartupRes.ok) {
             const msData = await myStartupRes.json();
-            setMyStartup(msData.startup || null);
+            const startupObj = msData.startup || null;
+            setMyStartup(startupObj);
+
+            if (startupObj) {
+              // Fetch signals
+              const signalsRes = await fetch('/api/signals/history');
+              if (signalsRes.ok) {
+                const sigData = await signalsRes.json();
+                setMySignals(sigData.history || []);
+              }
+
+              // Fetch timeline
+              const timelineRes = await fetch('/api/timeline');
+              if (timelineRes.ok) {
+                const timelineData = await timelineRes.json();
+                setMyTimeline(timelineData.timeline || []);
+              }
+
+              // Fetch briefs
+              const briefsRes = await fetch('/api/briefs');
+              if (briefsRes.ok) {
+                const briefsData = await briefsRes.json();
+                setMyBriefs(briefsData.briefs || []);
+              }
+            }
           }
 
           // Fetch government schemes
@@ -433,11 +460,27 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
           </div>
           
           <div className="relative z-10 flex items-center gap-4 bg-white border-[3px] border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex-wrap sm:flex-nowrap">
-            <div className="text-center border-r-[3px] border-black pr-5">
+            <div className="text-center border-r-[3px] border-black pr-4">
               <span className="block text-[9px] font-black uppercase text-gray-500">STARTUP SCORE</span>
-              <span className="text-3xl font-black text-[#EF4444]">{myStartup?.score || 10}</span>
+              <span className="text-2xl font-black text-[#EF4444]">{myStartup?.score || 10}</span>
             </div>
-            <div className="text-center pl-1.5">
+            <div className="text-center border-r-[3px] border-black pr-4 pl-1">
+              <span className="block text-[9px] font-black uppercase text-gray-500">VALIDATION SCORE</span>
+              <span className="text-2xl font-black text-[#C084FC]">{myStartup?.validation_score !== null && myStartup?.validation_score !== undefined ? `${myStartup.validation_score}%` : 'N/A'}</span>
+            </div>
+            <div className="text-center border-r-[3px] border-black pr-4 pl-1">
+              <span className="block text-[9px] font-black uppercase text-gray-500">RUNWAY STATUS</span>
+              <span className="text-xs font-black uppercase text-[#A3E635] bg-black px-1.5 py-0.5 border border-black">
+                {(() => {
+                  const cashVal = parseFloat(myStartup?.fundingRaised) || 150000;
+                  const burnVal = 15000;
+                  const revVal = parseFloat(myStartup?.revenue) || 3000;
+                  const netBurnVal = burnVal - revVal;
+                  return netBurnVal <= 0 ? 'DEFAULT ALIVE' : `${Math.floor(cashVal / netBurnVal)} MONTHS`;
+                })()}
+              </span>
+            </div>
+            <div className="text-center pl-1">
               <span className="block text-[9px] font-black uppercase text-gray-500">ACTIVE GOAL</span>
               <span className="text-xs font-black uppercase text-[#3B82F6]">{founderProfile.currentGoal}</span>
             </div>
@@ -873,6 +916,113 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                   })}
                 </div>
               )}
+            </BentoCard>
+
+            {/* Active Pitch Briefs / Data Room */}
+            <BentoCard title="Active Pitch Briefs" badge="Verified Data Room" badgeColor="bg-cyan-400">
+              {myBriefs.length === 0 ? (
+                <div className="text-center py-4 text-gray-500 text-xs font-bold font-outfit uppercase">
+                  No pitch briefs created yet.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {myBriefs.slice(0, 3).map((brief) => (
+                    <Link
+                      key={brief.id}
+                      to={`/brief/${brief.id}`}
+                      className="block border-2 border-black p-3 bg-white hover:bg-gray-50 transition-colors"
+                    >
+                      <h4 className="font-outfit font-black text-xs uppercase text-black">{brief.title || 'Pitch Brief'}</h4>
+                      <p className="text-[10px] text-gray-500 font-semibold mt-1 leading-tight line-clamp-2">
+                        {brief.pitch}
+                      </p>
+                      <span className="text-[9px] font-black text-[#3B82F6] block mt-1.5 uppercase">
+                        View Data Room →
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              <Link
+                to="/reports"
+                className="w-full mt-3 py-2 bg-white border-2 border-black text-black font-black text-xs uppercase hover:bg-gray-50 text-center block transition-all"
+              >
+                Manage Data Room
+              </Link>
+            </BentoCard>
+
+            {/* Recent Signals & Market Intelligence */}
+            <BentoCard title="Recent Signals" badge="Ecosystem Intelligence" badgeColor="bg-[#EF4444]">
+              {mySignals.length === 0 ? (
+                <div className="text-center py-4 text-gray-500 text-xs font-bold font-outfit uppercase">
+                  No recent market signals.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {mySignals.slice(0, 5).map((signal) => (
+                    <div key={signal.id} className="border-2 border-black p-3 bg-white">
+                      <div className="flex justify-between items-start gap-2 mb-1">
+                        <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 border border-black ${
+                          signal.sentiment?.toLowerCase() === 'positive' ? 'bg-[#A3E635]' : signal.sentiment?.toLowerCase() === 'negative' ? 'bg-[#EF4444] text-white' : 'bg-[#FCD34D]'
+                        }`}>
+                          {signal.sentiment || 'Neutral'}
+                        </span>
+                        <span className="text-[9px] font-bold text-gray-400">
+                          {new Date(signal.created_at || signal.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <h5 className="font-outfit font-black text-xs uppercase text-black leading-tight">
+                        {signal.signal_data?.title || signal.signalData?.title || 'Signal Alert'}
+                      </h5>
+                      <p className="text-[10px] text-gray-500 font-semibold mt-1 leading-tight">
+                        {signal.signal_data?.description || signal.signalData?.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Link
+                to="/signals"
+                className="w-full mt-3 py-2 bg-white border-2 border-black text-black font-black text-xs uppercase hover:bg-gray-50 text-center block transition-all"
+              >
+                Inspect Live Signals
+              </Link>
+            </BentoCard>
+
+            {/* Timeline Summary Panel */}
+            <BentoCard title="Timeline Summary" badge="Consensus Audit Trail" badgeColor="bg-[#3B82F6]">
+              {myTimeline.length === 0 ? (
+                <div className="text-center py-4 text-gray-500 text-xs font-bold font-outfit uppercase">
+                  No verified progress logged.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {myTimeline.slice(0, 5).map((event) => (
+                    <div key={event.id} className="border-2 border-black p-3 bg-white">
+                      <div className="flex justify-between items-center gap-2 mb-1.5 border-b border-gray-100 pb-1">
+                        <span className="text-[9px] font-black uppercase tracking-wider font-mono px-1 border border-black bg-gray-50">
+                          {event.eventType}
+                        </span>
+                        <span className="text-[9px] font-bold text-gray-400">
+                          {new Date(event.createdAt || event.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <h5 className="font-outfit font-black text-xs uppercase text-black">
+                        {event.title}
+                      </h5>
+                      <p className="text-[10px] text-gray-500 font-semibold mt-0.5 leading-tight">
+                        {event.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Link
+                to="/timeline"
+                className="w-full mt-3 py-2 bg-white border-2 border-black text-black font-black text-xs uppercase hover:bg-gray-50 text-center block transition-all"
+              >
+                View Unified Timeline
+              </Link>
             </BentoCard>
 
           </div>

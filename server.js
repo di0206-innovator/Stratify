@@ -1594,9 +1594,8 @@ async function createReportStream(req, res, next, services) {
         if (req.user && req.user.id && req.user.id !== 'api-token') {
             report.ownerId = req.user.id;
             if (startupStore && report.rawStrategy) {
-                const startups = await startupStore.getStartupsByOwnerId(req.user.id);
-                if (startups && startups.length > 0) {
-                    const startup = startups[0];
+                const startup = await startupStore.getStartupByOwner(req.user.id);
+                if (startup) {
                     let updated = false;
                     if (typeof report.rawStrategy.validationScore === 'number') {
                         startup.validation_score = report.rawStrategy.validationScore;
@@ -1604,6 +1603,18 @@ async function createReportStream(req, res, next, services) {
                     }
                     if (typeof report.rawStrategy.riskScore === 'number') {
                         startup.score = 100 - report.rawStrategy.riskScore; // Inverting risk to get a general score
+                        updated = true;
+                    }
+                    if (typeof report.rawStrategy.founderMarketFit === 'number') {
+                        startup.founder_market_fit = report.rawStrategy.founderMarketFit;
+                        updated = true;
+                    }
+                    if (report.rawExecution && typeof report.rawExecution.executionReadiness === 'number') {
+                        startup.execution_readiness = report.rawExecution.executionReadiness;
+                        updated = true;
+                    }
+                    if (report.rawExecution && typeof report.rawExecution.fundraisingReadiness === 'number') {
+                        startup.fundraising_readiness = report.rawExecution.fundraisingReadiness;
                         updated = true;
                     }
                     if (updated) {

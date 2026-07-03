@@ -22,6 +22,19 @@ export default function Reports({ user, setUser, openAuthModal, founderProfile }
   const [loadingBrief, setLoadingBrief] = useState(false);
   const [savingBrief, setSavingBrief] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [myStartup, setMyStartup] = useState(null);
+
+  const fetchMyStartup = async () => {
+    try {
+      const res = await fetch('/api/startups/my');
+      if (res.ok) {
+        const data = await res.json();
+        setMyStartup(data.startup || null);
+      }
+    } catch (e) {
+      console.error('Failed to load my startup in reports:', e);
+    }
+  };
 
   const fetchReports = async () => {
     setLoadingReports(true);
@@ -69,9 +82,11 @@ export default function Reports({ user, setUser, openAuthModal, founderProfile }
     if (user) {
       fetchReports();
       fetchMyBrief();
+      fetchMyStartup();
     } else {
       setLoadingReports(false);
       setReports([]);
+      setMyStartup(null);
     }
   }, [user]);
 
@@ -222,6 +237,51 @@ export default function Reports({ user, setUser, openAuthModal, founderProfile }
         </div>
       ) : (
         <div className="space-y-6">
+          {/* Shared Top Summary */}
+          {(() => {
+            const sortedReports = [...reports].sort((a, b) => new Date(b.generatedAt) - new Date(a.generatedAt));
+            const latestReport = sortedReports[0];
+            const validationScoreVal = latestReport?.rawStrategy?.validationScore ? `${latestReport.rawStrategy.validationScore}%` : myStartup?.validation_score ? `${myStartup.validation_score}%` : null;
+
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#F8F7F4] border-[3px] border-black p-4 select-none">
+                <div className="border-[2px] border-black p-3 bg-white flex justify-between items-center">
+                  <div>
+                    <span className="block text-[8px] font-black uppercase text-gray-500">LATEST INTEL SCORE</span>
+                    <span className="text-xl font-black text-[#EF4444]">{validationScoreVal || 'NOT AUDITED'}</span>
+                  </div>
+                  <span className={`text-[10px] px-1.5 py-0.5 border border-black font-black uppercase ${validationScoreVal ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-450'}`}>
+                    {validationScoreVal ? 'Compiled' : 'Pending'}
+                  </span>
+                </div>
+
+                <div className="border-[2px] border-black p-3 bg-white flex justify-between items-center">
+                  <div>
+                    <span className="block text-[8px] font-black uppercase text-gray-500">BRIEF DISCLOSURE STATE</span>
+                    <span className="text-xs font-black text-[#3B82F6] uppercase">
+                      {briefId ? (isPublic ? 'PUBLIC ACCESS' : 'WHITELIST ONLY') : 'NOT INITIALIZED'}
+                    </span>
+                  </div>
+                  <span className={`text-[10px] px-1.5 py-0.5 border border-black font-black uppercase ${briefId ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-550'}`}>
+                    {briefId ? 'Ready' : 'Draft'}
+                  </span>
+                </div>
+
+                <div className="border-[2px] border-black p-3 bg-white flex justify-between items-center">
+                  <div>
+                    <span className="block text-[8px] font-black uppercase text-gray-500">WHITELISTED INVESTORS</span>
+                    <span className="text-xl font-black text-black">
+                      {whitelistInput ? whitelistInput.split(',').map(x => x.trim()).filter(Boolean).length : 0} Members
+                    </span>
+                  </div>
+                  <span className="text-[10px] bg-[#C084FC]/20 text-[#C084FC] px-1.5 py-0.5 border border-black font-black uppercase">
+                    Secure
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Tab Navigation */}
           <div className="flex border-b-[3px] border-black select-none">
             <button

@@ -22,7 +22,7 @@ export default function Signals({ founderProfile }) {
         throw new Error(`Failed to fetch signal history: HTTP ${response.status}`);
       }
       const data = await response.json();
-      setSignals(data.signals || []);
+      setSignals(data.history || data.signals || []);
       setMode('live');
     } catch (err) {
       setError(err.message || 'Failed to sync with signal history.');
