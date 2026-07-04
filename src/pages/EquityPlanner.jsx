@@ -4,394 +4,394 @@ import BentoCard from '../components/BentoCard';
 import confetti from 'canvas-confetti';
 
 export default function EquityPlanner() {
-  // Founder Name states
-  const [f1Name, setF1Name] = useState('Co-Founder A');
-  const [f2Name, setF2Name] = useState('Co-Founder B');
-  const [f3Name, setF3Name] = useState('Co-Founder C');
+ // Founder Name states
+ const [f1Name, setF1Name] = useState('Co-Founder A');
+ const [f2Name, setF2Name] = useState('Co-Founder B');
+ const [f3Name, setF3Name] = useState('Co-Founder C');
 
-  // Founder 1 sliders
-  const [f1Ip, setF1Ip] = useState(8);
-  const [f1Code, setF1Code] = useState(9);
-  const [f1Capital, setF1Capital] = useState(2);
-  const [f1Hours, setF1Hours] = useState(10); // Full-time
+ // Founder 1 sliders
+ const [f1Ip, setF1Ip] = useState(8);
+ const [f1Code, setF1Code] = useState(9);
+ const [f1Capital, setF1Capital] = useState(2);
+ const [f1Hours, setF1Hours] = useState(10); // Full-time
 
-  // Founder 2 sliders
-  const [f2Ip, setF2Ip] = useState(3);
-  const [f2Code, setF2Code] = useState(4);
-  const [f2Capital, setF2Capital] = useState(8);
-  const [f2Hours, setF2Hours] = useState(8); 
+ // Founder 2 sliders
+ const [f2Ip, setF2Ip] = useState(3);
+ const [f2Code, setF2Code] = useState(4);
+ const [f2Capital, setF2Capital] = useState(8);
+ const [f2Hours, setF2Hours] = useState(8); 
 
-  // Founder 3 sliders
-  const [f3Ip, setF3Ip] = useState(1);
-  const [f3Code, setF3Code] = useState(1);
-  const [f3Capital, setF3Capital] = useState(1);
-  const [f3Hours, setF3Hours] = useState(0); // Inactive
+ // Founder 3 sliders
+ const [f3Ip, setF3Ip] = useState(1);
+ const [f3Code, setF3Code] = useState(1);
+ const [f3Capital, setF3Capital] = useState(1);
+ const [f3Hours, setF3Hours] = useState(0); // Inactive
 
-  // Results
-  const [shares, setShares] = useState(null);
-  const [vestingMonths, setVestingMonths] = useState(12);
-  const [briefGenerated, setBriefGenerated] = useState(false);
-  const [loading, setLoading] = useState(true);
+ // Results
+ const [shares, setShares] = useState(null);
+ const [vestingMonths, setVestingMonths] = useState(12);
+ const [briefGenerated, setBriefGenerated] = useState(false);
+ const [loading, setLoading] = useState(true);
 
-  const fetchState = async () => {
-    try {
-      const res = await fetch('/api/equity');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.capTable && data.capTable.state) {
-          const s = data.capTable.state;
-          if (s.f1Name) setF1Name(s.f1Name);
-          if (s.f2Name) setF2Name(s.f2Name);
-          if (s.f3Name) setF3Name(s.f3Name);
-          
-          if (s.f1Ip !== undefined) setF1Ip(s.f1Ip);
-          if (s.f1Code !== undefined) setF1Code(s.f1Code);
-          if (s.f1Capital !== undefined) setF1Capital(s.f1Capital);
-          if (s.f1Hours !== undefined) setF1Hours(s.f1Hours);
-          
-          if (s.f2Ip !== undefined) setF2Ip(s.f2Ip);
-          if (s.f2Code !== undefined) setF2Code(s.f2Code);
-          if (s.f2Capital !== undefined) setF2Capital(s.f2Capital);
-          if (s.f2Hours !== undefined) setF2Hours(s.f2Hours);
+ const fetchState = async () => {
+ try {
+ const res = await fetch('/api/equity');
+ if (res.ok) {
+ const data = await res.json();
+ if (data.capTable && data.capTable.state) {
+ const s = data.capTable.state;
+ if (s.f1Name) setF1Name(s.f1Name);
+ if (s.f2Name) setF2Name(s.f2Name);
+ if (s.f3Name) setF3Name(s.f3Name);
+ 
+ if (s.f1Ip !== undefined) setF1Ip(s.f1Ip);
+ if (s.f1Code !== undefined) setF1Code(s.f1Code);
+ if (s.f1Capital !== undefined) setF1Capital(s.f1Capital);
+ if (s.f1Hours !== undefined) setF1Hours(s.f1Hours);
+ 
+ if (s.f2Ip !== undefined) setF2Ip(s.f2Ip);
+ if (s.f2Code !== undefined) setF2Code(s.f2Code);
+ if (s.f2Capital !== undefined) setF2Capital(s.f2Capital);
+ if (s.f2Hours !== undefined) setF2Hours(s.f2Hours);
 
-          if (s.f3Ip !== undefined) setF3Ip(s.f3Ip);
-          if (s.f3Code !== undefined) setF3Code(s.f3Code);
-          if (s.f3Capital !== undefined) setF3Capital(s.f3Capital);
-          if (s.f3Hours !== undefined) setF3Hours(s.f3Hours);
+ if (s.f3Ip !== undefined) setF3Ip(s.f3Ip);
+ if (s.f3Code !== undefined) setF3Code(s.f3Code);
+ if (s.f3Capital !== undefined) setF3Capital(s.f3Capital);
+ if (s.f3Hours !== undefined) setF3Hours(s.f3Hours);
 
-          if (s.shares) setShares(s.shares);
-          if (s.vestingMonths) setVestingMonths(s.vestingMonths);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
+ if (s.shares) setShares(s.shares);
+ if (s.vestingMonths) setVestingMonths(s.vestingMonths);
+ }
+ }
+ } catch (e) {
+ console.error(e);
+ } finally {
+ setLoading(false);
+ }
+ };
 
-  useEffect(() => {
-    fetchState();
-  }, []);
+ useEffect(() => {
+ fetchState();
+ }, []);
 
-  const saveState = async (sharesCalc) => {
-    try {
-      await fetch('/api/equity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          versionName: 'Current',
-          state: {
-            f1Name, f2Name, f3Name,
-            f1Ip, f1Code, f1Capital, f1Hours,
-            f2Ip, f2Code, f2Capital, f2Hours,
-            f3Ip, f3Code, f3Capital, f3Hours,
-            shares: sharesCalc,
-            vestingMonths
-          }
-        })
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  };
+ const saveState = async (sharesCalc) => {
+ try {
+ await fetch('/api/equity', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({
+ versionName: 'Current',
+ state: {
+ f1Name, f2Name, f3Name,
+ f1Ip, f1Code, f1Capital, f1Hours,
+ f2Ip, f2Code, f2Capital, f2Hours,
+ f3Ip, f3Code, f3Capital, f3Hours,
+ shares: sharesCalc,
+ vestingMonths
+ }
+ })
+ });
+ } catch (e) {
+ console.error(e);
+ }
+ };
 
-  const calculateSplit = (e) => {
-    e.preventDefault();
-    
-    // Points weights
-    const p1 = f1Ip * 1.0 + f1Code * 2.0 + f1Capital * 1.5 + f1Hours * 1.5;
-    const p2 = f2Ip * 1.0 + f2Code * 2.0 + f2Capital * 1.5 + f2Hours * 1.5;
-    const p3 = f3Ip * 1.0 + f3Code * 2.0 + f3Capital * 1.5 + f3Hours * 1.5;
+ const calculateSplit = (e) => {
+ e.preventDefault();
+ 
+ // Points weights
+ const p1 = f1Ip * 1.0 + f1Code * 2.0 + f1Capital * 1.5 + f1Hours * 1.5;
+ const p2 = f2Ip * 1.0 + f2Code * 2.0 + f2Capital * 1.5 + f2Hours * 1.5;
+ const p3 = f3Ip * 1.0 + f3Code * 2.0 + f3Capital * 1.5 + f3Hours * 1.5;
 
-    const total = p1 + p2 + p3;
-    if (total === 0) return;
+ const total = p1 + p2 + p3;
+ if (total === 0) return;
 
-    const s1 = (p1 / total) * 100;
-    const s2 = (p2 / total) * 100;
-    const s3 = (p3 / total) * 100;
+ const s1 = (p1 / total) * 100;
+ const s2 = (p2 / total) * 100;
+ const s3 = (p3 / total) * 100;
 
-    setShares({
-      f1: Number(s1.toFixed(1)),
-      f2: Number(s2.toFixed(1)),
-      f3: Number(s3.toFixed(1))
-    });
-    setBriefGenerated(false);
+ setShares({
+ f1: Number(s1.toFixed(1)),
+ f2: Number(s2.toFixed(1)),
+ f3: Number(s3.toFixed(1))
+ });
+ setBriefGenerated(false);
 
-    confetti({
-      particleCount: 80,
-      spread: 50,
-      colors: ['#EF4444', '#FCD34D', '#3B82F6']
-    });
+ confetti({
+ particleCount: 80,
+ spread: 50,
+ colors: ['#EF4444', '#FCD34D', '#3B82F6']
+ });
 
-    const calculatedShares = {
-      f1: Number(s1.toFixed(1)),
-      f2: Number(s2.toFixed(1)),
-      f3: Number(s3.toFixed(1))
-    };
+ const calculatedShares = {
+ f1: Number(s1.toFixed(1)),
+ f2: Number(s2.toFixed(1)),
+ f3: Number(s3.toFixed(1))
+ };
 
-    saveState(calculatedShares);
-  };
+ saveState(calculatedShares);
+ };
 
-  // Vesting calculations (48 months, 12 month cliff)
-  const getVestedPercent = (months) => {
-    if (months < 12) return 0;
-    if (months >= 48) return 100;
-    // 25% vests at month 12, then (75% / 36) per month for the remaining 36 months
-    const monthlyRate = 75 / 36;
-    return 25 + (months - 12) * monthlyRate;
-  };
+ // Vesting calculations (48 months, 12 month cliff)
+ const getVestedPercent = (months) => {
+ if (months < 12) return 0;
+ if (months >= 48) return 100;
+ // 25% vests at month 12, then (75% / 36) per month for the remaining 36 months
+ const monthlyRate = 75 / 36;
+ return 25 + (months - 12) * monthlyRate;
+ };
 
-  const vestedPercent = getVestedPercent(vestingMonths);
-  const unvestedPercent = 100 - vestedPercent;
+ const vestedPercent = getVestedPercent(vestingMonths);
+ const unvestedPercent = 100 - vestedPercent;
 
-  return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
-      <div className="neo-card bg-[#3B82F6] text-white p-8 sm:p-12 mb-8 border-[4px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden select-none">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
-        <div className="relative z-10 space-y-2 text-left">
-          <span className="inline-block bg-[#A3E635] text-black px-2.5 py-1 border-2 border-black font-outfit font-black text-[10px] uppercase tracking-wider">
-            Ecosystem Agreements Suite
-          </span>
-          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight">
-            Co-Founder Equity Planner
-          </h1>
-          <p className="font-outfit font-bold text-blue-100 max-w-xl text-xs sm:text-sm leading-relaxed">
-            Eliminate friction before shipping. Model contributions, calculate fair cap split metrics, and generate vesting agreements.
-          </p>
-        </div>
-      </div>
+ return (
+ <div className="max-w-6xl mx-auto px-4 py-12">
+ <div className="os-card bg-blue-600 text-white p-8 sm:p-12 mb-8 relative overflow-hidden select-none">
+ <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
+ <div className="relative z-10 space-y-2 text-left">
+ <span className="inline-block bg-emerald-500 text-black px-2.5 py-1 border-2 border-black font-outfit font-black text-[10px] uppercase tracking-wider">
+ Ecosystem Agreements Suite
+ </span>
+ <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight">
+ Co-Founder Equity Planner
+ </h1>
+ <p className="font-outfit font-bold text-blue-100 max-w-xl text-xs sm:text-sm leading-relaxed">
+ Eliminate friction before shipping. Model contributions, calculate fair cap split metrics, and generate vesting agreements.
+ </p>
+ </div>
+ </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column (Input Matrices) */}
-        <div className="lg:col-span-2 space-y-6">
-          <BentoCard title="Co-Founder Contribution Weights" badge="ALIGNMENT SURVEY" badgeColor="bg-[#C084FC]">
-            <form onSubmit={calculateSplit} className="space-y-6">
-              
-              {/* Founder 1 */}
-              <div className="border-[3px] border-black p-4 bg-gray-50 text-left space-y-4">
-                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                  <input
-                    type="text"
-                    value={f1Name}
-                    onChange={(e) => setF1Name(e.target.value)}
-                    className="font-outfit font-black text-xs uppercase bg-transparent focus:outline-none border-b border-black text-black w-2/3"
-                  />
-                  <span className="text-[9px] bg-[#EF4444] text-white px-2 py-0.5 font-black uppercase">F1</span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Ideation / IP contribution</label>
-                    <input type="range" min="0" max="10" value={f1Ip} onChange={(e) => setF1Ip(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Execution / Dev work</label>
-                    <input type="range" min="0" max="10" value={f1Code} onChange={(e) => setF1Code(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Pre-seed Capital Invested</label>
-                    <input type="range" min="0" max="10" value={f1Capital} onChange={(e) => setF1Capital(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Hours Committed (Commitment)</label>
-                    <input type="range" min="0" max="10" value={f1Hours} onChange={(e) => setF1Hours(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                </div>
-              </div>
+ <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+ {/* Left Column (Input Matrices) */}
+ <div className="lg:col-span-2 space-y-6">
+ <BentoCard title="Co-Founder Contribution Weights" badge="ALIGNMENT SURVEY" badgeColor="bg-purple-600">
+ <form onSubmit={calculateSplit} className="space-y-6">
+ 
+ {/* Founder 1 */}
+ <div className=" p-4 bg-gray-50 text-left space-y-4">
+ <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+ <input
+ type="text"
+ value={f1Name}
+ onChange={(e) => setF1Name(e.target.value)}
+ className="font-outfit font-black text-xs uppercase bg-transparent focus:outline-none border-b border-black text-black w-2/3"
+ />
+ <span className="text-[9px] bg-red-500 text-white px-2 py-0.5 font-black uppercase">F1</span>
+ </div>
+ 
+ <div className="grid grid-cols-2 gap-4 text-xs">
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Ideation / IP contribution</label>
+ <input type="range" min="0" max="10" value={f1Ip} onChange={(e) => setF1Ip(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Execution / Dev work</label>
+ <input type="range" min="0" max="10" value={f1Code} onChange={(e) => setF1Code(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Pre-seed Capital Invested</label>
+ <input type="range" min="0" max="10" value={f1Capital} onChange={(e) => setF1Capital(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Hours Committed (Commitment)</label>
+ <input type="range" min="0" max="10" value={f1Hours} onChange={(e) => setF1Hours(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ </div>
+ </div>
 
-              {/* Founder 2 */}
-              <div className="border-[3px] border-black p-4 bg-gray-50 text-left space-y-4">
-                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                  <input
-                    type="text"
-                    value={f2Name}
-                    onChange={(e) => setF2Name(e.target.value)}
-                    className="font-outfit font-black text-xs uppercase bg-transparent focus:outline-none border-b border-black text-black w-2/3"
-                  />
-                  <span className="text-[9px] bg-[#FCD34D] text-black px-2 py-0.5 font-black uppercase">F2</span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Ideation / IP contribution</label>
-                    <input type="range" min="0" max="10" value={f2Ip} onChange={(e) => setF2Ip(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Execution / Dev work</label>
-                    <input type="range" min="0" max="10" value={f2Code} onChange={(e) => setF2Code(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Pre-seed Capital Invested</label>
-                    <input type="range" min="0" max="10" value={f2Capital} onChange={(e) => setF2Capital(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Hours Committed (Commitment)</label>
-                    <input type="range" min="0" max="10" value={f2Hours} onChange={(e) => setF2Hours(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                </div>
-              </div>
+ {/* Founder 2 */}
+ <div className=" p-4 bg-gray-50 text-left space-y-4">
+ <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+ <input
+ type="text"
+ value={f2Name}
+ onChange={(e) => setF2Name(e.target.value)}
+ className="font-outfit font-black text-xs uppercase bg-transparent focus:outline-none border-b border-black text-black w-2/3"
+ />
+ <span className="text-[9px] bg-yellow-400 text-black px-2 py-0.5 font-black uppercase">F2</span>
+ </div>
+ 
+ <div className="grid grid-cols-2 gap-4 text-xs">
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Ideation / IP contribution</label>
+ <input type="range" min="0" max="10" value={f2Ip} onChange={(e) => setF2Ip(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Execution / Dev work</label>
+ <input type="range" min="0" max="10" value={f2Code} onChange={(e) => setF2Code(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Pre-seed Capital Invested</label>
+ <input type="range" min="0" max="10" value={f2Capital} onChange={(e) => setF2Capital(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Hours Committed (Commitment)</label>
+ <input type="range" min="0" max="10" value={f2Hours} onChange={(e) => setF2Hours(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ </div>
+ </div>
 
-              {/* Founder 3 */}
-              <div className="border-[3px] border-black p-4 bg-gray-50 text-left space-y-4">
-                <div className="flex justify-between items-center border-b border-gray-200 pb-2">
-                  <input
-                    type="text"
-                    value={f3Name}
-                    onChange={(e) => setF3Name(e.target.value)}
-                    className="font-outfit font-black text-xs uppercase bg-transparent focus:outline-none border-b border-black text-black w-2/3"
-                  />
-                  <span className="text-[9px] bg-[#3B82F6] text-white px-2 py-0.5 font-black uppercase">F3</span>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-xs">
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Ideation / IP contribution</label>
-                    <input type="range" min="0" max="10" value={f3Ip} onChange={(e) => setF3Ip(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Execution / Dev work</label>
-                    <input type="range" min="0" max="10" value={f3Code} onChange={(e) => setF3Code(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Pre-seed Capital Invested</label>
-                    <input type="range" min="0" max="10" value={f3Capital} onChange={(e) => setF3Capital(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                  <div>
-                    <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Hours Committed (Commitment)</label>
-                    <input type="range" min="0" max="10" value={f3Hours} onChange={(e) => setF3Hours(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
-                  </div>
-                </div>
-              </div>
+ {/* Founder 3 */}
+ <div className=" p-4 bg-gray-50 text-left space-y-4">
+ <div className="flex justify-between items-center border-b border-gray-200 pb-2">
+ <input
+ type="text"
+ value={f3Name}
+ onChange={(e) => setF3Name(e.target.value)}
+ className="font-outfit font-black text-xs uppercase bg-transparent focus:outline-none border-b border-black text-black w-2/3"
+ />
+ <span className="text-[9px] bg-blue-600 text-white px-2 py-0.5 font-black uppercase">F3</span>
+ </div>
+ 
+ <div className="grid grid-cols-2 gap-4 text-xs">
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Ideation / IP contribution</label>
+ <input type="range" min="0" max="10" value={f3Ip} onChange={(e) => setF3Ip(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Execution / Dev work</label>
+ <input type="range" min="0" max="10" value={f3Code} onChange={(e) => setF3Code(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Pre-seed Capital Invested</label>
+ <input type="range" min="0" max="10" value={f3Capital} onChange={(e) => setF3Capital(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ <div>
+ <label className="block text-[9px] font-black uppercase text-gray-500 mb-1">Hours Committed (Commitment)</label>
+ <input type="range" min="0" max="10" value={f3Hours} onChange={(e) => setF3Hours(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
+ </div>
+ </div>
+ </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 bg-[#A3E635] text-black border-[3px] border-black font-black text-xs uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
-              >
-                CALCULATE BALANCED SPLIT
-              </button>
-            </form>
-          </BentoCard>
-        </div>
+ <button
+ type="submit"
+ className="w-full py-3 bg-emerald-500 text-black font-black text-xs uppercase active:translate-x-[1px] active:translate-y-[1px] active:shadow-none hover:-translate-x-[0.5px] hover:-translate-y-[0.5px] hover: transition-all cursor-pointer"
+ >
+ CALCULATE BALANCED SPLIT
+ </button>
+ </form>
+ </BentoCard>
+ </div>
 
-        {/* Right Column (Results & Vesting Simulator) */}
-        <div className="space-y-6">
-          {/* Equity Split Output */}
-          <BentoCard title="Equity Cap Split" badge="CALCULATOR METRICS" badgeColor="bg-[#EF4444]">
-            {shares ? (
-              <div className="space-y-4 text-left">
-                {/* Horizontal Segmented Bar */}
-                <div className="h-10 border-[3px] border-black flex overflow-hidden">
-                  <div style={{ width: `${shares.f1}%` }} className="bg-[#EF4444] h-full transition-all border-r-2 border-black" title={`${f1Name}: ${shares.f1}%`} />
-                  <div style={{ width: `${shares.f2}%` }} className="bg-[#FCD34D] h-full transition-all border-r-2 border-black" title={`${f2Name}: ${shares.f2}%`} />
-                  <div style={{ width: `${shares.f3}%` }} className="bg-[#3B82F6] h-full transition-all" title={`${f3Name}: ${shares.f3}%`} />
-                </div>
+ {/* Right Column (Results & Vesting Simulator) */}
+ <div className="space-y-6">
+ {/* Equity Split Output */}
+ <BentoCard title="Equity Cap Split" badge="CALCULATOR METRICS" badgeColor="bg-red-500">
+ {shares ? (
+ <div className="space-y-4 text-left">
+ {/* Horizontal Segmented Bar */}
+ <div className="h-10 flex overflow-hidden">
+ <div style={{ width: `${shares.f1}%` }} className="bg-red-500 h-full transition-all border-r-2 border-black" title={`${f1Name}: ${shares.f1}%`} />
+ <div style={{ width: `${shares.f2}%` }} className="bg-yellow-400 h-full transition-all border-r-2 border-black" title={`${f2Name}: ${shares.f2}%`} />
+ <div style={{ width: `${shares.f3}%` }} className="bg-blue-600 h-full transition-all" title={`${f3Name}: ${shares.f3}%`} />
+ </div>
 
-                <div className="space-y-2 text-xs font-bold text-gray-700 mt-4">
-                  <div className="flex justify-between items-center border-b border-gray-100 pb-1.5">
-                    <span className="flex items-center gap-1.5 uppercase font-black text-black">
-                      <span className="w-2.5 h-2.5 bg-[#EF4444] border border-black inline-block"></span>
-                      {f1Name}
-                    </span>
-                    <span className="font-mono text-black">{shares.f1}%</span>
-                  </div>
-                  <div className="flex justify-between items-center border-b border-gray-100 pb-1.5">
-                    <span className="flex items-center gap-1.5 uppercase font-black text-black">
-                      <span className="w-2.5 h-2.5 bg-[#FCD34D] border border-black inline-block"></span>
-                      {f2Name}
-                    </span>
-                    <span className="font-mono text-black">{shares.f2}%</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-1">
-                    <span className="flex items-center gap-1.5 uppercase font-black text-black">
-                      <span className="w-2.5 h-2.5 bg-[#3B82F6] border border-black inline-block"></span>
-                      {f3Name}
-                    </span>
-                    <span className="font-mono text-black">{shares.f3}%</span>
-                  </div>
-                </div>
+ <div className="space-y-2 text-xs font-bold text-gray-700 mt-4">
+ <div className="flex justify-between items-center border-b border-gray-100 pb-1.5">
+ <span className="flex items-center gap-1.5 uppercase font-black text-black">
+ <span className="w-2.5 h-2.5 bg-red-500 border border-black inline-block"></span>
+ {f1Name}
+ </span>
+ <span className="font-mono text-black">{shares.f1}%</span>
+ </div>
+ <div className="flex justify-between items-center border-b border-gray-100 pb-1.5">
+ <span className="flex items-center gap-1.5 uppercase font-black text-black">
+ <span className="w-2.5 h-2.5 bg-yellow-400 border border-black inline-block"></span>
+ {f2Name}
+ </span>
+ <span className="font-mono text-black">{shares.f2}%</span>
+ </div>
+ <div className="flex justify-between items-center pb-1">
+ <span className="flex items-center gap-1.5 uppercase font-black text-black">
+ <span className="w-2.5 h-2.5 bg-blue-600 border border-black inline-block"></span>
+ {f3Name}
+ </span>
+ <span className="font-mono text-black">{shares.f3}%</span>
+ </div>
+ </div>
 
-                <button
-                  onClick={() => setBriefGenerated(true)}
-                  className="w-full py-2 bg-black text-white border-2 border-black font-black text-[10px] uppercase hover:bg-gray-900 cursor-pointer flex items-center justify-center gap-1.5 mt-2"
-                >
-                  <Shield size={12} />
-                  <span>Generate Vesting Agreement Brief</span>
-                </button>
+ <button
+ onClick={() => setBriefGenerated(true)}
+ className="w-full py-2 bg-black text-white border-2 border-black font-black text-[10px] uppercase hover:bg-gray-900 cursor-pointer flex items-center justify-center gap-1.5 mt-2"
+ >
+ <Shield size={12} />
+ <span>Generate Vesting Agreement Brief</span>
+ </button>
 
-                <button
-                  onClick={async () => {
-                    await saveState(shares);
-                    confetti({
-                      particleCount: 50,
-                      spread: 30,
-                      colors: ['#A3E635', '#000000']
-                    });
-                    alert('Cap table successfully saved to Stratify workspace registry!');
-                  }}
-                  className="w-full py-2 bg-[#A3E635] text-black border-2 border-black font-black text-[10px] uppercase hover:bg-[#92cf2e] cursor-pointer flex items-center justify-center gap-1.5 mt-2"
-                >
-                  <CheckCircle size={12} />
-                  <span>Save Cap Table to Registry</span>
-                </button>
-              </div>
-            ) : (
-              <div className="text-center py-12 text-gray-400 font-outfit font-black text-xs uppercase">
-                Slide contribution factors and click Calculate to view equity splits
-              </div>
-            )}
-          </BentoCard>
+ <button
+ onClick={async () => {
+ await saveState(shares);
+ confetti({
+ particleCount: 50,
+ spread: 30,
+ colors: ['#A3E635', '#000000']
+ });
+ alert('Cap table successfully saved to Stratify workspace registry!');
+ }}
+ className="w-full py-2 bg-emerald-500 text-black border-2 border-black font-black text-[10px] uppercase hover:bg-[#92cf2e] cursor-pointer flex items-center justify-center gap-1.5 mt-2"
+ >
+ <CheckCircle size={12} />
+ <span>Save Cap Table to Registry</span>
+ </button>
+ </div>
+) : (
+ <div className="text-center py-12 text-gray-400 font-outfit font-black text-xs uppercase">
+ Slide contribution factors and click Calculate to view equity splits
+ </div>
+)}
+ </BentoCard>
 
-          {/* Vesting Schedule Visualizer */}
-          <BentoCard title="Vesting Schedule Visualizer" badge="48 MONTH TIMELINE" badgeColor="bg-[#3B82F6]">
-            <div className="space-y-4 text-left">
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-[10px] font-black uppercase text-gray-500">Time Elapsed</label>
-                  <span className="text-[10px] font-bold font-mono border border-black bg-white px-1.5">
-                    {vestingMonths} Months
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="48"
-                  step="1"
-                  value={vestingMonths}
-                  onChange={(e) => setVestingMonths(Number(e.target.value))}
-                  onMouseUp={() => saveState(shares)}
-                  onTouchEnd={() => saveState(shares)}
-                  className="w-full accent-black cursor-pointer"
-                />
-              </div>
+ {/* Vesting Schedule Visualizer */}
+ <BentoCard title="Vesting Schedule Visualizer" badge="48 MONTH TIMELINE" badgeColor="bg-blue-600">
+ <div className="space-y-4 text-left">
+ <div>
+ <div className="flex justify-between items-center mb-1">
+ <label className="text-[10px] font-black uppercase text-gray-500">Time Elapsed</label>
+ <span className="text-[10px] font-bold font-mono border border-black bg-white px-1.5">
+ {vestingMonths} Months
+ </span>
+ </div>
+ <input
+ type="range"
+ min="0"
+ max="48"
+ step="1"
+ value={vestingMonths}
+ onChange={(e) => setVestingMonths(Number(e.target.value))}
+ onMouseUp={() => saveState(shares)}
+ onTouchEnd={() => saveState(shares)}
+ className="w-full accent-black cursor-pointer"
+ />
+ </div>
 
-              {/* Status details */}
-              <div className="border-[3px] border-black p-3.5 bg-gray-50 space-y-2">
-                <div className="flex justify-between text-xs font-bold">
-                  <span>Vesting Cliff:</span>
-                  <span className="uppercase text-[9px] px-1 border border-black font-black bg-white">
-                    {vestingMonths >= 12 ? 'Passed' : 'Not Met (0% Vested)'}
-                  </span>
-                </div>
+ {/* Status details */}
+ <div className=" p-3.5 bg-gray-50 space-y-2">
+ <div className="flex justify-between text-xs font-bold">
+ <span>Vesting Cliff:</span>
+ <span className="uppercase text-[9px] px-1 border border-black font-black bg-white">
+ {vestingMonths >= 12 ? 'Passed' : 'Not Met (0% Vested)'}
+ </span>
+ </div>
 
-                <div className="h-6 border-2 border-black flex overflow-hidden bg-gray-200">
-                  <div style={{ width: `${vestedPercent}%` }} className="bg-[#A3E635] h-full transition-all border-r border-black" />
-                </div>
+ <div className="h-6 border-2 border-black flex overflow-hidden bg-gray-200">
+ <div style={{ width: `${vestedPercent}%` }} className="bg-emerald-500 h-full transition-all border-r border-black" />
+ </div>
 
-                <div className="flex justify-between text-[11px] font-bold text-gray-700 pt-1">
-                  <span>Vested: {vestedPercent.toFixed(1)}%</span>
-                  <span>Unvested: {unvestedPercent.toFixed(1)}%</span>
-                </div>
-              </div>
-            </div>
-          </BentoCard>
+ <div className="flex justify-between text-[11px] font-bold text-gray-700 pt-1">
+ <span>Vested: {vestedPercent.toFixed(1)}%</span>
+ <span>Unvested: {unvestedPercent.toFixed(1)}%</span>
+ </div>
+ </div>
+ </div>
+ </BentoCard>
 
-          {/* Legal Brief Output */}
-          {briefGenerated && shares && (
-            <div className="neo-card border-[3px] border-black p-4 bg-yellow-50 text-left space-y-2 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] select-text">
-              <span className="text-[9px] font-black uppercase text-[#EF4444] block">AGREEMENT BRIEF DRAFT</span>
-              <p className="text-[10px] font-bold text-gray-600 leading-relaxed font-mono whitespace-pre-line text-black">
-                {`FOUNDER ACCELERATED VESTING BRIEF
+ {/* Legal Brief Output */}
+ {briefGenerated && shares && (
+ <div className="os-card p-4 bg-yellow-50 text-left space-y-2 relative select-text">
+ <span className="text-[9px] font-black uppercase text-[#EF4444] block">AGREEMENT BRIEF DRAFT</span>
+ <p className="text-[10px] font-bold text-gray-600 leading-relaxed font-mono whitespace-pre-line text-black">
+ {`FOUNDER ACCELERATED VESTING BRIEF
 ---------------------------------------
 Startup Cap Table Division:
 - ${f1Name}: ${shares.f1}% Equity
@@ -404,11 +404,11 @@ Vesting Terms:
 - Monthly linear release for remainder
 
 Agreement consensus stamped by Stratify OS. Verified on ${new Date().toLocaleDateString()}.`}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+ </p>
+ </div>
+)}
+ </div>
+ </div>
+ </div>
+);
 }

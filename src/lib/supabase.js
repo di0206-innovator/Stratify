@@ -4,5 +4,5 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder.su
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder_anon_key';
 
 export const supabase = supabaseUrl !== 'https://placeholder.supabase.co' 
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+ ? createClient(supabaseUrl, supabaseAnonKey)
+ : null;
