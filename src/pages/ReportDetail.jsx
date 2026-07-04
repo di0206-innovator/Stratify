@@ -87,7 +87,7 @@ export default function ReportDetail() {
  const res = await fetch(`/api/reports/${id}`, { method: 'DELETE' });
  if (res.ok) {
  confetti({ particleCount: 50, colors: ['#F472B6', '#000'] });
- navigate('/reports');
+ navigate('/intelligence');
  } else {
  alert('Failed to delete report.');
  }
@@ -215,7 +215,7 @@ export default function ReportDetail() {
  <h2 className="text-xl font-black uppercase">Brief Unreachable</h2>
  <p className="text-xs font-semibold text-gray-800 mt-2">{error || 'Brief data failed to load.'}</p>
  </div>
- <Link to="/reports" className="os-btn inline-flex items-center gap-2">
+ <Link to="/intelligence" className="os-btn inline-flex items-center gap-2">
  <ArrowLeft size={16} />
  <span>Back to Library</span>
  </Link>
@@ -236,7 +236,7 @@ export default function ReportDetail() {
  {/* Back to Library Header */}
  <div className="flex flex-wrap items-center justify-between gap-4 select-none">
  <Link
- to="/reports"
+ to="/intelligence"
  className="os-btn px-4 py-2 text-xs font-black"
  >
  <ArrowLeft size={14} />

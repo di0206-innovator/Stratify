@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import FounderDashboard from './dashboards/FounderDashboard';
 import VCDashboard from './dashboards/VCDashboard';
-import GovDashboard from './dashboards/GovDashboard';
+import InstitutionDashboard from './dashboards/InstitutionDashboard';
 
 export default function Dashboard({ founderProfile, user, openAuthModal, currentReport, setCurrentReport }) {
  if (!founderProfile) return <Navigate to="/onboarding" replace />;
@@ -11,8 +11,8 @@ export default function Dashboard({ founderProfile, user, openAuthModal, current
  return <VCDashboard founderProfile={founderProfile} user={user} />;
  }
  
- if (founderProfile.role === 'government') {
- return <GovDashboard founderProfile={founderProfile} user={user} />;
+ if (founderProfile.role === 'institution' || founderProfile.role === 'government') {
+ return <InstitutionDashboard founderProfile={founderProfile} user={user} />;
  }
 
  return (

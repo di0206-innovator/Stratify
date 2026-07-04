@@ -371,3 +371,53 @@ DO $$ BEGIN
             FOR EACH ROW EXECUTE FUNCTION _set_updated_at();
     END IF;
 END; $$;
+
+-- ─────────────────────────────────────────
+--  INVESTOR GRAPH
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS investor_graph (
+    id              TEXT        PRIMARY KEY,
+    user_id         TEXT        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    organization    TEXT        NOT NULL DEFAULT '',
+    thesis          JSONB       NOT NULL DEFAULT '{}'::jsonb,
+    stages          TEXT[]      NOT NULL DEFAULT '{}',
+    ticket_size     TEXT        NOT NULL DEFAULT '',
+    sectors         TEXT[]      NOT NULL DEFAULT '{}',
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS investor_graph_user_idx ON investor_graph (user_id);
+
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_investor_graph_updated_at') THEN
+        CREATE TRIGGER trg_investor_graph_updated_at
+            BEFORE UPDATE ON investor_graph
+            FOR EACH ROW EXECUTE FUNCTION _set_updated_at();
+    END IF;
+END; $$;
+
+-- ─────────────────────────────────────────
+--  ECOSYSTEM GRAPH (Institutions)
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS ecosystem_graph (
+    id              TEXT        PRIMARY KEY,
+    user_id         TEXT        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    institution     TEXT        NOT NULL DEFAULT '',
+    region          TEXT        NOT NULL DEFAULT '',
+    mandate         TEXT        NOT NULL DEFAULT '',
+    active_programs JSONB       NOT NULL DEFAULT '[]'::jsonb,
+    health_metrics  JSONB       NOT NULL DEFAULT '{}'::jsonb,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS ecosystem_graph_user_idx ON ecosystem_graph (user_id);
+
+DO $$ BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_ecosystem_graph_updated_at') THEN
+        CREATE TRIGGER trg_ecosystem_graph_updated_at
+            BEFORE UPDATE ON ecosystem_graph
+            FOR EACH ROW EXECUTE FUNCTION _set_updated_at();
+    END IF;
+END; $$;

@@ -56,7 +56,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
  ];
  
  if (role === 'founder' || role === 'vc') {
- core.push({ path: '/reports', label: 'Insights & Briefs', icon: FileText });
+ core.push({ path: '/intelligence', label: 'Insights & Briefs', icon: FileText });
  }
  
  core.push({ path: '/feed', label: 'Feed', icon: Radio });

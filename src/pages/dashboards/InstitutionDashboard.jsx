@@ -4,7 +4,7 @@ import {
  Building, MapPin, Activity, FileText, ArrowRight, ShieldCheck, Search, BookOpen
 } from 'lucide-react';
 
-export default function GovDashboard({ founderProfile, user }) {
+export default function InstitutionDashboard({ founderProfile, user }) {
  const [govSchemes, setGovSchemes] = useState([]);
  const [loading, setLoading] = useState(true);
 
@@ -64,7 +64,7 @@ export default function GovDashboard({ founderProfile, user }) {
  <p className="text-emerald-200 text-xs mb-6 max-w-[200px] leading-relaxed">
  Run automated eligibility checks on regional startups.
  </p>
- <Link to="/reports" className="inline-flex items-center gap-2 px-4 py-2 bg-white text-emerald-900 font-semibold text-xs rounded hover:bg-gray-100 transition-colors">
+ <Link to="/intelligence" className="inline-flex items-center gap-2 px-4 py-2 bg-white text-emerald-900 font-semibold text-xs rounded hover:bg-gray-100 transition-colors">
  Run Audit <ArrowRight size={14} />
  </Link>
  </div>
@@ -78,7 +78,7 @@ export default function GovDashboard({ founderProfile, user }) {
  <div className="divide-y divide-gray-100">
  <ModuleLink to="/explore" icon={MapPin} title="Ecosystem Directory" desc="View regional startups" />
  <ModuleLink to="/signals" icon={Activity} title="Health Signals" desc="Macro-economic tracking" />
- <ModuleLink to="/reports" icon={BookOpen} title="Impact Reports" desc="Automated impact analysis" />
+ <ModuleLink to="/intelligence" icon={BookOpen} title="Impact Reports" desc="Automated impact analysis" />
  </div>
  </div>
  </div>

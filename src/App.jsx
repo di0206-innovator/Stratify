@@ -9,7 +9,7 @@ const Onboarding = lazy(() => import('./pages/Onboarding'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const Signals = lazy(() => import('./pages/Signals'));
-const Reports = lazy(() => import('./pages/Reports'));
+const Intelligence = lazy(() => import('./pages/Intelligence'));
 const ReportDetail = lazy(() => import('./pages/ReportDetail'));
 const RunwayPlanner = lazy(() => import('./pages/RunwayPlanner'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
@@ -314,15 +314,19 @@ function AppContent({
  element={<Signals founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} />} 
  />
 
- {/* Reports List */}
+ {/* Intelligence Workspace */}
+ <Route 
+ path="/intelligence" 
+ element={<Intelligence user={user} setUser={setUser} openAuthModal={openAuthModal} founderProfile={founderProfile} />} 
+ />
  <Route 
  path="/reports" 
- element={<Reports user={user} setUser={setUser} openAuthModal={openAuthModal} founderProfile={founderProfile} />} 
+ element={<Navigate to="/intelligence" replace />} 
  />
 
  {/* Report Detail */}
  <Route 
- path="/reports/:id" 
+ path="/intelligence/:id" 
  element={<ReportDetail />} 
  />
 
@@ -385,7 +389,7 @@ function AppContent({
 
  {/* Footer (hidden on public landing) */}
  {!isPublicPage && (
- <footer className="w-full bg-[#F8F7F4] border-t-[3px] border-black py-4 select-none mt-auto">
+ <footer className="w-full bg-[#F8F7F4] border-t border-gray-200 py-4 select-none mt-auto">
  <div className="max-w-7xl mx-auto px-4 text-center">
  <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-gray-500">
  © {new Date().getFullYear()} STRATIFY LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.

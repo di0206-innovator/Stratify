@@ -78,7 +78,7 @@ export default function VCDashboard({ founderProfile, user }) {
  <div className="divide-y divide-gray-100">
  <ModuleLink to="/explore" icon={Search} title="Deal Flow" desc="Discover and filter startups" />
  <ModuleLink to="/signals" icon={Activity} title="Market Signals" desc="Track sector trends & news" />
- <ModuleLink to="/reports" icon={Target} title="Diligence Reports" desc="AI generated analysis" />
+ <ModuleLink to="/intelligence" icon={Target} title="Diligence Reports" desc="AI generated analysis" />
  </div>
  </div>
  </div>

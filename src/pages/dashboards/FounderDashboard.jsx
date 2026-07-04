@@ -67,7 +67,7 @@ export default function FounderDashboard({ founderProfile, user, openAuthModal, 
  <p className="text-gray-400 text-xs mb-6 max-w-[200px] leading-relaxed">
  Generate reports, validate hypotheses, or analyze competitors instantly.
  </p>
- <Link to="/reports" className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black font-semibold text-xs rounded hover:bg-gray-100 transition-colors">
+ <Link to="/intelligence" className="inline-flex items-center gap-2 px-4 py-2 bg-white text-black font-semibold text-xs rounded hover:bg-gray-100 transition-colors">
  Open Workspace <ArrowRight size={14} />
  </Link>
  </div>
@@ -120,7 +120,7 @@ export default function FounderDashboard({ founderProfile, user, openAuthModal, 
  <div className="os-card min-h-[300px]">
  <div className="flex items-center justify-between mb-6">
  <h3 className="font-bold">Active Briefs & Reports</h3>
- <Link to="/reports" className="text-xs text-gray-500 hover:text-gray-900 font-medium">View All</Link>
+ <Link to="/intelligence" className="text-xs text-gray-500 hover:text-gray-900 font-medium">View All</Link>
  </div>
  
  {/* Empty State */}
@@ -132,7 +132,7 @@ export default function FounderDashboard({ founderProfile, user, openAuthModal, 
  <p className="text-xs text-gray-500 max-w-sm mb-4">
  Start a new intelligence task to generate market research, validate a pivot, or prepare an investor memo.
  </p>
- <Link to="/reports" className="os-btn">
+ <Link to="/intelligence" className="os-btn">
  Create Report
  </Link>
  </div>

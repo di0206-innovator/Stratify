@@ -53,9 +53,9 @@ const ROLES = [
  badge: 'bg-purple-500'
  },
  {
- id: 'government',
+ id: 'institution',
  icon: Building,
- label: 'Gov / Institution',
+ label: 'Institutions (Gov, College, Incubators)',
  desc: 'Promote grant schemes, assess regional ecosystem health, eligibility, and impact outreach.',
  color: 'emerald',
  ring: 'ring-emerald-500 border-emerald-500 bg-emerald-50',
@@ -87,7 +87,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
 
  const selectRole = (selectedRole) => {
  setRole(selectedRole);
- const colors = { founder: ['#3B82F6', '#000000'], vc: ['#9333EA', '#000000'], government: ['#10B981', '#000000'] };
+ const colors = { founder: ['#3B82F6', '#000000'], vc: ['#9333EA', '#000000'], institution: ['#10B981', '#000000'] };
  confetti({ particleCount: 60, spread: 50, origin: { y: 0.7 }, colors: colors[selectedRole] });
  };
 
@@ -256,7 +256,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
  <h2 className="text-xl font-black text-gray-900 normal-case">
  {role === 'founder' && 'Startup Context Registry'}
  {role === 'vc' && 'Investor Thesis Registry'}
- {role === 'government' && 'Institutional Mandate Registry'}
+ {role === 'institution' && 'Institutional Mandate Registry'}
  </h2>
  <p className="text-xs text-gray-500 font-medium">
  This data personalizes your Stratify OS experience. Fill in what you know.
@@ -316,8 +316,8 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
  </div>
 )}
 
- {/* ── GOVERNMENT FIELDS ── */}
- {role === 'government' && (
+ {/* ── INSTITUTION FIELDS ── */}
+ {role === 'institution' && (
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
  <Field label="Organization Name" name="orgName" value={formData.orgName} onChange={handleChange} placeholder="e.g. Innovation Karnataka, Tech Singapore" required />
  <Field label="Region / Mandate Geography" name="region" value={formData.region} onChange={handleChange} placeholder="e.g. Karnataka, Singapore, EU" required />

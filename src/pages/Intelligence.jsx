@@ -4,7 +4,7 @@ import { FileText, Trash2, Calendar, Lock, LogIn, AlertCircle, Compass, Clipboar
 import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabase';
 
-export default function Reports({ user, setUser, openAuthModal, founderProfile }) {
+export default function Intelligence({ user, setUser, openAuthModal, founderProfile }) {
  const [activeTab, setActiveTab] = useState('insights'); // 'insights' or 'dataroom'
  const [reports, setReports] = useState([]);
  const [loadingReports, setLoadingReports] = useState(true);
@@ -200,7 +200,7 @@ export default function Reports({ user, setUser, openAuthModal, founderProfile }
 
  {user && (
  <div className="flex items-center gap-3 self-start md:self-auto select-none">
- <span className="text-xs font-black uppercase border-2 border-black px-2 py-1 bg-white">
+ <span className="text-xs font-black uppercase border border-gray-200 rounded px-2 py-1 bg-white">
  {user.username || user.email}
  </span>
  <button
@@ -215,8 +215,8 @@ export default function Reports({ user, setUser, openAuthModal, founderProfile }
 
  {!user ? (
  /* Interactive Locked Screen */
- <div className="max-w-lg mx-auto os-card bg-white mt-12 p-12 text-center space-y-6 select-none animate-in fade-in zoom-in-95 duration-150">
- <div className="inline-flex items-center justify-center bg-purple-600 p-4 text-black transform rotate-3">
+ <div className="max-w-lg mx-auto os-card bg-white mt-12 p-12 text-center space-y-6 animate-in fade-in zoom-in-95 duration-150">
+ <div className="inline-flex items-center justify-center bg-purple-600 p-4 text-white">
  <Lock size={36} strokeWidth={3} />
  </div>
  <div className="space-y-2">
@@ -227,7 +227,7 @@ export default function Reports({ user, setUser, openAuthModal, founderProfile }
  </div>
  <button
  onClick={openAuthModal}
- className="w-full bg-emerald-500 text-black font-black py-3 hover:-translate-x-[1px] hover:-translate-y-[1px] hover: active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer uppercase text-xs tracking-wider"
+ className="w-full os-btn flex items-center justify-center gap-2"
  >
  <LogIn size={16} strokeWidth={3} />
  <span>Sign In / Register</span>
@@ -243,36 +243,36 @@ export default function Reports({ user, setUser, openAuthModal, founderProfile }
 
  return (
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#F8F7F4] p-4 select-none">
- <div className="border-[2px] border-black p-3 bg-white flex justify-between items-center">
+ <div className="border border-gray-200 p-3 bg-white flex justify-between items-center rounded">
  <div>
  <span className="block text-[8px] font-black uppercase text-gray-500">LATEST INTEL SCORE</span>
  <span className="text-xl font-black text-[#EF4444]">{validationScoreVal || 'NOT AUDITED'}</span>
  </div>
- <span className={`text-[10px] px-1.5 py-0.5 border border-black font-black uppercase ${validationScoreVal ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-450'}`}>
+ <span className={`text-[10px] px-1.5 py-0.5 rounded font-black uppercase ${validationScoreVal ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-450'}`}>
  {validationScoreVal ? 'Compiled' : 'Pending'}
  </span>
  </div>
 
- <div className="border-[2px] border-black p-3 bg-white flex justify-between items-center">
+ <div className="border border-gray-200 p-3 bg-white flex justify-between items-center rounded">
  <div>
  <span className="block text-[8px] font-black uppercase text-gray-500">BRIEF DISCLOSURE STATE</span>
  <span className="text-xs font-black text-[#3B82F6] uppercase">
  {briefId ? (isPublic ? 'PUBLIC ACCESS' : 'WHITELIST ONLY') : 'NOT INITIALIZED'}
  </span>
  </div>
- <span className={`text-[10px] px-1.5 py-0.5 border border-black font-black uppercase ${briefId ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-550'}`}>
+ <span className={`text-[10px] px-1.5 py-0.5 rounded font-black uppercase ${briefId ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-550'}`}>
  {briefId ? 'Ready' : 'Draft'}
  </span>
  </div>
 
- <div className="border-[2px] border-black p-3 bg-white flex justify-between items-center">
+ <div className="border border-gray-200 p-3 bg-white flex justify-between items-center rounded">
  <div>
  <span className="block text-[8px] font-black uppercase text-gray-500">WHITELISTED INVESTORS</span>
  <span className="text-xl font-black text-black">
  {whitelistInput ? whitelistInput.split(',').map(x => x.trim()).filter(Boolean).length : 0} Members
  </span>
  </div>
- <span className="text-[10px] bg-purple-600/20 text-[#C084FC] px-1.5 py-0.5 border border-black font-black uppercase">
+ <span className="text-[10px] bg-purple-100 text-purple-700 rounded px-1.5 py-0.5 font-black uppercase">
  Secure
  </span>
  </div>
@@ -281,23 +281,23 @@ export default function Reports({ user, setUser, openAuthModal, founderProfile }
  })()}
 
  {/* Tab Navigation */}
- <div className="flex border-b-[3px] border-black select-none">
+ <div className="flex border-b border-gray-200 select-none">
  <button
  onClick={() => setActiveTab('insights')}
- className={`px-6 py-3 font-outfit font-black text-xs sm:text-sm uppercase tracking-wider border-t-[3px] border-x-[3px] border-black translate-y-[3px] transition-all cursor-pointer ${
+ className={`px-6 py-3 font-outfit font-black text-xs sm:text-sm uppercase tracking-wider cursor-pointer border-b-2 ${
  activeTab === 'insights'
- ? 'bg-white border-b-[3px] border-b-white z-10'
- : 'bg-gray-100 hover:bg-gray-50 border-b-transparent text-gray-500'
+ ? 'border-indigo-500 text-indigo-600 bg-indigo-50/50'
+ : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
  }`}
  >
  Strategic Reports
  </button>
  <button
  onClick={() => setActiveTab('dataroom')}
- className={`px-6 py-3 font-outfit font-black text-xs sm:text-sm uppercase tracking-wider border-t-[3px] border-x-[3px] border-black translate-y-[3px] transition-all cursor-pointer ${
+ className={`px-6 py-3 font-outfit font-black text-xs sm:text-sm uppercase tracking-wider cursor-pointer border-b-2 ${
  activeTab === 'dataroom'
- ? 'bg-white border-b-[3px] border-b-white z-10'
- : 'bg-gray-100 hover:bg-gray-50 border-b-transparent text-gray-500'
+ ? 'border-indigo-500 text-indigo-600 bg-indigo-50/50'
+ : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
  }`}
  >
  Investor Data Room
@@ -344,7 +344,7 @@ export default function Reports({ user, setUser, openAuthModal, founderProfile }
  return (
  <Link
  key={report.id}
- to={`/reports/${report.id}`}
+ to={`/intelligence/${report.id}`}
  className="os-card bg-white hover:-translate-x-[2px] hover:-translate-y-[2px] hover: active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex flex-col justify-between h-64 group relative cursor-pointer"
  >
  <div>
