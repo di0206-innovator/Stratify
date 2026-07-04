@@ -1607,3 +1607,468 @@ Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI E
 {"level":"warn","message":"Authentication is required.","at":"2026-07-03T06:22:25.174Z","requestId":"afca7691-ec1d-4766-934c-5e32484f8c77","status":401,"code":"UNAUTHORIZED"}
 {"level":"warn","message":"Startup not found.","at":"2026-07-03T06:22:40.189Z","requestId":"81b1fc3a-36f0-4fd1-852f-6d06e4a14053","status":404,"code":"NOT_FOUND"}
 {"level":"warn","message":"Authentication is required.","at":"2026-07-03T06:22:40.202Z","requestId":"e0c15768-4078-4be9-9e80-600272a6688d","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T06:26:56.948Z","requestId":"5005523a-e732-492b-8208-2eac1d527281","status":401,"code":"UNAUTHORIZED"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T06:27:21.351Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T06:27:21.354Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T06:27:21.354Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T06:27:23.727Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T06:27:23.727Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T06:42:21.392Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T06:42:21.400Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T06:42:21.400Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T06:42:22.761Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T06:42:22.761Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T06:57:21.436Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T06:57:21.450Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T06:57:21.450Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T06:57:23.923Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T06:57:23.923Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T07:12:21.466Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T07:12:21.473Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T07:12:21.473Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T07:12:22.906Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T07:12:22.906Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T07:27:21.478Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T07:27:21.483Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T07:27:21.483Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T07:27:24.191Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T07:27:24.191Z"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T07:32:02.838Z","requestId":"c6a5f3d0-e453-48be-be35-fc8b85f5aab6","status":401,"code":"UNAUTHORIZED"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T07:42:21.493Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T07:42:21.498Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T07:42:21.498Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T07:42:23.011Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T07:42:23.011Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T07:57:21.505Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T07:57:21.509Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T07:57:21.509Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T07:57:24.245Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T07:57:24.245Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T08:12:21.468Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T08:12:21.472Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T08:12:21.472Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T08:12:24.422Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T08:12:24.422Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T08:27:21.486Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T08:27:21.491Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T08:27:21.491Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T08:27:24.438Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T08:27:24.438Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T09:14:31.793Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T09:14:31.800Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T09:14:31.800Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T09:14:33.326Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T09:14:33.326Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T09:44:29.893Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T09:44:29.902Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T09:44:29.902Z"}
+Search for signals failed: fetch failed
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 2000ms (Attempt 1/4) for model gemini-2.5-flash...
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 4000ms (Attempt 2/4) for model gemini-2.5-flash...
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 8000ms (Attempt 3/4) for model gemini-2.5-flash...
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: fetch failed
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T09:44:43.957Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T09:44:43.957Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T10:00:28.113Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T10:00:28.118Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T10:00:28.118Z"}
+Search for signals failed: fetch failed
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 2000ms (Attempt 1/4) for model gemini-2.5-flash...
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 4000ms (Attempt 2/4) for model gemini-2.5-flash...
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 8000ms (Attempt 3/4) for model gemini-2.5-flash...
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: fetch failed
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T10:00:42.172Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T10:00:42.172Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T10:16:26.993Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T10:16:26.996Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T10:16:26.996Z"}
+Search for signals failed: fetch failed
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 2000ms (Attempt 1/4) for model gemini-2.5-flash...
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 4000ms (Attempt 2/4) for model gemini-2.5-flash...
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 8000ms (Attempt 3/4) for model gemini-2.5-flash...
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: fetch failed
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T10:16:41.046Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T10:16:41.046Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T10:37:55.137Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T10:37:55.143Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T10:37:55.144Z"}
+Search for signals failed: fetch failed
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 2000ms (Attempt 1/4) for model gemini-2.5-flash...
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 4000ms (Attempt 2/4) for model gemini-2.5-flash...
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 8000ms (Attempt 3/4) for model gemini-2.5-flash...
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: fetch failed
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T10:38:09.189Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T10:38:09.189Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T11:41:22.171Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T11:41:22.178Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T11:41:22.178Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T11:41:25.080Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T11:41:25.080Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T11:59:06.683Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T11:59:06.762Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T11:59:06.763Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T11:59:09.819Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T11:59:09.819Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T12:15:48.284Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T12:15:48.292Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T12:15:48.292Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T12:15:51.246Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T12:15:51.246Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T12:32:11.340Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T12:32:11.347Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T12:32:11.347Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T12:32:14.155Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T12:32:14.155Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T12:59:12.398Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T12:59:12.401Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T12:59:12.401Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T12:59:16.303Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T12:59:16.303Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T13:14:34.552Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T13:14:34.559Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T13:14:34.560Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T13:14:37.386Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T13:14:37.386Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T13:29:34.508Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T13:29:34.526Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T13:29:34.526Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T13:29:37.358Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T13:29:37.358Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T13:44:34.515Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T13:44:34.538Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T13:44:34.538Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T13:44:37.319Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T13:44:37.319Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T13:59:34.523Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T13:59:34.533Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T13:59:34.533Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T13:59:36.408Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T13:59:36.408Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T14:14:34.536Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T14:14:34.546Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T14:14:34.547Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T14:14:36.254Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T14:14:36.254Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T14:29:34.544Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T14:29:34.548Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T14:29:34.548Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T14:29:36.702Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T14:29:36.702Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T14:44:34.541Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T14:44:34.548Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T14:44:34.548Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T14:44:45.001Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T14:44:45.001Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T14:59:34.544Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T14:59:34.547Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T14:59:34.548Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T14:59:42.309Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T14:59:42.309Z"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T15:02:49.945Z","requestId":"9e03fdd6-0640-47dd-a7ad-ed8c99074abd","status":401,"code":"UNAUTHORIZED"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T15:14:34.556Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T15:14:34.560Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T15:14:34.561Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T15:14:37.407Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T15:14:37.407Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T15:29:34.558Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T15:29:34.573Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T15:29:34.573Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T15:29:36.577Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T15:29:36.577Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T15:44:34.558Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T15:44:34.564Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T15:44:34.564Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T15:44:37.097Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T15:44:37.097Z"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T15:52:03.161Z","requestId":"83897598-8136-4a50-8c56-2377e049ca7f","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T15:52:25.271Z","requestId":"98e306c4-188d-4d31-9cfe-2046ef4afd94","status":401,"code":"UNAUTHORIZED"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T15:59:34.560Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T15:59:34.565Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T15:59:34.565Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T15:59:40.746Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T15:59:40.746Z"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T16:01:01.013Z","requestId":"0af2d5d4-8392-49fd-b221-11986d72ad44","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T16:01:01.044Z","requestId":"c310ba6a-51dd-4f04-a218-5984c08b82b5","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T16:01:01.124Z","requestId":"01074a46-f6ef-4969-8be5-e739b0383ef0","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T16:01:08.324Z","requestId":"8769c3ff-8142-4585-84ec-a70437fd6813","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T16:01:08.349Z","requestId":"cc075bda-af02-4cf5-bff4-6c4ca3d377f0","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T16:01:15.303Z","requestId":"3730f826-7579-4520-97df-9afe61814b4f","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T16:01:15.325Z","requestId":"235128fb-5b3b-4bb9-8310-c126e5738b60","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T16:01:15.355Z","requestId":"2f5b3f50-3170-43da-b44e-cf6c4e2feb7d","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Authentication is required.","at":"2026-07-03T16:01:15.381Z","requestId":"4ebc8e3d-6bd5-4a22-94a7-a44bfbc61a6c","status":401,"code":"UNAUTHORIZED"}
+{"level":"warn","message":"Startup not found.","at":"2026-07-03T16:06:08.639Z","requestId":"5263c6fb-b0cb-4821-a12f-7cdf0518a47e","status":404,"code":"NOT_FOUND"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T16:14:34.573Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T16:14:34.575Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T16:14:34.575Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T16:14:41.176Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T16:14:41.176Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T16:29:34.576Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T16:29:34.579Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T16:29:34.579Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T16:29:37.512Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T16:29:37.512Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T16:44:34.567Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T16:44:34.569Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T16:44:34.569Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T16:44:44.462Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T16:44:44.462Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T16:59:34.586Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T16:59:34.589Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T16:59:34.589Z"}
+Search for signals failed: fetch failed
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 2000ms (Attempt 1/4) for model gemini-2.5-flash...
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 4000ms (Attempt 2/4) for model gemini-2.5-flash...
+[GeminiBIOrchestrator] Transient error/Rate limit hit. Retrying in 8000ms (Attempt 3/4) for model gemini-2.5-flash...
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: fetch failed
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T16:59:48.610Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T16:59:48.610Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T17:14:34.598Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T17:14:34.599Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T17:14:34.599Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T17:14:38.597Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T17:14:38.597Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T17:29:34.606Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T17:29:34.608Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T17:29:34.608Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T17:29:37.490Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T17:29:37.490Z"}
+{"level":"info","message":"Starting background market signals monitoring sweep...","at":"2026-07-03T17:44:34.615Z"}
+{"level":"info","message":"Sweeping signals for 1 unique sectors...","at":"2026-07-03T17:44:34.618Z"}
+{"level":"info","message":"Generating signals for sector: consumer coffee (Bengaluru)","at":"2026-07-03T17:44:34.618Z"}
+Search for signals failed: Tavily search failed with 401: {
+    "detail": {
+        "error": "Unauthorized: missing or invalid API key."
+    }
+}
+
+Live signals parsing failed, falling back to demo signals: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [400 Bad Request] API key not valid. Please pass a valid API key. [{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"API_KEY_INVALID","domain":"googleapis.com","metadata":{"service":"generativelanguage.googleapis.com"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"API key not valid. Please pass a valid API key."}]
+{"level":"info","message":"Cached signals for: consumer coffee (Bengaluru)","at":"2026-07-03T17:44:37.548Z"}
+{"level":"info","message":"Background market signals sweep completed successfully.","at":"2026-07-03T17:44:37.548Z"}
+{"level":"info","message":"Shutdown signal received","at":"2026-07-03T17:56:27.781Z","signal":"SIGTERM","pid":79809}
+{"level":"info","message":"Background market signals monitor stopped.","at":"2026-07-03T17:56:27.784Z"}
+{"level":"info","message":"HTTP server closed","at":"2026-07-03T17:56:27.787Z"}
+{"level":"info","message":"Cleanup complete. Exiting.","at":"2026-07-03T17:56:27.787Z"}

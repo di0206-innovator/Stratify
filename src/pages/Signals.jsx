@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Radio, AlertCircle, Compass, Search, Filter, RefreshCw, ExternalLink } from 'lucide-react';
 import BentoCard from '../components/BentoCard';
 import confetti from 'canvas-confetti';
+import AuthGate from '../components/AuthGate';
 
-export default function Signals({ founderProfile }) {
+export default function Signals({ founderProfile, user, openAuthModal }) {
   const [signals, setSignals] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -107,6 +108,7 @@ export default function Signals({ founderProfile }) {
   };
 
   return (
+    <AuthGate user={user} openAuthModal={openAuthModal} message="Sign in to sweep live market signals and track competitor activity for your startup.">
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border-[3px] border-black p-6 shadow-neo-hard select-none">
@@ -281,5 +283,6 @@ export default function Signals({ founderProfile }) {
         </div>
       )}
     </div>
+    </AuthGate>
   );
 }

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BrainCircuit, Plus, Target, CheckCircle, XCircle, ArrowRight, RefreshCw, MessageSquare } from 'lucide-react';
+import AuthGate from '../components/AuthGate';
 
-export default function FounderMemory({ founderProfile }) {
+export default function FounderMemory({ founderProfile, user, openAuthModal }) {
   const [decisions, setDecisions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -52,6 +53,7 @@ export default function FounderMemory({ founderProfile }) {
   };
 
   return (
+    <AuthGate user={user} openAuthModal={openAuthModal} message="Sign in to access your Founder Memory — a strategic record of decisions, pivots, and experiments.">
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div className="bg-white border-[3px] border-black p-6 shadow-neo-hard flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -182,5 +184,6 @@ export default function FounderMemory({ founderProfile }) {
         </div>
       )}
     </div>
+    </AuthGate>
   );
 }

@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuralBI | Founder Strategy OS</title>
-    <meta name="description" content="A real-time founder strategy workspace for market intelligence, startup validation, and execution planning.">
+    <title>Stratify | Founder Strategy OS</title>
+    <meta name="description"
+        content="A real-time founder strategy workspace for market intelligence, startup validation, and execution planning.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="index.css">
 </head>
+
 <body>
     <div class="app-shell">
         <aside class="sidebar">
             <div class="brand">
                 <div class="brand-mark">N</div>
                 <div>
-                    <strong>NeuralBI</strong>
+                    <strong>Stratify</strong>
                     <span>Founder Strategy OS</span>
                 </div>
             </div>
@@ -29,7 +34,8 @@
             </nav>
 
             <div class="theme-switcher" style="margin-top: 10px;">
-                <button class="nav-item" id="themeToggleBtn" style="width: 100%; text-align: left; background: rgba(255,255,255,0.03);">🌙 Dark Mode</button>
+                <button class="nav-item" id="themeToggleBtn"
+                    style="width: 100%; text-align: left; background: rgba(255,255,255,0.03);">🌙 Dark Mode</button>
             </div>
 
             <div class="runtime-card">
@@ -46,7 +52,9 @@
                     <h1 id="topbarTitle">Turn founder questions into current, source-aware execution plans.</h1>
                 </div>
                 <div class="topbar-actions" style="display: flex; gap: 8px; align-items: center;">
-                    <span class="user-status-badge" id="userStatusBadge" style="font-size: 0.82rem; font-weight: 700; background: var(--surface-2); padding: 6px 12px; border-radius: var(--radius); border: 1px dashed var(--line);">Guest Mode</span>
+                    <span class="user-status-badge" id="userStatusBadge"
+                        style="font-size: 0.82rem; font-weight: 700; background: var(--surface-2); padding: 6px 12px; border-radius: var(--radius); border: 1px dashed var(--line);">Guest
+                        Mode</span>
                     <button class="secondary-btn" id="authBtn">Sign In</button>
                     <button class="secondary-btn" id="resetProfileBtn">Reset Profile</button>
                 </div>
@@ -55,8 +63,9 @@
             <section class="onboarding-panel" id="onboardingPanel">
                 <div class="panel-copy">
                     <p class="eyebrow">Founder Onboarding</p>
-                    <h2>Tell NeuralBI who you are building as.</h2>
-                    <p>Your reports become sharper when the system knows your stage, constraints, market, and customer.</p>
+                    <h2>Tell Stratify who you are building as.</h2>
+                    <p>Your reports become sharper when the system knows your stage, constraints, market, and customer.
+                    </p>
                 </div>
 
                 <form class="onboarding-grid" id="profileForm">
@@ -121,7 +130,8 @@
             <section class="workspace-grid hidden" id="workspaceView">
                 <!-- Mobile Workspace Navigation Tabs -->
                 <div class="workspace-tabs" id="workspaceTabs">
-                    <button class="workspace-tab active" data-panel="query" type="button">1. Context &amp; Query</button>
+                    <button class="workspace-tab active" data-panel="query" type="button">1. Context &amp;
+                        Query</button>
                     <button class="workspace-tab" data-panel="report" type="button">2. Strategy Report</button>
                     <button class="workspace-tab" data-panel="agent" type="button">3. Agents &amp; Sources</button>
                 </div>
@@ -131,7 +141,8 @@
 
                     <label>
                         Founder problem
-                        <textarea id="queryInput" placeholder="Example: Should I build an AI outbound sales tool for Indian B2B SaaS teams right now?"></textarea>
+                        <textarea id="queryInput"
+                            placeholder="Example: Should I build an AI outbound sales tool for Indian B2B SaaS teams right now?"></textarea>
                     </label>
 
                     <div class="controls-grid">
@@ -196,7 +207,8 @@
 
                     <div class="empty-state" id="emptyState">
                         <strong>Ask a founder problem to generate a strategy report.</strong>
-                        <span>The report will include live-source signals when Tavily is configured, plus founder-specific execution steps.</span>
+                        <span>The report will include live-source signals when Tavily is configured, plus
+                            founder-specific execution steps.</span>
                     </div>
 
                     <div class="report-content hidden" id="reportContent"></div>
@@ -204,12 +216,15 @@
 
                 <aside class="agent-panel mobile-hidden" id="agentPanel">
                     <p class="eyebrow">Agentic Pipeline</p>
-                    <div class="agent-card" id="agent-founder"><strong>Founder Context</strong><span>Waiting</span></div>
+                    <div class="agent-card" id="agent-founder"><strong>Founder Context</strong><span>Waiting</span>
+                    </div>
                     <div class="agent-card" id="agent-research"><strong>Live Research</strong><span>Waiting</span></div>
                     <div class="agent-card" id="agent-analyst"><strong>Market Analyst</strong><span>Waiting</span></div>
-                    <div class="agent-card" id="agent-strategy"><strong>Founder Strategist</strong><span>Waiting</span></div>
+                    <div class="agent-card" id="agent-strategy"><strong>Founder Strategist</strong><span>Waiting</span>
+                    </div>
                     <div class="agent-card" id="agent-coach"><strong>Execution Coach</strong><span>Waiting</span></div>
-                    <div class="agent-card" id="agent-composer"><strong>Report Composer</strong><span>Waiting</span></div>
+                    <div class="agent-card" id="agent-composer"><strong>Report Composer</strong><span>Waiting</span>
+                    </div>
 
                     <div class="source-panel">
                         <p class="eyebrow">Sources</p>
@@ -227,23 +242,28 @@
                         <div>
                             <p class="eyebrow">Market signals feed</p>
                             <h2>Recent Market Signals &amp; Regulatory Triggers</h2>
-                            <p>Fresh trends, funding actions, and competitor moves analyzed for your startup context.</p>
+                            <p>Fresh trends, funding actions, and competitor moves analyzed for your startup context.
+                            </p>
                         </div>
                         <button class="primary-btn" id="refreshSignalsBtn">Refresh Signals</button>
                     </div>
                     <div id="signalsStatus" class="form-error" style="margin-top: 10px;"></div>
-                    <div class="signals-grid" id="signalsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
-                        <p class="empty-signals">Load signals by selecting industry/geography in your Founder Profile.</p>
+                    <div class="signals-grid" id="signalsGrid"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                        <p class="empty-signals">Load signals by selecting industry/geography in your Founder Profile.
+                        </p>
                     </div>
                 </div>
             </section>
 
-            <section class="hidden auth-view" id="authView" style="max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px;">
+            <section class="hidden auth-view" id="authView"
+                style="max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px;">
                 <!-- Login Card -->
                 <div class="auth-card report-section" id="loginCard">
                     <p class="eyebrow">Authentication</p>
                     <h2>Sign In to Workspace</h2>
-                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Access persistent server-stored reports and collaborate securely.</p>
+                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Access persistent
+                        server-stored reports and collaborate securely.</p>
                     <form id="loginForm" class="onboarding-grid" style="display: grid; gap: 12px;">
                         <label class="wide">
                             Email
@@ -254,8 +274,13 @@
                             <input type="password" name="password" required placeholder="••••••••">
                         </label>
                         <button class="primary-btn wide" type="submit">Log In</button>
-                        <p class="auth-toggle-msg" style="font-size: 0.82rem; color: var(--muted); margin-top: 8px; text-align: center;">Don't have an account? <a href="#" id="toRegisterLink" style="color: var(--brand-2); font-weight: 700;">Register</a></p>
-                        <p class="auth-toggle-msg" style="font-size: 0.82rem; color: var(--muted); text-align: center;"><a href="#" id="toResetLink" style="color: var(--brand-2); font-weight: 700;">Forgot password?</a></p>
+                        <p class="auth-toggle-msg"
+                            style="font-size: 0.82rem; color: var(--muted); margin-top: 8px; text-align: center;">Don't
+                            have an account? <a href="#" id="toRegisterLink"
+                                style="color: var(--brand-2); font-weight: 700;">Register</a></p>
+                        <p class="auth-toggle-msg" style="font-size: 0.82rem; color: var(--muted); text-align: center;">
+                            <a href="#" id="toResetLink" style="color: var(--brand-2); font-weight: 700;">Forgot
+                                password?</a></p>
                     </form>
                 </div>
 
@@ -263,7 +288,8 @@
                 <div class="auth-card report-section hidden" id="registerCard">
                     <p class="eyebrow">Authentication</p>
                     <h2>Create Founder Account</h2>
-                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Register to sync reports across devices.</p>
+                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Register to sync reports
+                        across devices.</p>
                     <form id="registerForm" class="onboarding-grid" style="display: grid; gap: 12px;">
                         <label class="wide">
                             Full Name
@@ -278,7 +304,10 @@
                             <input type="password" name="password" required placeholder="••••••••">
                         </label>
                         <button class="primary-btn wide" type="submit">Register Account</button>
-                        <p class="auth-toggle-msg" style="font-size: 0.82rem; color: var(--muted); margin-top: 8px; text-align: center;">Already have an account? <a href="#" id="toLoginLink" style="color: var(--brand-2); font-weight: 700;">Log In</a></p>
+                        <p class="auth-toggle-msg"
+                            style="font-size: 0.82rem; color: var(--muted); margin-top: 8px; text-align: center;">
+                            Already have an account? <a href="#" id="toLoginLink"
+                                style="color: var(--brand-2); font-weight: 700;">Log In</a></p>
                     </form>
                 </div>
 
@@ -286,7 +315,8 @@
                 <div class="auth-card report-section hidden" id="verifyCard">
                     <p class="eyebrow">Authentication</p>
                     <h2>Verify Your Email</h2>
-                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">An email verification token has been queued. Enter it below to activate your account.</p>
+                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">An email verification token
+                        has been queued. Enter it below to activate your account.</p>
                     <form id="verifyForm" class="onboarding-grid" style="display: grid; gap: 12px;">
                         <label class="wide">
                             Verification Token
@@ -300,14 +330,18 @@
                 <div class="auth-card report-section hidden" id="requestResetCard">
                     <p class="eyebrow">Authentication</p>
                     <h2>Reset Password</h2>
-                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Enter your email to request a password reset token.</p>
+                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Enter your email to request
+                        a password reset token.</p>
                     <form id="requestResetForm" class="onboarding-grid" style="display: grid; gap: 12px;">
                         <label class="wide">
                             Email
                             <input type="email" name="email" required placeholder="alex@startup.com">
                         </label>
                         <button class="primary-btn wide" type="submit">Request Reset Token</button>
-                        <p class="auth-toggle-msg" style="font-size: 0.82rem; color: var(--muted); margin-top: 8px; text-align: center;">Back to <a href="#" id="toLoginLink2" style="color: var(--brand-2); font-weight: 700;">Log In</a></p>
+                        <p class="auth-toggle-msg"
+                            style="font-size: 0.82rem; color: var(--muted); margin-top: 8px; text-align: center;">Back
+                            to <a href="#" id="toLoginLink2" style="color: var(--brand-2); font-weight: 700;">Log In</a>
+                        </p>
                     </form>
                 </div>
 
@@ -315,7 +349,8 @@
                 <div class="auth-card report-section hidden" id="resetPasswordCard">
                     <p class="eyebrow">Authentication</p>
                     <h2>Set New Password</h2>
-                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Enter your reset token and your new secure password.</p>
+                    <p style="font-size: 0.86rem; color: var(--muted); margin-bottom: 16px;">Enter your reset token and
+                        your new secure password.</p>
                     <form id="resetPasswordForm" class="onboarding-grid" style="display: grid; gap: 12px;">
                         <label class="wide">
                             Reset Token
@@ -329,8 +364,11 @@
                     </form>
                 </div>
 
-                <p class="form-error" id="authError" style="margin-top: 10px; min-height: 20px; text-align: center;"></p>
-                <p class="form-success" id="authSuccess" style="color: var(--success); font-weight: 700; min-height: 20px; margin-top: 10px; text-align: center;"></p>
+                <p class="form-error" id="authError" style="margin-top: 10px; min-height: 20px; text-align: center;">
+                </p>
+                <p class="form-success" id="authSuccess"
+                    style="color: var(--success); font-weight: 700; min-height: 20px; margin-top: 10px; text-align: center;">
+                </p>
             </section>
 
             <!-- Dev Mail Sandbox Widget -->
@@ -370,4 +408,5 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

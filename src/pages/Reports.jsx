@@ -92,9 +92,7 @@ export default function Reports({ user, setUser, openAuthModal, founderProfile }
 
   const handleLogout = async () => {
     try {
-      if (window.Clerk) {
-        await window.Clerk.signOut();
-      } else if (supabase) {
+      if (supabase) {
         await supabase.auth.signOut();
       }
       await fetch('/api/auth/logout', { method: 'POST' });

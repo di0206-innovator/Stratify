@@ -1,39 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import AuthModal from './components/AuthModal';
-import Onboarding from './pages/Onboarding';
-import Dashboard from './pages/Dashboard';
-import LandingPage from './pages/LandingPage';
-import Signals from './pages/Signals';
-import Reports from './pages/Reports';
-import ReportDetail from './pages/ReportDetail';
-import RunwayPlanner from './pages/RunwayPlanner';
-import AdminDashboard from './pages/AdminDashboard';
-import Feed from './pages/Feed';
-import StartupProfile from './pages/StartupProfile';
-import PitchBrief from './pages/PitchBrief';
-import EquityPlanner from './pages/EquityPlanner';
-import BountyBoard from './pages/BountyBoard';
-import Timeline from './pages/Timeline';
-import Opportunities from './pages/Opportunities';
-import Explore from './pages/Explore';
-import FounderMemory from './pages/FounderMemory';
-import Settings from './pages/Settings';
 import { supabase } from './lib/supabase';
 
-// Intercept window.fetch to automatically append Clerk or Supabase session token if authenticated
+// Lazy load pages for maximum efficiency and modular bundle sizes
+const Onboarding = lazy(() => import('./pages/Onboarding'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const Signals = lazy(() => import('./pages/Signals'));
+const Reports = lazy(() => import('./pages/Reports'));
+const ReportDetail = lazy(() => import('./pages/ReportDetail'));
+const RunwayPlanner = lazy(() => import('./pages/RunwayPlanner'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const Feed = lazy(() => import('./pages/Feed'));
+const StartupProfile = lazy(() => import('./pages/StartupProfile'));
+const PitchBrief = lazy(() => import('./pages/PitchBrief'));
+const EquityPlanner = lazy(() => import('./pages/EquityPlanner'));
+const BountyBoard = lazy(() => import('./pages/BountyBoard'));
+const Timeline = lazy(() => import('./pages/Timeline'));
+const Opportunities = lazy(() => import('./pages/Opportunities'));
+const Explore = lazy(() => import('./pages/Explore'));
+const FounderMemory = lazy(() => import('./pages/FounderMemory'));
+const Settings = lazy(() => import('./pages/Settings'));
+
+// Fallback spinner for lazy-loaded pages
+const PageFallback = () => (
+  <div className="min-h-[50vh] flex flex-col items-center justify-center p-4">
+    <div className="w-10 h-10 border-[4px] border-black border-t-transparent rounded-full animate-spin"></div>
+    <h2 className="font-outfit font-black uppercase text-[10px] tracking-wider mt-3">LOADING MODULE...</h2>
+  </div>
+);
+
+// Intercept window.fetch to automatically append the Supabase session token if authenticated
 const originalFetch = window.fetch;
 window.fetch = async (url, options = {}) => {
   let token = null;
-  
-  if (window.Clerk?.session) {
-    try {
-      token = await window.Clerk.session.getToken();
-    } catch (e) {
-      console.warn('Failed to retrieve Clerk token for request:', e);
-    }
-  } else if (supabase?.auth) {
+
+  if (supabase?.auth) {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       token = session?.access_token;
@@ -84,6 +88,7 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('stratify_theme', theme);
+    document.title = "Stratify | Startup Economy Operating System";
   }, [theme]);
 
   const openAuthModal = () => setIsAuthModalOpen(true);
@@ -224,9 +229,9 @@ function AppContent({
   const isPublicPage = isPublicRoute;
 
   return (
-    <div className="min-h-screen bg-memphis-mesh relative overflow-x-hidden flex flex-col justify-between">
-      {/* Absolute Background Memphis Geometric Shapes (only on workspace views) */}
-      {!isPublicPage && (
+    <div className={`min-h-screen relative overflow-x-hidden flex flex-col justify-between ${isPublicPage ? 'bg-memphis-mesh' : 'bg-neo-canvas'}`}>
+      {/* Absolute Background Memphis Geometric Shapes (only on public views) */}
+      {isPublicPage && (
         <>
           <div className="memphis-shape w-96 h-96 rounded-full bg-[#EF4444] border-[8px] border-black -top-20 -right-20 animate-float-slow hidden xl:block" style={{ zIndex: 0 }} />
           <svg className="memphis-shape w-40 h-40 bottom-10 left-[45%] animate-float-medium hidden lg:block" viewBox="0 0 100 100" style={{ zIndex: 0 }}>
@@ -247,121 +252,124 @@ function AppContent({
 
           {/* Main Pages */}
           <main className="flex-1 pb-16 relative z-10">
-            <Routes>
-              {/* Public Landing Page */}
-              <Route path="/" element={<LandingPage openAuthModal={openAuthModal} user={user} />} />
+            <Suspense fallback={<PageFallback />}>
+              <Routes>
+                {/* Public Landing Page */}
+                <Route path="/" element={<LandingPage openAuthModal={openAuthModal} user={user} />} />
 
-              {/* Private Dashboard */}
-              <Route 
-                path="/dashboard" 
-                element={
-                  founderProfile ? (
-                    <Dashboard 
+                {/* Private Dashboard */}
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    founderProfile ? (
+                      <Dashboard 
+                        founderProfile={founderProfile} 
+                        currentReport={currentReport}
+                        setCurrentReport={setCurrentReport}
+                        user={user}
+                        openAuthModal={openAuthModal}
+                      />
+                    ) : (
+                      <Navigate to="/onboarding" replace />
+                    )
+                  } 
+                />
+                
+                {/* Onboarding */}
+                <Route 
+                  path="/onboarding" 
+                  element={
+                    <Onboarding 
                       founderProfile={founderProfile} 
-                      currentReport={currentReport}
-                      setCurrentReport={setCurrentReport}
-                      user={user}
-                      openAuthModal={openAuthModal}
+                      setFounderProfile={setFounderProfile} 
                     />
-                  ) : (
-                    <Navigate to="/onboarding" replace />
-                  )
-                } 
-              />
-              
-              {/* Onboarding */}
-              <Route 
-                path="/onboarding" 
-                element={
-                  <Onboarding 
-                    founderProfile={founderProfile} 
-                    setFounderProfile={setFounderProfile} 
-                  />
-                } 
-              />
+                  } 
+                />
 
-              {/* Startup Feed */}
-              <Route 
-                path="/feed" 
-                element={<Feed user={user} founderProfile={founderProfile} />} 
-              />
+                {/* Startup Feed */}
+                <Route 
+                  path="/feed" 
+                  element={<Feed user={user} founderProfile={founderProfile} openAuthModal={openAuthModal} />} 
+                />
 
-              {/* Startup Showcase Profile */}
-              <Route 
-                path="/startups/:id" 
-                element={<StartupProfile />} 
-              />
+                {/* Startup Showcase Profile */}
+                <Route 
+                  path="/startups/:id" 
+                  element={<StartupProfile />} 
+                />
 
-              {/* Signals */}
-              <Route 
-                path="/signals" 
-                element={<Signals founderProfile={founderProfile} />} 
-              />
+                {/* Signals */}
+                <Route 
+                  path="/signals" 
+                  element={<Signals founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} />} 
+                />
 
-              {/* Reports List */}
-              <Route 
-                path="/reports" 
-                element={<Reports user={user} setUser={setUser} openAuthModal={openAuthModal} founderProfile={founderProfile} />} 
-              />
+                {/* Reports List */}
+                <Route 
+                  path="/reports" 
+                  element={<Reports user={user} setUser={setUser} openAuthModal={openAuthModal} founderProfile={founderProfile} />} 
+                />
 
-              {/* Report Detail */}
-              <Route 
-                path="/reports/:id" 
-                element={<ReportDetail />} 
-              />
+                {/* Report Detail */}
+                <Route 
+                  path="/reports/:id" 
+                  element={<ReportDetail />} 
+                />
 
-              {/* Runway Planner */}
-              <Route 
-                path="/runway" 
-                element={<RunwayPlanner />} 
-              />
+                {/* Runway Planner */}
+                <Route 
+                  path="/runway" 
+                  element={founderProfile?.role === 'founder' ? <RunwayPlanner user={user} openAuthModal={openAuthModal} /> : <Navigate to="/dashboard" replace />} 
+                />
 
-              {/* Equity Cap Split Planner */}
-              <Route 
-                path="/equity" 
-                element={<EquityPlanner />} 
-              />
+                {/* Equity Cap Split Planner */}
+                <Route 
+                  path="/equity" 
+                  element={founderProfile?.role === 'founder' ? <EquityPlanner user={user} openAuthModal={openAuthModal} /> : <Navigate to="/dashboard" replace />} 
+                />
 
-              {/* Micro Bounty Board */}
-              <Route 
-                path="/bounties" 
-                element={<BountyBoard founderProfile={founderProfile} user={user} />} 
-              />
+                {/* Micro Bounty Board */}
+                <Route 
+                  path="/bounties" 
+                  element={founderProfile?.role === 'founder' ? <BountyBoard founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} /> : <Navigate to="/dashboard" replace />} 
+                />
 
+                {/* Public whitelist-guarded Pitch Brief Data Room */}
+                <Route 
+                  path="/brief/:id" 
+                  element={<PitchBrief mode="public" />} 
+                />
 
+                {/* Founder Memory */}
+                <Route 
+                  path="/memory" 
+                  element={founderProfile?.role === 'founder' ? <FounderMemory founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} /> : <Navigate to="/dashboard" replace />} 
+                />
+                <Route path="/settings" element={<Settings user={user} openAuthModal={openAuthModal} />} />
+                <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" replace />} />
 
-              {/* Public whitelist-guarded Pitch Brief Data Room */}
-              <Route 
-                path="/brief/:id" 
-                element={<PitchBrief mode="public" />} 
-              />
+                {/* Timeline */}
+                <Route 
+                  path="/timeline" 
+                  element={<Timeline founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} />} 
+                />
 
-              {/* Founder Memory */}
-              <Route path="/memory" element={<FounderMemory founderProfile={founderProfile} user={user} />} />
-              <Route path="/settings" element={<Settings user={user} />} />
-              <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" replace />} />
+                {/* Opportunities */}
+                <Route 
+                  path="/opportunities" 
+                  element={founderProfile?.role !== 'vc' ? <Opportunities founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} /> : <Navigate to="/dashboard" replace />} 
+                />
 
-              {/* Timeline */}
-              <Route 
-                path="/timeline" 
-                element={<Timeline founderProfile={founderProfile} user={user} />} 
-              />
+                {/* Explore */}
+                <Route 
+                  path="/explore" 
+                  element={<Explore founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} />} 
+                />
 
-              {/* Opportunities */}
-              <Route 
-                path="/opportunities" 
-                element={<Opportunities founderProfile={founderProfile} user={user} />} 
-              />
-
-              {/* Explore */}
-              <Route 
-                path="/explore" 
-                element={<Explore founderProfile={founderProfile} user={user} />} 
-              />
-
-              {/* Wildcard Fallback */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+                {/* Wildcard Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </Suspense>
           </main>
         </div>
 

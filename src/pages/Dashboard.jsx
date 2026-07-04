@@ -418,17 +418,17 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
 
   const activeReport = partialReport || currentReport;
 
-  // Unconfigured state redirect
+    // Unconfigured state redirect
   if (!founderProfile) {
     return (
       <div className="max-w-xl mx-auto px-4 py-24 text-center">
-        <div className="neo-card p-12 text-center bg-white space-y-4 border-[3px] border-black shadow-neo-button select-none">
-          <HelpCircle size={48} className="mx-auto text-[#FB923C] animate-bounce" />
-          <h2 className="text-xl sm:text-2xl font-black uppercase">No Active Profile</h2>
-          <p className="font-outfit font-semibold text-gray-600">
+        <div className="os-card p-12 text-center space-y-4 select-none flex flex-col items-center">
+          <HelpCircle size={48} className="text-blue-500 mb-2" />
+          <h2 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">NO ACTIVE PROFILE</h2>
+          <p className="font-medium text-gray-600 max-w-md mx-auto">
             Please define your profile constraints and vertical focus first to boot the strategy operating system.
           </p>
-          <Link to="/onboarding" className="neo-btn-primary inline-flex mt-2">
+          <Link to="/onboarding" className="os-btn-primary mt-6">
             <span>Launch Onboarding</span>
             <ArrowRight size={16} />
           </Link>
@@ -443,34 +443,33 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
       <div className="max-w-7xl mx-auto px-4 py-8">
         
         {/* Startup Header Info */}
-        <div className="neo-card bg-white text-black p-8 mb-8 border-[4px] border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] select-none relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          {/* Decorative floating red circle shape inside the header */}
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#EF4444] border-[4px] border-black rounded-full opacity-80 pointer-events-none hidden md:block"></div>
-          
-          <div className="relative z-10 space-y-2">
-            <span className="inline-block bg-[#A3E635] text-black px-2.5 py-1 text-[10px] font-black uppercase tracking-wider border-2 border-black">
+        <div className="os-card mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="space-y-1">
+            <span className="inline-block bg-gray-100 text-gray-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-sm border border-gray-200">
               {myStartup?.stage || founderProfile.startupStage} stage
             </span>
-            <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-black">
+            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
               {myStartup?.name || founderProfile.name || 'My Startup'}
             </h2>
-            <p className="font-outfit font-bold text-gray-600 flex items-center gap-1.5 text-xs sm:text-sm">
-              <MapPin size={14} className="text-[#3B82F6]" /> {myStartup?.geography || founderProfile.geography} • {myStartup?.industry || founderProfile.industry}
+            <p className="text-gray-500 font-medium flex items-center gap-1.5 text-xs">
+              <MapPin size={14} className="text-gray-400" /> {myStartup?.geography || founderProfile.geography} • {myStartup?.industry || founderProfile.industry}
             </p>
           </div>
           
-          <div className="relative z-10 flex items-center gap-4 bg-white border-[3px] border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex-wrap sm:flex-nowrap">
-            <div className="text-center border-r-[3px] border-black pr-4">
-              <span className="block text-[9px] font-black uppercase text-gray-500">STARTUP SCORE</span>
-              <span className="text-2xl font-black text-[#EF4444]">{myStartup?.score || 10}</span>
+          <div className="flex items-center gap-6 flex-wrap sm:flex-nowrap">
+            <div className="text-right">
+              <span className="block text-[10px] font-bold uppercase text-gray-400 tracking-wider">Startup Score</span>
+              <span className="text-xl font-black text-gray-900">{myStartup?.score || 10}</span>
             </div>
-            <div className="text-center border-r-[3px] border-black pr-4 pl-1">
-              <span className="block text-[9px] font-black uppercase text-gray-500">VALIDATION SCORE</span>
-              <span className="text-2xl font-black text-[#C084FC]">{myStartup?.validation_score !== null && myStartup?.validation_score !== undefined ? `${myStartup.validation_score}%` : 'N/A'}</span>
+            <div className="w-px h-8 bg-gray-200"></div>
+            <div className="text-right">
+              <span className="block text-[10px] font-bold uppercase text-gray-400 tracking-wider">Validation</span>
+              <span className="text-xl font-black text-gray-900">{myStartup?.validation_score !== null && myStartup?.validation_score !== undefined ? `${myStartup.validation_score}%` : 'N/A'}</span>
             </div>
-            <div className="text-center border-r-[3px] border-black pr-4 pl-1">
-              <span className="block text-[9px] font-black uppercase text-gray-500">RUNWAY STATUS</span>
-              <span className="text-xs font-black uppercase text-[#A3E635] bg-black px-1.5 py-0.5 border border-black">
+            <div className="w-px h-8 bg-gray-200"></div>
+            <div className="text-right">
+              <span className="block text-[10px] font-bold uppercase text-gray-400 tracking-wider">Runway</span>
+              <span className="text-xs font-bold uppercase text-green-700 bg-green-50 px-2 py-1 rounded border border-green-200 mt-1 inline-block">
                 {(() => {
                   const cashVal = parseFloat(myStartup?.fundingRaised) || 150000;
                   const burnVal = 15000;
@@ -480,9 +479,10 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                 })()}
               </span>
             </div>
-            <div className="text-center pl-1">
-              <span className="block text-[9px] font-black uppercase text-gray-500">ACTIVE GOAL</span>
-              <span className="text-xs font-black uppercase text-[#3B82F6]">{founderProfile.currentGoal}</span>
+            <div className="w-px h-8 bg-gray-200"></div>
+            <div className="text-right">
+              <span className="block text-[10px] font-bold uppercase text-gray-400 tracking-wider">Active Goal</span>
+              <span className="text-xs font-bold uppercase text-blue-700 mt-1 inline-block">{founderProfile.currentGoal}</span>
             </div>
           </div>
         </div>
@@ -508,15 +508,15 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                       placeholder="e.g. Validate willingness to pay for premium organic cold brew delivery..."
                       disabled={isRunning}
                       required
-                      className="neo-input flex-1"
+                      className="os-input flex-1"
                     />
                     <button
                       type="submit"
                       disabled={isRunning || !query.trim()}
-                      className="neo-btn-primary px-6 shrink-0 py-2.5 font-outfit text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer"
+                      className="os-btn-primary px-6 shrink-0 py-2"
                     >
                       {isRunning ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
-                      <span>TRIGGER AGENT SIMULATION</span>
+                      <span>RUN SIMULATION</span>
                     </button>
                   </div>
                 </div>
@@ -530,7 +530,7 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                       type="button"
                       onClick={() => setQuery(s)}
                       disabled={isRunning}
-                      className="text-[10px] font-bold text-[#A3E635] hover:text-black border border-[#A3E635] hover:bg-[#A3E635] px-2 py-0.5 transition-colors cursor-pointer"
+                      className="text-[10px] font-bold text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-100 rounded px-2 py-0.5 transition-colors cursor-pointer"
                     >
                       {s}
                     </button>
@@ -540,12 +540,12 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                 {/* Strategy parameters */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-gray-100">
                   <div>
-                    <label className="block text-[8px] font-black uppercase text-gray-400 mb-1">Report Output Type</label>
+                    <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1">Report Output Type</label>
                     <select
                       value={reportType}
                       onChange={(e) => setReportType(e.target.value)}
                       disabled={isRunning}
-                      className="w-full text-xs font-bold border-2 border-black p-1.5 bg-white focus:outline-none"
+                      className="os-input"
                     >
                       <option value="idea_validation">Idea Validation</option>
                       <option value="gtm_strategy">GTM Direction</option>
@@ -554,12 +554,12 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[8px] font-black uppercase text-gray-400 mb-1">Analysis Focus</label>
+                    <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1">Analysis Focus</label>
                     <select
                       value={focusArea}
                       onChange={(e) => setFocusArea(e.target.value)}
                       disabled={isRunning}
-                      className="w-full text-xs font-bold border-2 border-black p-1.5 bg-white focus:outline-none"
+                      className="os-input"
                     >
                       <option value="market">Market & Customer</option>
                       <option value="risks">Risks & Feasibility</option>
@@ -568,14 +568,14 @@ export default function Dashboard({ founderProfile, currentReport, setCurrentRep
                     </select>
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-[8px] font-black uppercase text-gray-400 mb-1">Custom sources URLs (comma separated)</label>
+                    <label className="block text-[10px] font-bold uppercase text-gray-400 mb-1">Custom sources URLs (comma separated)</label>
                     <input
                       type="text"
                       value={customSources}
                       onChange={(e) => setCustomSources(e.target.value)}
                       disabled={isRunning}
                       placeholder="e.g. https://example.com/data"
-                      className="w-full text-xs font-bold border-2 border-black p-1.5 bg-white focus:outline-none"
+                      className="os-input"
                     />
                   </div>
                 </div>

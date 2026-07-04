@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Lock, LogIn, UserPlus, AlertCircle, KeyRound, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabase';
@@ -13,6 +13,21 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
   const [registeredEmail, setRegisteredEmail] = useState(null);
+
+  // Close modal when Escape key is pressed (Keyboard Accessibility / a11y)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -55,39 +70,22 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
           throw new Error('Password must be at least 8 characters with uppercase, lowercase, number, and symbol.');
         }
 
-        if (window.Clerk) {
-          await window.Clerk.signUp.create({
-            emailAddress: email,
-            password: password,
-            username: username.trim()
-          });
-          setMessage(`Account created with Clerk! Check your email for verification.`);
-        } else if (supabase) {
-          const { error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              data: {
-                username: username.trim(),
-                full_name: username.trim()
-              }
-            }
-          });
-          if (error) throw error;
-          setMessage(`Account created with Supabase! A verification link was sent to ${email}.`);
-        } else {
-          // Fallback to local server registration
-          const res = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, name: username, username })
-          });
-          if (!res.ok) {
-            const errData = await res.json();
-            throw new Error(errData.error?.message || 'Registration failed');
-          }
-          setMessage(`Account created successfully! You can now log in.`);
+        if (!supabase) {
+          throw new Error('Supabase auth is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
         }
+
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              username: username.trim(),
+              full_name: username.trim()
+            }
+          }
+        });
+        if (error) throw error;
+        setMessage(`Account created with Supabase! A verification link was sent to ${email}.`);
 
         setRegisteredEmail(email);
         setEmail('');
@@ -95,43 +93,24 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
         setUsername('');
 
       } else if (mode === 'login') {
-        if (window.Clerk) {
-          await window.Clerk.signIn.create({
-            identifier: email,
-            password: password
-          });
-        } else if (supabase) {
-          const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-          });
-          if (error) throw error;
-        } else {
-          // Fallback to local server login
-          const res = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          });
-          if (!res.ok) {
-            const errData = await res.json();
-            throw new Error(errData.error?.message || 'Login failed');
-          }
+        if (!supabase) {
+          throw new Error('Supabase auth is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
         }
+
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        if (error) throw error;
         await finishAuth();
 
       } else if (mode === 'forgot') {
-        if (supabase) {
-          const { error } = await supabase.auth.resetPasswordForEmail(email);
-          if (error) throw error;
-        } else {
-          const res = await fetch('/api/auth/request-password-reset', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-          });
-          if (!res.ok) throw new Error('Reset request failed');
+        if (!supabase) {
+          throw new Error('Supabase auth is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
         }
+
+        const { error } = await supabase.auth.resetPasswordForEmail(email);
+        if (error) throw error;
         setMessage(`A password reset link has been sent to ${email}.`);
         setEmail('');
       }
@@ -150,20 +129,17 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
     setMessage(null);
 
     try {
-      if (window.Clerk) {
-        await window.Clerk.authenticateWithRedirect({
-          strategy: 'oauth_google',
-          redirectUrl: '/sso-callback',
-          redirectUrlComplete: '/'
-        });
-      } else if (supabase) {
-        const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'google'
-        });
-        if (error) throw error;
-      } else {
-        throw new Error('OAuth is not configured on local file auth store. Please configure Clerk or Supabase.');
+      if (!supabase) {
+        throw new Error('Supabase auth is not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.');
       }
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
     } catch (err) {
       const msg = translateAuthError(err);
       if (msg) setError(msg);

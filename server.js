@@ -665,25 +665,7 @@ function createApp(options = {}) {
         }
     });
 
-    // Get public startup profile by ID
-    app.get('/api/startups/:id', optionalAuth, async (req, res, next) => {
-        try {
-            const startup = await startupStore.getStartup(req.params.id);
-            if (!startup) {
-                throw new HttpError(404, 'NOT_FOUND', 'Startup not found.');
-            }
-            const timeline = await startupStore.listTimeline(startup.id, { limit: 20 });
-            const decisions = await startupStore.listDecisions(startup.id, { limit: 10 });
-            const briefs = await startupStore.listBriefs(startup.id);
-            const signals = await startupStore.listSignalHistory(startup.id, { limit: 10 });
-            const opportunities = await startupStore.listOpportunities({ limit: 5 });
-            res.json({ requestId: req.id, startup, timeline, decisions, briefs, signals, opportunities });
-        } catch (error) {
-            next(error);
-        }
-    });
-
-    // Get trending startups list
+    // Get trending startups list — MUST be registered BEFORE /:id to avoid shadowing
     app.get('/api/startups/trending', optionalAuth, async (req, res, next) => {
         try {
             const limit = Number(req.query.limit || 15);
@@ -699,6 +681,24 @@ function createApp(options = {}) {
             });
 
             res.json({ requestId: req.id, startups });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // Get public startup profile by ID
+    app.get('/api/startups/:id', optionalAuth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartup(req.params.id);
+            if (!startup) {
+                throw new HttpError(404, 'NOT_FOUND', 'Startup not found.');
+            }
+            const timeline = await startupStore.listTimeline(startup.id, { limit: 20 });
+            const decisions = await startupStore.listDecisions(startup.id, { limit: 10 });
+            const briefs = await startupStore.listBriefs(startup.id);
+            const signals = await startupStore.listSignalHistory(startup.id, { limit: 10 });
+            const opportunities = await startupStore.listOpportunities({ limit: 5 });
+            res.json({ requestId: req.id, startup, timeline, decisions, briefs, signals, opportunities });
         } catch (error) {
             next(error);
         }

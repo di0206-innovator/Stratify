@@ -46,43 +46,66 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
     return () => window.removeEventListener('click', handleOutsideClick);
   }, []);
 
-  const coreNavItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/explore', label: 'Explore', icon: Users },
-    { path: '/reports', label: 'Insights & Briefs', icon: FileText },
-    { path: '/feed', label: 'Feed', icon: Radio },
-  ];
+  const getNavItems = () => {
+    const role = founderProfile?.role || 'founder';
+    
+    // Core nav items
+    const core = [
+      { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { path: '/explore', label: 'Explore', icon: Users },
+    ];
+    
+    if (role === 'founder' || role === 'vc') {
+      core.push({ path: '/reports', label: 'Insights & Briefs', icon: FileText });
+    }
+    
+    core.push({ path: '/feed', label: 'Feed', icon: Radio });
+    
+    if (isAdmin) {
+      core.push({ path: '/admin', label: 'Admin Console', icon: Shield });
+    }
+    return core;
+  };
 
-  const executionItems = [
-    { path: '/runway', label: 'Runway', icon: TrendingUp },
-    { path: '/equity', label: 'Cap Table', icon: Users },
-    { path: '/bounties', label: 'Bounties', icon: Cpu },
-    { path: '/opportunities', label: 'Opportunities', icon: UserCog },
-  ];
+  const getExecutionItems = () => {
+    const role = founderProfile?.role || 'founder';
+    if (role !== 'founder') return [];
+    return [
+      { path: '/runway', label: 'Runway', icon: TrendingUp },
+      { path: '/equity', label: 'Cap Table', icon: Users },
+      { path: '/bounties', label: 'Bounties', icon: Cpu },
+      { path: '/opportunities', label: 'Opportunities', icon: UserCog },
+    ];
+  };
 
-  const intelItems = [
-    { path: '/signals', label: 'Signals', icon: Radio },
-    { path: '/memory', label: 'Memory', icon: Cpu },
-    { path: '/timeline', label: 'Timeline', icon: TrendingUp },
-  ];
+  const getIntelItems = () => {
+    const role = founderProfile?.role || 'founder';
+    if (role === 'government') {
+      return [
+        { path: '/opportunities', label: 'Programs & Grants', icon: UserCog },
+        { path: '/timeline', label: 'Timeline', icon: TrendingUp },
+      ];
+    }
+    if (role === 'vc') {
+      return [
+        { path: '/signals', label: 'Signals', icon: Radio },
+        { path: '/timeline', label: 'Timeline', icon: TrendingUp },
+      ];
+    }
+    return [
+      { path: '/signals', label: 'Signals', icon: Radio },
+      { path: '/memory', label: 'Memory', icon: Cpu },
+      { path: '/timeline', label: 'Timeline', icon: TrendingUp },
+    ];
+  };
 
-  const email = user && user.email ? user.email.toLowerCase() : '';
-  const isAdmin = user && (
-    user.role === 'admin' || 
-    email === 'divyanshu.b.sinha@gmail.com' || 
-    email === 'divyanshusunstone@gmail.com' ||
-    email.startsWith('admin@')
-  );
-
-  const activeCoreNavItems = isAdmin 
-    ? [...coreNavItems, { path: '/admin', label: 'Admin Console', icon: Shield }]
-    : coreNavItems;
+  const activeCoreNavItems = getNavItems();
+  const executionItems = getExecutionItems();
+  const intelItems = getIntelItems();
 
   const handleLogout = async () => {
     try {
-      if (window.Clerk) {
-        await window.Clerk.signOut();
-      } else if (supabase) {
+      if (supabase) {
         await supabase.auth.signOut();
       }
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -98,128 +121,66 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
   };
 
   return (
-    <header className="w-full bg-white border-b-[4px] border-black select-none sticky top-0 z-50">
-      {/* Top Segmented Column Stats Grid */}
-      <div className="grid grid-cols-12 border-b-[4px] border-black text-black">
-        {/* Brand Segment */}
-        <Link to="/dashboard" className="col-span-12 lg:col-span-4 flex items-center px-5 py-3.5 border-b-[4px] lg:border-b-0 lg:border-r-[4px] border-black bg-white cursor-pointer hover:bg-gray-50 transition-colors">
-          <div className="relative w-8 h-8 mr-3.5 flex-shrink-0">
-            <div className="absolute w-5 h-5 rounded-full bg-[#EF4444] border-2 border-black -top-1 -right-1" />
-            <svg className="absolute w-6 h-6 bottom-0 left-0" viewBox="0 0 100 100">
-              <polygon points="50,10 90,90 10,90" stroke="black" strokeWidth="12" fill="#FCD34D" />
-            </svg>
+    <header className="w-full bg-white border-b border-gray-200 select-none sticky top-0 z-50 shadow-sm">
+      {/* Top OS Status Bar */}
+      <div className="flex items-center justify-between px-6 py-2 border-b border-gray-100 bg-[#F8F7F4]">
+        {/* Brand */}
+        <Link to="/dashboard" className="flex items-center gap-3 cursor-pointer">
+          <div className="w-5 h-5 rounded flex items-center justify-center bg-black text-white font-black text-xs">
+            S
           </div>
           <div>
-            <span className="font-outfit font-black text-xl tracking-tighter uppercase block leading-none">
+            <span className="font-outfit font-black text-sm tracking-tight uppercase block leading-none">
               Stratify
-            </span>
-            <span className="font-outfit font-black text-[9px] uppercase tracking-widest text-gray-500 block mt-0.5">
-              Recursive . Global Startup . OS
             </span>
           </div>
         </Link>
 
-        {/* Startups Stat */}
-        <div 
-          className="col-span-3 lg:col-span-2 flex flex-col items-center justify-center p-2.5 border-r-[4px] border-black bg-white transition-all"
-          onMouseEnter={() => setIsHoveredStat('startups')}
-          onMouseLeave={() => setIsHoveredStat(null)}
-          style={{ transform: isHoveredStat === 'startups' ? 'scale(1.02)' : 'none' }}
-        >
-          <span className="font-outfit font-black text-xl lg:text-2xl leading-none">
-            {stats.startups}
-          </span>
-          <span className="font-outfit font-black text-[8px] uppercase tracking-wider text-gray-500 mt-1">
-            Startups
-          </span>
-        </div>
-
-        {/* Matches Stat */}
-        <div 
-          className="col-span-3 lg:col-span-2 flex flex-col items-center justify-center p-2.5 border-r-[4px] border-black bg-[#FCD34D] text-black transition-all"
-          onMouseEnter={() => setIsHoveredStat('matches')}
-          onMouseLeave={() => setIsHoveredStat(null)}
-          style={{ transform: isHoveredStat === 'matches' ? 'scale(1.02)' : 'none' }}
-        >
-          <span className="font-outfit font-black text-xl lg:text-2xl leading-none">
-            {stats.matches}
-          </span>
-          <span className="font-outfit font-black text-[8px] uppercase tracking-wider text-black mt-1">
-            Matches
-          </span>
-        </div>
-
-        {/* Updates Stat */}
-        <div 
-          className="col-span-3 lg:col-span-2 flex flex-col items-center justify-center p-2.5 border-r-[4px] border-black bg-[#3B82F6] text-white transition-all"
-          onMouseEnter={() => setIsHoveredStat('updates')}
-          onMouseLeave={() => setIsHoveredStat(null)}
-          style={{ transform: isHoveredStat === 'updates' ? 'scale(1.02)' : 'none' }}
-        >
-          <span className="font-outfit font-black text-xl lg:text-2xl leading-none">
-            {stats.updates}
-          </span>
-          <span className="font-outfit font-black text-[8px] uppercase tracking-wider text-white/90 mt-1">
-            Updates
-          </span>
-        </div>
-
-        {/* AI Engine Status */}
-        <div className="col-span-3 lg:col-span-1 flex flex-col items-center justify-center p-2.5 border-r-[4px] border-black bg-[#EF4444] text-white">
-          <span className="font-outfit font-black text-xs uppercase leading-none">
-            Gemini
-          </span>
-          <span className="font-outfit font-black text-[8px] uppercase tracking-wider text-white/95 mt-1">
-            AI Engine
-          </span>
-        </div>
-
-        {/* State Indicator */}
-        <div className="col-span-6 lg:col-span-1 flex items-center justify-center p-2.5 bg-white border-r-[4px] lg:border-r-0 border-black">
-          <span className="relative flex h-2 w-2 mr-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-          </span>
-          <span className="font-outfit font-black text-[10px] uppercase">
-            IDLE
-          </span>
-        </div>
-
-        {/* Settings/Theme toggler inside grid */}
-        <div className="col-span-6 lg:col-span-1 flex items-center justify-center p-2.5 bg-white border-t-[4px] lg:border-t-0 border-black">
-          <div className="flex items-center border-2 border-black bg-white select-none">
-            <button
-              onClick={() => setTheme('light')}
-              className={`p-1.5 transition-colors ${theme === 'light' ? 'bg-[#FCD34D]' : 'hover:bg-gray-100'} border-r-2 border-black cursor-pointer`}
-              title="Light"
-            >
-              <Sun size={11} className="text-black" />
-            </button>
-            <button
-              onClick={() => setTheme('dark')}
-              className={`p-1.5 transition-colors ${theme === 'dark' ? 'bg-[#3B82F6]' : 'hover:bg-gray-100'} cursor-pointer`}
-              title="Dark"
-            >
-              <Moon size={11} className="text-black" />
-            </button>
+        {/* Global OS Status (Replaces massive blocks) */}
+        <div className="hidden md:flex items-center gap-6 text-[10px] font-bold uppercase text-gray-500 tracking-wider">
+          <div className="flex items-center gap-2">
+            <span className="text-black">{stats.startups}</span> STARTUPS
           </div>
+          <div className="flex items-center gap-2">
+            <span className="text-black">{stats.matches}</span> MATCHES
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-black">{stats.updates}</span> UPDATES
+          </div>
+          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-green-50 text-green-700 rounded-sm border border-green-200">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+            </span>
+            <span>SYSTEM IDLE</span>
+          </div>
+        </div>
+
+        {/* Theme Settings */}
+        <div className="flex items-center gap-1">
+          <button onClick={() => setTheme('light')} className={`p-1 rounded ${theme === 'light' ? 'bg-gray-200' : 'hover:bg-gray-100'}`} title="Light Mode">
+            <Sun size={12} className="text-gray-600" />
+          </button>
+          <button onClick={() => setTheme('dark')} className={`p-1 rounded ${theme === 'dark' ? 'bg-gray-200' : 'hover:bg-gray-100'}`} title="Dark Mode">
+            <Moon size={12} className="text-gray-600" />
+          </button>
         </div>
       </div>
 
       {/* Tabs and Actions Row */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         {/* Navigation Tabs */}
-        <nav className="flex items-center gap-2.5 py-1.5 overflow-visible flex-wrap md:flex-nowrap flex-1">
+        <nav className="flex items-center gap-1 overflow-x-auto hide-scrollbar flex-1">
           {activeCoreNavItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex-shrink-0 px-4 py-2 text-xs font-black uppercase border-[3px] border-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
+                className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors rounded-t-md ${
                   isActive
-                    ? 'bg-[#EF4444] text-white shadow-none translate-x-[2px] translate-y-[2px] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none'
-                    : 'bg-white text-black hover:bg-gray-50'
+                    ? 'text-black border-b-2 border-black font-black bg-gray-50'
+                    : 'text-gray-500 hover:text-black hover:bg-gray-50'
                 }`}
               >
                 {item.label}
@@ -228,41 +189,43 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           })}
 
           {/* Execution Dropdown */}
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveDropdown(activeDropdown === 'execution' ? null : 'execution');
-              }}
-              className={`flex-shrink-0 px-4 py-2 text-xs font-black uppercase border-[3px] border-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 cursor-pointer ${
-                executionItems.some(item => location.pathname === item.path)
-                  ? 'bg-[#3B82F6] text-white'
-                  : 'bg-white text-black hover:bg-gray-50'
-              }`}
-            >
-              <span>Execution</span>
-              <span className="text-[10px]">▼</span>
-            </button>
-            {activeDropdown === 'execution' && (
-              <div className="absolute left-0 mt-2 w-48 bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-[100] py-1">
-                {executionItems.map((item) => {
-                  const isActive = location.pathname === item.path;
-                  return (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={() => setActiveDropdown(null)}
-                      className={`block px-4 py-2 text-xs font-black uppercase hover:bg-gray-100 transition-colors border-b-2 border-black last:border-b-0 ${
-                        isActive ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'text-black'
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          {executionItems.length > 0 && (
+            <div className="relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveDropdown(activeDropdown === 'execution' ? null : 'execution');
+                }}
+                className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors rounded-t-md flex items-center gap-1.5 cursor-pointer ${
+                  executionItems.some(item => location.pathname === item.path)
+                    ? 'text-black border-b-2 border-black font-black bg-gray-50'
+                    : 'text-gray-500 hover:text-black hover:bg-gray-50'
+                }`}
+              >
+                <span>Execution</span>
+                <span className="text-[10px]">▼</span>
+              </button>
+              {activeDropdown === 'execution' && (
+                <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md">
+                  {executionItems.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setActiveDropdown(null)}
+                        className={`block px-4 py-2 text-xs font-semibold uppercase hover:bg-gray-50 transition-colors ${
+                          isActive ? 'text-black font-black bg-gray-50' : 'text-gray-600'
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Memory & Intel Dropdown */}
           <div className="relative">
@@ -271,17 +234,17 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 e.stopPropagation();
                 setActiveDropdown(activeDropdown === 'intel' ? null : 'intel');
               }}
-              className={`flex-shrink-0 px-4 py-2 text-xs font-black uppercase border-[3px] border-black transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-[1px] hover:-translate-y-[1px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 cursor-pointer ${
+              className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors rounded-t-md flex items-center gap-1.5 cursor-pointer ${
                 intelItems.some(item => location.pathname === item.path)
-                  ? 'bg-[#C084FC] text-black'
-                  : 'bg-white text-black hover:bg-gray-50'
+                  ? 'text-black border-b-2 border-black font-black bg-gray-50'
+                  : 'text-gray-500 hover:text-black hover:bg-gray-50'
               }`}
             >
               <span>Intel & Memory</span>
               <span className="text-[10px]">▼</span>
             </button>
             {activeDropdown === 'intel' && (
-              <div className="absolute left-0 mt-2 w-48 bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-[100] py-1">
+              <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md">
                 {intelItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   return (
@@ -289,8 +252,8 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                       key={item.path}
                       to={item.path}
                       onClick={() => setActiveDropdown(null)}
-                      className={`block px-4 py-2 text-xs font-black uppercase hover:bg-gray-100 transition-colors border-b-2 border-black last:border-b-0 ${
-                        isActive ? 'bg-[#C084FC]/25 text-[#C084FC] font-black' : 'text-black'
+                      className={`block px-4 py-2 text-xs font-semibold uppercase hover:bg-gray-50 transition-colors ${
+                        isActive ? 'text-black font-black bg-gray-50' : 'text-gray-600'
                       }`}
                     >
                       {item.label}
@@ -307,15 +270,15 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           {founderProfile ? (
             <Link
               to="/onboarding"
-              className="flex items-center gap-2 px-3 py-2 bg-[#FCD34D] border-[3px] border-black text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-semibold text-gray-700 transition-colors"
             >
-              <UserCog size={13} />
+              <UserCog size={14} />
               <span>{founderProfile.role === 'vc' ? 'VC' : founderProfile.role === 'angel' ? 'Angel' : 'Founder'} Workspace</span>
             </Link>
           ) : (
             <Link
               to="/onboarding"
-              className="px-3 py-2 bg-[#FCD34D] border-[3px] border-black text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all"
+              className="px-3 py-1.5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-semibold text-gray-700 transition-colors"
             >
               Set Profile
             </Link>
@@ -323,13 +286,13 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
 
           {user ? (
             <div className="flex items-center gap-2">
-              <Link to="/settings" className="flex items-center gap-1.5 text-[10px] font-black uppercase border-[3px] border-black px-2.5 py-2 bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all" title="Settings & Account">
-                <Settings size={12} />
+              <Link to="/settings" className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-black transition-colors" title="Settings & Account">
+                <Settings size={14} />
                 <span className="hidden sm:inline">{user.username || user.email}</span>
               </Link>
               <button
                 onClick={handleLogout}
-                className="px-3 py-2 bg-white border-[3px] border-black text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
+                className="os-btn bg-white border-gray-300 hover:bg-gray-50 text-xs py-1"
               >
                 Sign Out
               </button>
@@ -337,7 +300,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           ) : (
             <button
               onClick={openAuthModal}
-              className="px-4 py-2 bg-[#3B82F6] text-white border-[3px] border-black text-xs font-black uppercase shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
+              className="os-btn-primary text-xs py-1.5"
             >
               Sign In
             </button>

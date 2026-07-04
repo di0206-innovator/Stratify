@@ -5,6 +5,7 @@ import {
   MessageSquare, Filter, RefreshCw, ArrowRight, GitCommit,
   Sparkles, ChevronDown
 } from 'lucide-react';
+import AuthGate from '../components/AuthGate';
 
 const EVENT_CONFIG = {
   milestone: { icon: Award, color: 'bg-[#A3E635]', label: 'Milestone' },
@@ -17,7 +18,7 @@ const EVENT_CONFIG = {
   startup_created: { icon: Sparkles, color: 'bg-[#A3E635]', label: 'Created' },
 };
 
-export default function Timeline({ founderProfile, user }) {
+export default function Timeline({ founderProfile, user, openAuthModal }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -74,6 +75,7 @@ export default function Timeline({ founderProfile, user }) {
   }, {});
 
   return (
+    <AuthGate user={user} openAuthModal={openAuthModal} message="Sign in to view your startup's activity timeline — every decision, milestone, and change.">
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div className="bg-white border-[3px] border-black p-6 shadow-neo-hard select-none">
@@ -195,5 +197,6 @@ export default function Timeline({ founderProfile, user }) {
         </div>
       )}
     </div>
+    </AuthGate>
   );
 }

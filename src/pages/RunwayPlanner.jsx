@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { TrendingUp, AlertTriangle, ShieldCheck, DollarSign, RefreshCw, Calendar, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import BentoCard from '../components/BentoCard';
+import AuthGate from '../components/AuthGate';
 
-export default function RunwayPlanner() {
+export default function RunwayPlanner({ user, openAuthModal }) {
   const [cash, setCash] = useState(150000); // initial cash
   const [burn, setBurn] = useState(15000);  // initial monthly burn
   const [revenue, setRevenue] = useState(3000); // initial monthly revenue
@@ -194,6 +195,7 @@ export default function RunwayPlanner() {
   const Advice = getStrategicAdvice();
 
   return (
+    <AuthGate user={user} openAuthModal={openAuthModal} message="Sign in to access the Capital OS and simulate your startup runway and burn scenarios.">
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
       {/* Welcome Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border-[3px] border-black p-6 shadow-neo-hard select-none">
@@ -607,5 +609,6 @@ export default function RunwayPlanner() {
         </div>
       </div>
     </div>
+    </AuthGate>
   );
 }

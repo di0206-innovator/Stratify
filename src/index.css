@@ -208,6 +208,87 @@
     box-shadow: var(--shadow-neo);
     overflow: auto;
   }
+
+  /* ── INTERNAL OS STYLING ── */
+  /* Clean, professional startup OS styling for internal dashboard */
+  
+  .os-card {
+    border: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    color: var(--color-text);
+    border-radius: 4px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 150ms ease-in-out;
+  }
+  
+  .os-card-interactive {
+    border: 1px solid var(--color-border);
+    background-color: var(--color-card);
+    color: var(--color-text);
+    border-radius: 4px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 150ms ease-in-out;
+    cursor: pointer;
+  }
+  .os-card-interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .os-btn {
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    background-color: var(--color-card);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 150ms ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.875rem;
+  }
+  .os-btn:hover {
+    background-color: var(--color-canvas);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .os-btn:active {
+    transform: translateY(1px);
+    box-shadow: none;
+  }
+  
+  .os-btn-primary {
+    @apply os-btn;
+    background-color: #000000;
+    color: #FFFFFF;
+    border-color: #000000;
+  }
+  .os-btn-primary:hover {
+    background-color: #27272A;
+    color: #FFFFFF;
+  }
+  
+  .os-input {
+    border: 1px solid var(--color-border);
+    padding: 0.5rem 0.75rem;
+    background-color: var(--color-card);
+    color: var(--color-text);
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    transition: border-color 150ms ease-in-out;
+    width: 100%;
+  }
+  .os-input:focus {
+    outline: none;
+    border-color: var(--color-lavender);
+    box-shadow: 0 0 0 2px rgba(192, 132, 252, 0.2);
+  }
 }
 
 /* Custom Scrollbar in Neo-Brutalist Style */

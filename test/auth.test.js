@@ -229,14 +229,12 @@ test('login attempts are rate limited', async () => {
     }
 });
 
-test('verifyClerkToken and verifySupabaseToken return null if unconfigured/invalid', async () => {
-    const { verifyClerkToken, verifySupabaseToken } = require('../lib/auth');
+test('verifySupabaseToken returns null if unconfigured/invalid', async () => {
+    const { verifySupabaseToken } = require('../lib/auth');
     
     // Should return null when unconfigured
-    assert.equal(await verifyClerkToken('some-token'), null);
     assert.equal(await verifySupabaseToken('some-token'), null);
     
-    assert.equal(await verifyClerkToken(''), null);
     assert.equal(await verifySupabaseToken(''), null);
 });
 
