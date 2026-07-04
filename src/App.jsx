@@ -93,27 +93,38 @@ export default function App() {
 
   const openAuthModal = () => setIsAuthModalOpen(true);
 
-  const checkSession = async (extUser) => {
+  const hydrateUser = async (fallbackUser = null) => {
     try {
+      if (supabase?.auth) {
+        const { data: { user: sessionUser } } = await supabase.auth.getUser();
+        if (sessionUser) {
+          const nextUser = {
+            id: sessionUser.id,
+            email: sessionUser.email,
+            username: sessionUser.user_metadata?.username || sessionUser.email?.split('@')[0],
+            emailVerified: !!sessionUser.email_confirmed_at
+          };
+          setUser(nextUser);
+          return nextUser;
+        }
+      }
+
       const res = await fetch('/api/auth/me');
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
-      } else {
-        setUser(null);
+        return data.user;
       }
+
+      if (fallbackUser) {
+        setUser(fallbackUser);
+        return fallbackUser;
+      }
+
+      setUser(null);
     } catch (e) {
       console.warn('Backend server is not running or unreachable.');
-      if (extUser) {
-        setUser({
-          id: extUser.id,
-          email: extUser.email,
-          username: extUser.username || extUser.email.split('@')[0],
-          emailVerified: extUser.emailVerified
-        });
-      } else {
-        setUser(null);
-      }
+      setUser(fallbackUser);
     } finally {
       setLoading(false);
     }
@@ -141,14 +152,15 @@ export default function App() {
             username: session.user.user_metadata?.username || session.user.email.split('@')[0],
             emailVerified: !!session.user.email_confirmed_at
           };
-          checkSession(extUser);
+          setUser(extUser);
+          hydrateUser(extUser);
         } else {
-          checkSession(null);
+          hydrateUser(null);
         }
       });
       unsubscribe = subscription.unsubscribe;
     } else {
-      checkSession(null);
+      hydrateUser(null);
     }
 
     return () => {
@@ -183,7 +195,7 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neo-canvas flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-[#F8F7F4] flex flex-col items-center justify-center p-4">
         <div className="w-12 h-12 border-[4px] border-neo-black border-t-transparent rounded-full animate-spin"></div>
         <h2 className="font-outfit font-black uppercase text-xs tracking-wider mt-4">BOOTING FOUNDER STRATEGY OS...</h2>
       </div>
@@ -229,7 +241,7 @@ function AppContent({
   const isPublicPage = isPublicRoute;
 
   return (
-    <div className={`min-h-screen relative overflow-x-hidden flex flex-col justify-between ${isPublicPage ? 'bg-memphis-mesh' : 'bg-neo-canvas'}`}>
+    <div className={`min-h-screen relative overflow-x-hidden flex flex-col justify-between ${isPublicPage ? 'bg-memphis-mesh' : 'bg-[#F8F7F4]'}`}>
       {/* Absolute Background Memphis Geometric Shapes (only on public views) */}
       {isPublicPage && (
         <>
@@ -245,10 +257,8 @@ function AppContent({
 
       <div className="relative z-10 flex flex-col min-h-screen w-full">
         <div className="flex-1 flex flex-col">
-          {/* Top Navigation - hidden on public landing page */}
-          {!isPublicPage && (
-            <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} theme={theme} setTheme={setTheme} />
-          )}
+          {/* Top Navigation */}
+          <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} theme={theme} setTheme={setTheme} />
 
           {/* Main Pages */}
           <main className="flex-1 pb-16 relative z-10">
@@ -375,7 +385,7 @@ function AppContent({
 
         {/* Footer (hidden on public landing) */}
         {!isPublicPage && (
-          <footer className="w-full bg-neo-canvas border-t-[3px] border-black py-4 select-none mt-auto">
+          <footer className="w-full bg-[#F8F7F4] border-t-[3px] border-black py-4 select-none mt-auto">
             <div className="max-w-7xl mx-auto px-4 text-center">
               <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-gray-500">
                 © {new Date().getFullYear()} STRATIFY LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.
@@ -389,7 +399,7 @@ function AppContent({
       <AuthModal 
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
-        onAuthSuccess={() => checkSession(null)} 
+        onAuthSuccess={() => hydrateUser(null)} 
       />
     </div>
   );

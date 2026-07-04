@@ -34,6 +34,12 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
   // ─── Helper: translate error codes to human messages ───────────────
   function translateAuthError(err) {
     const msg = err?.message || '';
+    if (msg.includes('Auth session missing') || msg.includes('AuthApiError') || msg.includes('bad_jwt'))
+      return 'Supabase auth is not fully configured. Please verify the project URL, anon key, and OAuth/email settings in Supabase.';
+    if (msg.includes('Email not confirmed') || msg.includes('email not confirmed'))
+      return 'Please verify your email before signing in. Check your inbox for the confirmation link.';
+    if (msg.includes('Invalid login credentials'))
+      return 'Incorrect email or password. Please try again.';
     if (msg.includes('EMAIL_ALREADY_REGISTERED') || msg.includes('already registered'))
       return 'This email address is already registered.';
     if (msg.includes('weak-password') || msg.includes('WEAK_PASSWORD'))
