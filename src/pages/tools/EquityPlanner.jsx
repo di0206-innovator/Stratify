@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, Users, Shield, ArrowRight, CheckCircle } from 'lucide-react';
-import Toast from '../components/Toast';
-import BentoCard from '../components/BentoCard';
+import Toast from '../../components/Toast';
+import BentoCard from '../../components/BentoCard';
 import confetti from 'canvas-confetti';
 
 export default function EquityPlanner() {

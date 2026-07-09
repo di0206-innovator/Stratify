@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Cpu, ExternalLink, CheckCircle, Clock, RefreshCw } from 'lucide-react';
-import BentoCard from '../components/BentoCard';
-import { supabase } from '../lib/supabase';
+import BentoCard from '../../components/BentoCard';
+import { supabase } from '../../lib/supabase';
 import confetti from 'canvas-confetti';
 
 export default function BountyBoard({ founderProfile, user }) {

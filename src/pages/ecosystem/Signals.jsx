@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Radio, AlertCircle, Compass, Search, RefreshCw, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import AuthGate from '../components/AuthGate';
+import AuthGate from '../../components/AuthGate';
 
 export default function Signals({ founderProfile, user, openAuthModal }) {
   const [signals, setSignals] = useState([]);

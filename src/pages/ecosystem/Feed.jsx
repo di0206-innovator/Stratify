@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MessageSquare, ArrowRight, Share2, Award, Zap, Heart, CheckCircle2, ExternalLink, Sparkles } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../lib/supabase';
 import confetti from 'canvas-confetti';
 
 export default function Feed({ user, founderProfile }) {

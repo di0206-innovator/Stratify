@@ -1,8 +1,8 @@
 import React from 'react';
 import { ArrowRight, ArrowUpRight, Check, Network, Radio, Brain, FileText, DollarSign, TrendingUp, BarChart3, Users, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import StartupGraph from '../components/StartupGraph';
-import Footer from '../components/Footer';
+import StartupGraph from '../../components/StartupGraph';
+import Footer from '../../components/Footer';
 
 export default function LandingPage({ openAuthModal, user }) {
   const handleCTA = () => {

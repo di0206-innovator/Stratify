@@ -4,9 +4,9 @@ import {
   ArrowLeft, FileText, CheckCircle, ExternalLink,
   BookOpen, Trash2, ShieldAlert, Check
 } from 'lucide-react';
-import Toast from '../components/Toast';
+import Toast from '../../components/Toast';
 import confetti from 'canvas-confetti';
-import BentoCard from '../components/BentoCard';
+import BentoCard from '../../components/BentoCard';
 
 export default function ReportDetail() {
   const { id } = useParams();

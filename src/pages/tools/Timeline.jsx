@@ -5,7 +5,7 @@ import {
   MessageSquare, Filter, RefreshCw, GitCommit,
   Sparkles, ChevronDown
 } from 'lucide-react';
-import AuthGate from '../components/AuthGate';
+import AuthGate from '../../components/AuthGate';
 
 const EVENT_CONFIG = {
   milestone: { icon: Award, color: 'bg-[#C8E64A]/20 text-black border-[#C8E64A]/40', label: 'Milestone' },

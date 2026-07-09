@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ShieldAlert, ExternalLink, Lock, Check, Copy, Globe, RefreshCw } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import BentoCard from '../components/BentoCard';
+import BentoCard from '../../components/BentoCard';
 
 export default function PitchBrief({ mode = 'builder', founderProfile }) {
   const { id } = useParams();

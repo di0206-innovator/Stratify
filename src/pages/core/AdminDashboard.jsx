@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Users, FileText, Activity, Mail, Trash2, AlertCircle, RefreshCw, BarChart2 } from 'lucide-react';
-import Toast from '../components/Toast';
+import Toast from '../../components/Toast';
 import confetti from 'canvas-confetti';
 
 export default function AdminDashboard() {

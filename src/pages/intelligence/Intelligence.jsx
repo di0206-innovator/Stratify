@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Trash2, Calendar, Lock, LogIn, AlertCircle, Compass, Shield, Globe, Copy, Check, RefreshCw } from 'lucide-react';
-import Toast from '../components/Toast';
+import Toast from '../../components/Toast';
 import confetti from 'canvas-confetti';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../lib/supabase';
 
 export default function Intelligence({ user, setUser, openAuthModal, founderProfile }) {
   const [toast, setToast] = useState(null);

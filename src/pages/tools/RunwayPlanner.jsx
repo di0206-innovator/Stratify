@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, AlertTriangle, ShieldCheck, DollarSign, RefreshCw, Calendar, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import BentoCard from '../components/BentoCard';
-import AuthGate from '../components/AuthGate';
+import BentoCard from '../../components/BentoCard';
+import AuthGate from '../../components/AuthGate';
 
 export default function RunwayPlanner({ user, openAuthModal }) {
   const [cash, setCash] = useState(150000); // initial cash

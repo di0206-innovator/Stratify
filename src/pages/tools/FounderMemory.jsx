@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrainCircuit, Plus, Target, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
-import AuthGate from '../components/AuthGate';
+import AuthGate from '../../components/AuthGate';
 
 export default function FounderMemory({ founderProfile, user, openAuthModal }) {
   const [decisions, setDecisions] = useState([]);
