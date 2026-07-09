@@ -2,207 +2,211 @@ import React, { useState } from 'react';
 import { Settings as SettingsIcon, User, Bell, Shield, Wallet, Key, Save, Edit2, CheckCircle } from 'lucide-react';
 
 export default function Settings({ user }) {
- const [activeSection, setActiveSection] = useState('account');
- const [editing, setEditing] = useState(false);
- const [saving, setSaving] = useState(false);
- const [saved, setSaved] = useState(false);
- const [formData, setFormData] = useState({
- username: user?.username || '',
- email: user?.email || '',
- role: user?.role || 'user',
- });
+  const [activeSection, setActiveSection] = useState('account');
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [formData, setFormData] = useState({
+    username: user?.username || '',
+    email: user?.email || '',
+    role: user?.role || 'user',
+  });
 
- const handleSave = async () => {
- setSaving(true);
- try {
- const res = await fetch('/api/users/profile', {
- method: 'POST',
- headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({ username: formData.username }),
- });
- if (res.ok) {
- setSaved(true);
- setEditing(false);
- setTimeout(() => setSaved(false), 3000);
- }
- } catch (e) {
- console.error('Failed to save profile:', e);
- } finally {
- setSaving(false);
- }
- };
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch('/api/users/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: formData.username }),
+      });
+      if (res.ok) {
+        setSaved(true);
+        setEditing(false);
+        setTimeout(() => setSaved(false), 3000);
+      }
+    } catch (e) {
+      console.error('Failed to save profile:', e);
+    } finally {
+      setSaving(false);
+    }
+  };
 
- const sidebarItems = [
- { id: 'account', label: 'Account Profile', icon: User },
- { id: 'security', label: 'Security', icon: Shield },
- { id: 'notifications', label: 'Notifications', icon: Bell },
- { id: 'billing', label: 'Billing', icon: Wallet },
- { id: 'api', label: 'API Keys', icon: Key },
- ];
+  const sidebarItems = [
+    { id: 'account', label: 'Account Profile', icon: User },
+    { id: 'security', label: 'Security', icon: Shield },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+    { id: 'billing', label: 'Billing', icon: Wallet },
+    { id: 'api', label: 'API Keys', icon: Key },
+  ];
 
- return (
- <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
- <div className="flex items-center gap-4 border-b-[4px] border-black pb-6">
- <div className="w-16 h-16 bg-red-500 flex items-center justify-center">
- <SettingsIcon size={32} className="text-white" />
- </div>
- <div>
- <h1 className="text-4xl font-black uppercase tracking-tight">Settings & Account</h1>
- <p className="font-bold text-gray-500 font-outfit">Manage your workspace preferences</p>
- </div>
- </div>
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-[#111]">
+      <div className="flex items-center gap-4 pb-6 border-b border-gray-200/60 select-none">
+        <div className="w-12 h-12 bg-[#1A1A1A] flex items-center justify-center rounded-lg text-white">
+          <SettingsIcon size={20} />
+        </div>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-outfit font-black tracking-tight">Settings & Account</h1>
+          <p className="font-inter text-gray-500 mt-1 text-xs sm:text-sm">Manage your workspace preferences</p>
+        </div>
+      </div>
 
- <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
- {/* Settings Sidebar */}
- <div className="col-span-1 space-y-1">
- {sidebarItems.map(item => {
- const Icon = item.icon;
- return (
- <button
- key={item.id}
- onClick={() => setActiveSection(item.id)}
- className={`w-full flex items-center gap-3 p-3 border-[3px] text-left font-black uppercase text-xs transition-all ${
- activeSection === item.id
- ? 'bg-black text-white border-black shadow-none'
- : 'bg-white border-transparent hover:border-black text-gray-600 hover:text-black'
- }`}
- >
- <Icon size={16} /> {item.label}
- </button>
-);
- })}
- </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        {/* Settings Sidebar */}
+        <div className="col-span-1 space-y-2 select-none">
+          {sidebarItems.map(item => {
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-3 p-3 rounded-lg border font-outfit font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
+                  activeSection === item.id
+                    ? 'bg-black text-white border-black shadow-sm'
+                    : 'bg-white border-gray-200 hover:border-black text-gray-550'
+                }`}
+              >
+                <Icon size={14} /> {item.label}
+              </button>
+            );
+          })}
+        </div>
 
- {/* Settings Content */}
- <div className="col-span-3 space-y-6">
- {activeSection === 'account' && (
- <div className="bg-white p-6 space-y-6">
- <div className="flex items-center justify-between">
- <h2 className="text-xl font-black uppercase">Account Details</h2>
- {saved && (
- <span className="flex items-center gap-1.5 text-xs font-black uppercase text-green-700 bg-emerald-500 border-[2px] border-black px-2 py-1">
- <CheckCircle size={12} /> Saved
- </span>
-)}
- </div>
- <div className="space-y-4">
- <div>
- <label className="block text-xs font-black uppercase mb-1">Email</label>
- <input
- type="text"
- value={formData.email}
- disabled
- className="w-full p-2.5 border-[2px] border-black bg-gray-100 font-bold font-outfit text-sm cursor-not-allowed"
- />
- <p className="text-[10px] font-bold text-gray-400 mt-1">Email cannot be changed directly. Contact support.</p>
- </div>
- <div>
- <label className="block text-xs font-black uppercase mb-1">Username</label>
- <input
- type="text"
- value={formData.username}
- disabled={!editing}
- onChange={e => setFormData(p => ({ ...p, username: e.target.value }))}
- className={`w-full p-2.5 border-[2px] border-black font-bold font-outfit text-sm transition-colors ${
- editing ? 'bg-white focus:outline-none focus:border-[#3B82F6]' : 'bg-gray-100 cursor-not-allowed'
- }`}
- />
- </div>
- <div>
- <label className="block text-xs font-black uppercase mb-1">Role</label>
- <input
- type="text"
- value={formData.role}
- disabled
- className="w-full p-2.5 border-[2px] border-black bg-gray-100 font-bold font-outfit text-sm cursor-not-allowed capitalize"
- />
- </div>
- <div className="flex items-center gap-3 pt-2">
- {editing ? (
- <>
- <button
- onClick={handleSave}
- disabled={saving}
- className="flex items-center gap-2 px-4 py-2 bg-emerald-500 border-[2px] border-black font-black uppercase text-xs hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all disabled:opacity-50"
- >
- <Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}
- </button>
- <button
- onClick={() => { setEditing(false); setFormData({ username: user?.username || '', email: user?.email || '', role: user?.role || 'user' }); }}
- className="px-4 py-2 bg-white border-[2px] border-black font-black uppercase text-xs hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
- >
- Cancel
- </button>
- </>
-) : (
- <button
- onClick={() => setEditing(true)}
- className="flex items-center gap-2 px-4 py-2 bg-yellow-400 border-[2px] border-black font-black uppercase text-xs hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
- >
- <Edit2 size={14} /> Edit Profile
- </button>
-)}
- </div>
- </div>
- </div>
-)}
+        {/* Settings Content */}
+        <div className="col-span-3 space-y-6">
+          {activeSection === 'account' && (
+            <div className="os-card bg-white p-6 space-y-6">
+              <div className="flex items-center justify-between border-b border-gray-100 pb-4 select-none">
+                <h2 className="text-base font-outfit font-bold uppercase text-black">Account Details</h2>
+                {saved && (
+                  <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
+                    <CheckCircle size={10} /> Saved
+                  </span>
+                )}
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5 select-none">Email Address</label>
+                  <input
+                    type="text"
+                    value={formData.email}
+                    disabled
+                    className="os-input bg-gray-50 cursor-not-allowed text-gray-400 font-semibold"
+                  />
+                  <p className="text-[10px] font-semibold text-gray-450 mt-1 select-none">Email cannot be changed directly. Contact support.</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5 select-none">Username</label>
+                  <input
+                    type="text"
+                    value={formData.username}
+                    disabled={!editing}
+                    onChange={e => setFormData(p => ({ ...p, username: e.target.value }))}
+                    className={`os-input ${editing ? 'bg-white' : 'bg-gray-50 cursor-not-allowed text-gray-400 font-semibold'}`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5 select-none">Account Role</label>
+                  <input
+                    type="text"
+                    value={formData.role}
+                    disabled
+                    className="os-input bg-gray-50 cursor-not-allowed text-gray-400 font-semibold capitalize"
+                  />
+                </div>
+                <div className="flex items-center gap-3 pt-4 select-none">
+                  {editing ? (
+                    <>
+                      <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#C8E64A] text-black font-outfit font-bold uppercase text-xs tracking-wider hover:bg-[#B5D235] transition-all rounded-lg cursor-pointer border-0"
+                      >
+                        <Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}
+                      </button>
+                      <button
+                        onClick={() => { setEditing(false); setFormData({ username: user?.username || '', email: user?.email || '', role: user?.role || 'user' }); }}
+                        className="px-4 py-2 bg-white border border-gray-250 text-gray-600 font-outfit font-bold uppercase text-xs tracking-wider rounded-lg hover:border-black cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => setEditing(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-[#C8E64A] text-black font-outfit font-bold uppercase text-xs tracking-wider hover:bg-[#B5D235] transition-all rounded-lg cursor-pointer border-0 shadow-sm"
+                    >
+                      <Edit2 size={14} /> Edit Profile
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
- {activeSection === 'security' && (
- <div className="bg-white p-6">
- <h2 className="text-xl font-black uppercase mb-4">Security</h2>
- <div className="space-y-4">
- <div className="p-4 bg-yellow-400/30 border-[2px] border-black">
- <p className="text-sm font-bold">Your account is secured via Supabase Authentication.</p>
- <p className="text-xs font-bold text-gray-500 mt-1">Password resets are handled through your registered email.</p>
- </div>
- <button className="px-4 py-2 bg-white border-[2px] border-black font-black uppercase text-xs hover:shadow-none hover:translate-x-[1px] hover:translate-y-[1px] transition-all">
- Request Password Reset
- </button>
- </div>
- </div>
-)}
+          {activeSection === 'security' && (
+            <div className="os-card bg-white p-6 space-y-6">
+              <h2 className="text-base font-outfit font-bold uppercase text-black border-b border-gray-100 pb-4 select-none">Security</h2>
+              <div className="space-y-4">
+                <div className="p-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-left select-none">
+                  <p className="text-xs font-bold leading-relaxed">Your account is secured via Supabase Authentication.</p>
+                  <p className="text-[10px] font-semibold text-amber-600/80 mt-1 leading-relaxed">Password resets are handled through secure authentication tokens sent to your email.</p>
+                </div>
+                <div className="select-none">
+                  <button className="px-4 py-2.5 bg-white border border-gray-250 text-gray-700 hover:border-black font-outfit font-bold uppercase text-xs tracking-wider rounded-lg cursor-pointer transition-all">
+                    Request Password Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
- {activeSection === 'notifications' && (
- <div className="bg-white p-6">
- <h2 className="text-xl font-black uppercase mb-4">Notifications</h2>
- <div className="space-y-3">
- {[
- { label: 'New match found', desc: 'Get notified when Stratify finds a compatible partner or investor' },
- { label: 'Score changes', desc: 'Alert when your startup validation score updates' },
- { label: 'New opportunities', desc: 'Weekly digest of new grants and accelerator programs' },
- ].map((item, i) => (
- <div key={i} className="flex items-start justify-between gap-4 p-3 border-[2px] border-black">
- <div>
- <p className="text-xs font-black uppercase">{item.label}</p>
- <p className="text-xs font-bold text-gray-500 mt-0.5">{item.desc}</p>
- </div>
- <div className="w-8 h-4 bg-emerald-500 border-[2px] border-black rounded-full flex-shrink-0 cursor-pointer relative">
- <div className="absolute right-0.5 top-0.5 w-2.5 h-2.5 bg-black rounded-full" />
- </div>
- </div>
-))}
- </div>
- </div>
-)}
+          {activeSection === 'notifications' && (
+            <div className="os-card bg-white p-6 space-y-5">
+              <h2 className="text-base font-outfit font-bold uppercase text-black border-b border-gray-100 pb-4 select-none">Notifications</h2>
+              <div className="space-y-3 select-none">
+                {[
+                  { label: 'New match found', desc: 'Get notified when Stratify finds a compatible partner or investor' },
+                  { label: 'Score changes', desc: 'Alert when your startup validation score updates' },
+                  { label: 'New opportunities', desc: 'Weekly digest of new grants and accelerator programs' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between gap-4 p-4 border border-gray-200 bg-[#FAF9F6] rounded-xl text-left">
+                    <div>
+                      <p className="text-xs font-bold uppercase text-[#111]">{item.label}</p>
+                      <p className="text-[10px] font-semibold text-gray-500 mt-1 font-inter">{item.desc}</p>
+                    </div>
+                    <div className="w-8 h-4 bg-[#C8E64A] border border-gray-300 rounded-full flex-shrink-0 cursor-pointer relative">
+                      <div className="absolute right-0.5 top-0.5 w-2.5 h-2.5 bg-black rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
- {(activeSection === 'billing' || activeSection === 'api') && (
- <div className="bg-white p-12 text-center">
- <div className="bg-yellow-400 p-4 inline-block mb-4">
- {activeSection === 'billing' ? <Wallet size={28} /> : <Key size={28} />}
- </div>
- <h3 className="text-xl font-black uppercase mb-2">
- {activeSection === 'billing' ? 'Billing & Subscription' : 'API Keys'}
- </h3>
- <p className="text-sm font-bold text-gray-500 max-w-sm mx-auto">
- {activeSection === 'billing'
- ? 'Stratify is currently in early access. Subscription management will be available soon.'
- : 'API key management for external integrations is coming soon.'}
- </p>
- <span className="inline-block mt-4 bg-black text-white px-3 py-1 text-[10px] font-black uppercase">Coming Soon</span>
- </div>
-)}
- </div>
- </div>
- </div>
-);
+          {(activeSection === 'billing' || activeSection === 'api') && (
+            <div className="os-card bg-white p-12 text-center select-none space-y-4">
+              <div className="bg-[#1A1A1A] p-3.5 text-white rounded-lg inline-block">
+                {activeSection === 'billing' ? <Wallet size={24} /> : <Key size={24} />}
+              </div>
+              <h3 className="font-outfit font-bold text-lg text-black uppercase">
+                {activeSection === 'billing' ? 'Billing & Subscription' : 'API Keys'}
+              </h3>
+              <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed font-light font-inter">
+                {activeSection === 'billing'
+                  ? 'Stratify is currently in early access. Subscription management will be available soon.'
+                  : 'API key management for external integrations is coming soon.'}
+              </p>
+              <div>
+                <span className="inline-block bg-[#C8E64A]/25 border border-[#C8E64A]/30 text-black px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full mt-2">
+                  Coming Soon
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }

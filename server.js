@@ -521,22 +521,50 @@ function createApp(options = {}) {
                 throw new HttpError(400, 'INVALID_PROFILE', 'Industry and geography are required for market signals.');
             }
 
+            let signals;
+            let mode;
             const cached = await signalStore.getSignals(profile.industry, profile.geography);
             if (cached) {
-                return res.json({
-                    requestId: req.id,
-                    signals: cached.signals,
-                    mode: cached.mode
-                });
+                signals = cached.signals;
+                mode = cached.mode;
+            } else {
+                const result = await orchestrator.processSignals(profile);
+                await signalStore.saveSignals(profile.industry, profile.geography, result.signals, result.mode);
+                signals = result.signals;
+                mode = result.mode;
             }
 
-            const result = await orchestrator.processSignals(profile);
-            await signalStore.saveSignals(profile.industry, profile.geography, result.signals, result.mode);
+            // Save to startup specific history and write timeline event if authenticated founder
+            if (req.user && req.user.id && req.user.id !== 'api-token' && startupStore) {
+                const startup = await startupStore.getStartupByOwner(req.user.id);
+                if (startup) {
+                    // Save signals to history
+                    for (const sig of (signals || [])) {
+                        await startupStore.saveSignalHistory({
+                            id: 'sig-' + crypto.randomUUID(),
+                            startupId: startup.id,
+                            signalData: sig,
+                            relevance: sig.impact?.toLowerCase() || 'medium'
+                        });
+                    }
+
+                    // Create timeline event
+                    await startupStore.createTimelineEvent({
+                        id: crypto.randomUUID(),
+                        startupId: startup.id,
+                        actorId: req.user.id,
+                        eventType: 'signals',
+                        title: 'Ecosystem Signals Swept',
+                        description: `Grounded ${signals.length} market signals for ${profile.industry} in ${profile.geography}.`,
+                        metadata: { count: signals.length, mode }
+                    });
+                }
+            }
 
             res.json({
                 requestId: req.id,
-                signals: result.signals,
-                mode: result.mode
+                signals,
+                mode
             });
         } catch (error) {
             next(error);
@@ -704,6 +732,22 @@ function createApp(options = {}) {
         }
     });
 
+    // Generate dynamic journey article
+    app.post('/api/startups/:id/journey', optionalAuth, async (req, res, next) => {
+        try {
+            const startup = await startupStore.getStartup(req.params.id);
+            if (!startup) {
+                throw new HttpError(404, 'NOT_FOUND', 'Startup not found.');
+            }
+            const prompt = `Write a compelling, journalistic article (in markdown) detailing the journey of the startup "${startup.name}". Industry: ${startup.industry}. Pitch: ${startup.pitch}. Focus on their founding story, growth, and future potential. Keep it engaging, around 400 words. Do not include placeholders, invent plausible narrative based on typical tech startup growth in their sector if details are sparse. End the article with a clear call-to-action containing their website link: ${startup.websiteUrl || 'Not available'}`;
+            const response = await orchestrator.model.generateContent(prompt);
+            const journeyText = response.response.text();
+            res.json({ requestId: req.id, journey: journeyText });
+        } catch (error) {
+            next(error);
+        }
+    });
+
     // ── Decisions (Founder Memory) ──
     app.post('/api/decisions', auth, async (req, res, next) => {
         try {
@@ -831,7 +875,20 @@ function createApp(options = {}) {
                 return res.json({ requestId: req.id, history: [] });
             }
             const history = await startupStore.listSignalHistory(startup.id);
-            res.json({ requestId: req.id, history });
+            const mappedHistory = (history || []).map(item => {
+                let data = item.signalData || item.signal_data || {};
+                if (typeof data === 'string') {
+                    try { data = JSON.parse(data); } catch (e) {}
+                }
+                return {
+                    id: item.id,
+                    createdAt: item.createdAt || item.created_at,
+                    relevance: item.relevance,
+                    isRead: item.isRead || item.is_read,
+                    ...data
+                };
+            });
+            res.json({ requestId: req.id, history: mappedHistory });
         } catch (error) {
             next(error);
         }
@@ -1011,6 +1068,24 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
                 result = fallbackSimulate(scenarioText, cash, burn, revenue, growth);
             }
 
+            // Log to timeline
+            try {
+                const startup = await startupStore.getStartupByOwner(req.user.id);
+                if (startup) {
+                    await startupStore.createTimelineEvent({
+                        id: 'evt-' + crypto.randomUUID(),
+                        startupId: startup.id,
+                        actorId: req.user.id,
+                        eventType: 'runway',
+                        title: 'Runway Simulation Executed',
+                        description: `Simulated financial scenario: "${scenarioText.length > 50 ? scenarioText.slice(0, 50) + '...' : scenarioText}"`,
+                        metadata: { cashDelta: result.cashDelta, burnDelta: result.burnDelta, growthDelta: result.growthDelta }
+                    });
+                }
+            } catch (err) {
+                console.warn('Failed to log runway simulation timeline event:', err.message);
+            }
+
             res.json({ requestId: req.id, simulation: result });
         } catch (error) {
             next(error);
@@ -1078,6 +1153,17 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
                 startupId: startup.id,
                 title: briefData.name + ' Pitch Brief',
                 content: JSON.stringify(briefData)
+            });
+
+            // Log to timeline
+            await startupStore.createTimelineEvent({
+                id: 'evt-' + crypto.randomUUID(),
+                startupId: startup.id,
+                actorId: req.user.id,
+                eventType: 'brief',
+                title: 'Pitch Brief Updated',
+                description: `Updated pitch brief configuration for "${briefData.name}".`,
+                metadata: { briefId: brief.id }
             });
 
             res.status(201).json({ requestId: req.id, brief: { ...brief, ...briefData } });
@@ -1166,6 +1252,17 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
             };
             const saved = await startupStore.saveCapTable(capTableData);
             
+            // Log to timeline
+            await startupStore.createTimelineEvent({
+                id: 'evt-' + crypto.randomUUID(),
+                startupId: startup.id,
+                actorId: req.user.id,
+                eventType: 'cap_table',
+                title: 'Cap Table Updated: ' + capTableData.versionName,
+                description: `Updated equity distribution model for version "${capTableData.versionName}".`,
+                metadata: { capTableId: saved.id }
+            });
+
             let parsedState = saved.state || {};
             if (typeof parsedState === 'string') {
                 try { parsedState = JSON.parse(parsedState); } catch(e) {}
@@ -1520,6 +1617,17 @@ async function createReport(req, res, next, services) {
                     if (updated) {
                         await startupStore.updateStartup(startup.id, startup);
                     }
+                    
+                    // Log to startup timeline
+                    await startupStore.createTimelineEvent({
+                        id: 'evt-' + crypto.randomUUID(),
+                        startupId: startup.id,
+                        actorId: req.user.id,
+                        eventType: 'report',
+                        title: 'Intelligence Report Generated',
+                        description: `Generated AI report: "${report.title || 'Market Opportunity Brief'}".`,
+                        metadata: { reportId: report.id, validationScore: report.rawStrategy?.validationScore }
+                    });
                 }
             }
         }
@@ -1620,6 +1728,17 @@ async function createReportStream(req, res, next, services) {
                     if (updated) {
                         await startupStore.updateStartup(startup.id, startup);
                     }
+
+                    // Log to startup timeline
+                    await startupStore.createTimelineEvent({
+                        id: 'evt-' + crypto.randomUUID(),
+                        startupId: startup.id,
+                        actorId: req.user.id,
+                        eventType: 'report',
+                        title: 'Intelligence Report Generated',
+                        description: `Generated AI report: "${report.title || 'Market Opportunity Brief'}".`,
+                        metadata: { reportId: report.id, validationScore: report.rawStrategy?.validationScore }
+                    });
                 }
             }
         }

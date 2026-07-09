@@ -7,25 +7,35 @@ export default {
   theme: {
     extend: {
       colors: {
+        canvas: 'var(--color-canvas)',
+        accent: 'var(--color-accent)',
+        'accent-hover': 'var(--color-accent-hover)',
+        'accent-muted': 'var(--color-accent-muted)',
+        'surface-dark': 'var(--color-surface-dark)',
+        'surface-warm': 'var(--color-surface-warm)',
+        'text-primary': 'var(--color-text)',
+        'text-secondary': 'var(--color-text-secondary)',
+        'text-muted': 'var(--color-text-muted)',
+        // Keep neo aliases for backward compatibility with internal pages
         neo: {
           canvas: 'var(--color-canvas)',
-          lime: 'var(--color-lime)',
-          orange: 'var(--color-orange)',
-          lavender: 'var(--color-lavender)',
-          pink: 'var(--color-pink)',
           black: 'var(--color-text)',
           border: 'var(--color-border)',
         }
       },
+      borderColor: {
+        DEFAULT: 'var(--color-border)',
+        light: 'var(--color-border-light)',
+      },
       boxShadow: {
-        'neo-hard': 'var(--shadow-neo)',
-        'neo-button': 'var(--shadow-neo-btn)',
-        'neo-button-hover': '1px 1px 0px 0px var(--color-border)',
+        'card': '0 1px 3px 0 var(--color-shadow)',
+        'card-hover': '0 8px 25px -5px var(--color-shadow), 0 4px 10px -5px var(--color-shadow)',
       },
       fontFamily: {
         outfit: ['Outfit', 'sans-serif'],
         inter: ['Inter', 'sans-serif'],
-      }
+        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
     },
   },
   plugins: [],

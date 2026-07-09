@@ -23,6 +23,9 @@ const Opportunities = lazy(() => import('./pages/Opportunities'));
 const Explore = lazy(() => import('./pages/Explore'));
 const FounderMemory = lazy(() => import('./pages/FounderMemory'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Terms = lazy(() => import('./pages/Terms'));
+const About = lazy(() => import('./pages/About'));
 
 // Fallback spinner for lazy-loaded pages
 const PageFallback = () => (
@@ -100,8 +103,8 @@ export default function App() {
  if (sessionUser) {
  const nextUser = {
  id: sessionUser.id,
- email: sessionUser.email,
- username: sessionUser.user_metadata?.username || sessionUser.email?.split('@')[0],
+ email: sessionUser.email || '',
+ username: sessionUser.user_metadata?.username || sessionUser.email?.split('@')[0] || 'User',
  emailVerified: !!sessionUser.email_confirmed_at
  };
  setUser(nextUser);
@@ -140,6 +143,11 @@ export default function App() {
  }
  }
 
+ // Failsafe: Force loading to false after 3 seconds so the app never hangs indefinitely
+ const failsafeTimer = setTimeout(() => {
+ setLoading(false);
+ }, 3000);
+
  let unsubscribe = null;
 
  if (supabase) {
@@ -148,8 +156,8 @@ export default function App() {
  if (session?.user) {
  const extUser = {
  id: session.user.id,
- email: session.user.email,
- username: session.user.user_metadata?.username || session.user.email.split('@')[0],
+ email: session.user.email || '',
+ username: session.user.user_metadata?.username || session.user.email?.split('@')[0] || 'User',
  emailVerified: !!session.user.email_confirmed_at
  };
  setUser(extUser);
@@ -164,6 +172,7 @@ export default function App() {
  }
 
  return () => {
+ clearTimeout(failsafeTimer);
  if (unsubscribe) unsubscribe();
  };
  }, []);
@@ -217,6 +226,7 @@ export default function App() {
  setTheme={setTheme}
  openAuthModal={openAuthModal}
  isAdmin={isAdmin}
+ hydrateUser={hydrateUser}
  />
  </BrowserRouter>
 );
@@ -225,7 +235,7 @@ export default function App() {
 function AppContent({
  founderProfile, setFounderProfile, currentReport, setCurrentReport,
  user, setUser, isAuthModalOpen, setIsAuthModalOpen,
- theme, setTheme, openAuthModal, isAdmin
+ theme, setTheme, openAuthModal, isAdmin, hydrateUser
 }) {
  const location = useLocation();
  const isPublicRoute = location.pathname === '/' || location.pathname.startsWith('/brief/');
@@ -238,27 +248,13 @@ function AppContent({
  return <Navigate to="/onboarding" replace />;
  }
 
- const isPublicPage = isPublicRoute;
-
  return (
- <div className={`min-h-screen relative overflow-x-hidden flex flex-col justify-between ${isPublicPage ? 'bg-memphis-mesh' : 'bg-[#F8F7F4]'}`}>
- {/* Absolute Background Memphis Geometric Shapes (only on public views) */}
- {isPublicPage && (
  <>
- <div className="memphis-shape w-96 h-96 rounded-full bg-red-500 border-[8px] border-black -top-20 -right-20 animate-float-slow hidden xl:block" style={{ zIndex: 0 }} />
- <svg className="memphis-shape w-40 h-40 bottom-10 left-[45%] animate-float-medium hidden lg:block" viewBox="0 0 100 100" style={{ zIndex: 0 }}>
- <polygon points="50,10 90,90 10,90" stroke="black" strokeWidth="6" fill="#FBBF24" />
- </svg>
- <svg className="memphis-shape w-48 h-32 bottom-24 -left-12 animate-float-fast hidden xl:block" viewBox="0 0 150 100" style={{ zIndex: 0 }}>
- <polygon points="10,90 120,90 140,10 30,10" stroke="black" strokeWidth="6" fill="#3B82F6" />
- </svg>
- </>
-)}
-
- <div className="relative z-10 flex flex-col min-h-screen w-full">
+ <div className="min-h-screen bg-canvas flex flex-col w-full text-gray-900 font-inter">
  <div className="flex-1 flex flex-col">
- {/* Top Navigation */}
- <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} theme={theme} setTheme={setTheme} />
+ {location.pathname !== '/' && (
+   <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} theme={theme} setTheme={setTheme} />
+ )}
 
  {/* Main Pages */}
  <main className="flex-1 pb-16 relative z-10">
@@ -380,31 +376,35 @@ function AppContent({
  element={<Explore founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} />} 
  />
 
- {/* Wildcard Fallback */}
- <Route path="*" element={<Navigate to="/" replace />} />
+  {/* Public Information Pages */}
+  <Route path="/privacy" element={<Privacy />} />
+  <Route path="/terms" element={<Terms />} />
+  <Route path="/about" element={<About />} />
+
+  {/* Wildcard Fallback */}
+  <Route path="*" element={<Navigate to="/" replace />} />
  </Routes>
  </Suspense>
  </main>
  </div>
 
- {/* Footer (hidden on public landing) */}
- {!isPublicPage && (
- <footer className="w-full bg-[#F8F7F4] border-t border-gray-200 py-4 select-none mt-auto">
- <div className="max-w-7xl mx-auto px-4 text-center">
- <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-gray-500">
- © {new Date().getFullYear()} STRATIFY LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.
- </span>
- </div>
- </footer>
-)}
+ {location.pathname !== '/' && (
+   <footer className="w-full bg-[#FAF9F6] border-t border-gray-200 py-4 select-none mt-auto">
+     <div className="max-w-7xl mx-auto px-4 text-center">
+       <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-gray-500">
+         © {new Date().getFullYear()} STRATIFY LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.
+       </span>
+     </div>
+   </footer>
+ )}
  </div>
 
  {/* Auth Modal */}
  <AuthModal 
  isOpen={isAuthModalOpen} 
  onClose={() => setIsAuthModalOpen(false)} 
- onAuthSuccess={() => hydrateUser(null)} 
+ onAuthSuccess={hydrateUser} 
  />
- </div>
+ </>
 );
 }

@@ -262,7 +262,7 @@ test('live mode chains agents and includes role system prompts', async () => {
     assert.ok(promptsCaptured[3].includes('# ROLE: RISK & DEFENSE ASSESSMENT SPECIALIST') || promptsCaptured[3].includes('# ROLE: QUANTITATIVE & QUALITATIVE MARKET TRENDS ANALYST'));
     assert.ok(promptsCaptured[4].includes('# ROLE: EXECUTIVE STRATEGIST & LEAD ORCHESTRATOR'));
     assert.ok(promptsCaptured[5].includes("You are Stratify's Execution Coach Agent."));
-    assert.ok(promptsCaptured[6].includes('QUALITY ASSURANCE & RESEARCH CRITIC'));
+    assert.ok(promptsCaptured[6].includes('SEASONED VC / FOUNDER CRITIC & QA'));
 
     // Verify section extraction worked
     assert.equal(report.sections.opportunityThesis, 'Zero-wait premium convenience.');
@@ -493,7 +493,7 @@ test('live mode with QA Critic revision loop triggered and resolved', async () =
                     }
                 };
             }
-            if (prompt.includes('QUALITY ASSURANCE & RESEARCH CRITIC')) {
+            if (prompt.includes('SEASONED VC / FOUNDER CRITIC & QA')) {
                 criticCallCount++;
                 if (criticCallCount === 1) {
                     return {
