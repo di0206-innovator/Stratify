@@ -49,6 +49,15 @@ function createApp(options = {}) {
     const app = express();
     const appConfig = options.config || config;
     const logger = options.logger || createLogger({ env: appConfig.nodeEnv });
+
+    // Automatically run database migrations on server startup (crucial for Vercel serverless entrypoint)
+    if (USE_PG) {
+        const { migrate } = require('./lib/db/migrate');
+        migrate({ logger }).catch((err) => {
+            logger.error('[Database] Idle migration check failed:', err.message);
+        });
+    }
+
     const metrics = options.metrics || createMetrics();
     const orchestrator = options.orchestrator || new GeminiBIOrchestrator({
         apiKey: appConfig.geminiApiKey,
