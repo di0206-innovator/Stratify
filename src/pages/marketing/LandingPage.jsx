@@ -27,6 +27,9 @@ export default function LandingPage({ openAuthModal, user }) {
               S
             </div>
             <span className="font-outfit font-black text-xl tracking-tight">Stratify</span>
+            <span className="bg-[#C8E64A] text-black text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider scale-90 flex-shrink-0">
+              Beta
+            </span>
           </div>
 
           {/* Center links — hidden on mobile */}

@@ -252,6 +252,13 @@ function AppContent({
  return (
  <>
  <BetaBanner />
+
+ {/* Floating global Beta pill at top right (hidden on mobile, stays out of way of header) */}
+ <div className="fixed top-20 right-6 z-45 hidden lg:flex items-center gap-1.5 bg-[#FAF9F6]/85 backdrop-blur border border-gray-200/80 px-2.5 py-1 rounded-full shadow-sm select-none pointer-events-none">
+   <span className="w-1.5 h-1.5 rounded-full bg-[#C8E64A] animate-pulse"></span>
+   <span className="font-outfit font-black text-[9px] text-gray-800 tracking-wider uppercase">Beta OS</span>
+ </div>
+
  <div className="min-h-screen bg-canvas flex flex-col w-full text-gray-900 font-inter">
  <div className="flex-1 flex flex-col">
  {location.pathname !== '/' && (
