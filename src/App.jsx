@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import BetaBanner from './components/BetaBanner';
 import AuthModal from './components/AuthModal';
 import { supabase } from './lib/supabase';
 
@@ -250,6 +251,7 @@ function AppContent({
 
  return (
  <>
+ <BetaBanner />
  <div className="min-h-screen bg-canvas flex flex-col w-full text-gray-900 font-inter">
  <div className="flex-1 flex flex-col">
  {location.pathname !== '/' && (

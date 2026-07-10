@@ -109,6 +109,9 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           <span className="font-outfit font-black text-base tracking-tight uppercase">
             Stratify
           </span>
+          <span className="bg-[#C8E64A] text-black text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider scale-90 flex-shrink-0">
+            Beta
+          </span>
         </Link>
 
         {/* Navigation Tabs */}
