@@ -3,7 +3,6 @@ dist
 .git
 .gitignore
 .env
-.env.example
 *.log
 test
 scratch
