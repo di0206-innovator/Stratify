@@ -15,20 +15,32 @@ export default function Explore({ user, founderProfile }) {
   const [roleFilter, setRoleFilter] = useState('all');
 
   useEffect(() => {
-    fetchExploreData();
-  }, [activeTab]);
+    const delayDebounceFn = setTimeout(() => {
+      fetchExploreData();
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [activeTab, search, stageFilter, roleFilter]);
 
   const fetchExploreData = async () => {
     setLoading(true);
     try {
+      const queryParams = new URLSearchParams();
+      if (search) queryParams.set('search', search);
+
       if (activeTab === 'startups') {
-        const res = await fetch('/api/explore/startups?limit=50');
+        if (stageFilter && stageFilter !== 'all') queryParams.set('stage', stageFilter);
+        queryParams.set('limit', '50');
+
+        const res = await fetch(`/api/explore/startups?${queryParams.toString()}`);
         if (res.ok) {
           const data = await res.json();
           setStartups(data.startups || []);
         }
       } else {
-        const res = await fetch('/api/explore/people');
+        if (roleFilter && roleFilter !== 'all') queryParams.set('role', roleFilter);
+
+        const res = await fetch(`/api/explore/people?${queryParams.toString()}`);
         if (res.ok) {
           const data = await res.json();
           setPeople(data.people || []);

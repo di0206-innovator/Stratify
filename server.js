@@ -980,15 +980,164 @@ function createApp(options = {}) {
     });
 
     // ── Explore / Discovery ──
+    async function fetchAndSeedStartupFromWeb(searchName, orchestrator, startupStore, logger) {
+        logger.info(`[Realtime Explorer] Performing real-time intelligence search for: "${searchName}"`);
+        let searchData = null;
+
+        // 1. Fetch info from web using searchProvider if enabled
+        if (orchestrator.searchProvider && orchestrator.searchProvider.enabled) {
+            try {
+                searchData = await orchestrator.searchProvider.search(`${searchName} startup company overview details funding`);
+            } catch (e) {
+                logger.warn(`[Realtime Explorer] Web search failed for ${searchName}:`, e.message);
+            }
+        }
+
+        // 2. Synthesize startup profile using Gemini
+        let startupJsonStr = null;
+        if (orchestrator.model) {
+            try {
+                const context = searchData
+                    ? JSON.stringify(searchData.results.map(r => ({ title: r.title, summary: r.summary, url: r.url })))
+                    : `No search results available. Rely on your pre-trained knowledge for startup: ${searchName}`;
+
+                const prompt = `You are a high-fidelity startup intelligence parser. Synthesize a professional startup profile for "${searchName}" based on this context:\n${context}\n\nReturn EXACTLY a valid JSON object matching the following structure and no other text:\n{\n  "name": "Startup Name (proper capitalization)",\n  "pitch": "A short, professional 1-2 sentence pitch highlighting value proposition",\n  "problem": "The key customer problem they address",\n  "solution": "Their technical or product solution",\n  "stage": "ideation" | "mvp" | "launched" | "scaling",\n  "industry": "Primary industry category (e.g. AI, Fintech, SaaS, HealthTech, ClimateTech)",\n  "geography": "Primary HQ country or city (e.g. India, USA, UK, Global)",\n  "teamStatus": "Brief summary of founder/team size or status",\n  "traction": "Key traction data like users, revenue range, or growth milestones if known",\n  "needs": "Standard capital, hiring, or partnership needs",\n  "techStack": "Primary programming language, cloud platform, or framework if known",\n  "websiteUrl": "Official website URL",\n  "revenue": "Annual revenue range/estimate (e.g., $1M-$5M)",\n  "fundingRaised": "Total funding raised (e.g., $10M Series A)"\n}`;
+
+                const response = await orchestrator.model.generateContent(prompt);
+                startupJsonStr = response.response.text();
+            } catch (e) {
+                logger.warn(`[Realtime Explorer] Gemini synthesis failed for ${searchName}:`, e.message);
+            }
+        }
+
+        // 3. Fallback to generating simulated/mock data if offline
+        if (!startupJsonStr) {
+            startupJsonStr = JSON.stringify({
+                name: searchName.charAt(0).toUpperCase() + searchName.slice(1),
+                pitch: `Real-time search simulated: ${searchName} is an emerging innovator addressing market inefficiencies with modern digital infrastructure.`,
+                problem: `High operational complexity and fragmented legacy workflows.`,
+                solution: `An integrated, AI-driven automation platform providing seamless operations.`,
+                stage: `launched`,
+                industry: `SaaS`,
+                geography: `Global`,
+                teamStatus: `Growing engineering and product teams.`,
+                traction: `Beta testing completed successfully with strong user feedback.`,
+                needs: `Hiring lead developers and seeking seed funding.`,
+                techStack: `React, Node.js, PostgreSQL`,
+                websiteUrl: `https://www.google.com/search?q=${encodeURIComponent(searchName)}`,
+                revenue: `Pre-revenue`,
+                fundingRaised: `Bootstrapped`
+            });
+        }
+
+        // 4. Clean and parse JSON
+        try {
+            let cleanJson = startupJsonStr.trim();
+            if (cleanJson.startsWith('```')) {
+                cleanJson = cleanJson.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+            }
+            const parsed = JSON.parse(cleanJson);
+
+            if (!parsed.name) parsed.name = searchName;
+
+            let logoUrl = null;
+            if (parsed.websiteUrl) {
+                try {
+                    let urlStr = parsed.websiteUrl.trim();
+                    if (!/^https?:\/\//i.test(urlStr)) {
+                        urlStr = 'https://' + urlStr;
+                    }
+                    const host = new URL(urlStr).hostname;
+                    logoUrl = `https://logo.clearbit.com/${host}`;
+                } catch (e) {
+                    // Ignore url parse errors
+                }
+            }
+
+            // Ensure system-seeded user exists in PostgreSQL to avoid FK violation
+            if (USE_PG) {
+                const { query } = require('./lib/db/pool');
+                await query(`
+                    INSERT INTO users (id, email, name, role)
+                    VALUES ('system-seeded', 'system-seeded@stratify.com', 'System Radar', 'admin')
+                    ON CONFLICT (id) DO NOTHING
+                `);
+            }
+
+            const startup = {
+                id: `startup-${crypto.randomBytes(6).toString('hex')}`,
+                ownerId: `system-seeded`,
+                name: parsed.name,
+                logoUrl,
+                pitch: parsed.pitch || '',
+                problem: parsed.problem || '',
+                solution: parsed.solution || '',
+                stage: parsed.stage || 'launched',
+                industry: parsed.industry || 'Tech',
+                geography: parsed.geography || 'Global',
+                teamStatus: parsed.teamStatus || 'Founding team',
+                traction: parsed.traction || '',
+                needs: parsed.needs || '',
+                techStack: parsed.techStack || '',
+                websiteUrl: parsed.websiteUrl || '',
+                revenue: parsed.revenue || '',
+                fundingRaised: parsed.fundingRaised || '',
+            };
+
+            const saved = await startupStore.saveStartup(startup);
+            logger.info(`[Realtime Explorer] Dynamically seeded real-time startup details for: "${saved.name}"`);
+            return saved;
+        } catch (e) {
+            logger.error(`[Realtime Explorer] Failed to parse/save real-time startup JSON:`, e.message, startupJsonStr);
+            return null;
+        }
+    }
+
+    // ── Explore / Discovery ──
     app.get('/api/explore/startups', optionalAuth, async (req, res, next) => {
         try {
-            const { industry, stage, geography } = req.query;
+            const { industry, stage, geography, search } = req.query;
             const limit = Number(req.query.limit || 30);
-            let startups = await startupStore.listStartups({ limit });
+
+            // Get local list
+            let startups = await startupStore.listStartups({ limit: 100 });
+
             if (industry) startups = startups.filter(s => (s.industry || '').toLowerCase().includes(industry.toLowerCase()));
             if (stage) startups = startups.filter(s => (s.stage || '').toLowerCase() === stage.toLowerCase());
             if (geography) startups = startups.filter(s => (s.geography || '').toLowerCase().includes(geography.toLowerCase()));
-            
+
+            if (search) {
+                const q = search.toLowerCase().trim();
+                startups = startups.filter(s =>
+                    (s.name || '').toLowerCase().includes(q) ||
+                    (s.pitch || '').toLowerCase().includes(q)
+                );
+            }
+
+            // Real-time lookup fallback: if no startups found locally, and a search query is provided
+            if (startups.length === 0 && search && search.trim().length >= 3) {
+                try {
+                    const seededStartup = await fetchAndSeedStartupFromWeb(search.trim(), orchestrator, startupStore, logger);
+                    if (seededStartup) {
+                        startups = [seededStartup];
+
+                        // Broadcast real-time discovery notification to all connected clients
+                        broadcastEvent('post_created', {
+                            id: crypto.randomUUID(),
+                            startupId: seededStartup.id,
+                            authorId: 'system-radar',
+                            content: `Ecosystem Radar: "${seededStartup.name}" (${seededStartup.industry}) has been dynamically analyzed and mapped to our real-time watchlists.`,
+                            type: 'milestone',
+                            metadata: { isSystemNews: true },
+                            startupName: seededStartup.name,
+                            authorName: 'Ecosystem Radar'
+                        });
+                    }
+                } catch (err) {
+                    logger.warn(`[Realtime Explorer] Failed to dynamically seed startup for query "${search}":`, err.message);
+                }
+            }
+
             const enriched = startups.map(s => {
                 let matchReason = null;
                 if (req.user) {

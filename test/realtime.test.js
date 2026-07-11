@@ -63,6 +63,18 @@ class MockStartupStore {
         return { id: 'startup-123', name: 'Mock Startup' };
     }
     async createTimelineEvent() {}
+    async listStartups() {
+        return this.startups;
+    }
+    async saveStartup(startup) {
+        const idx = this.startups.findIndex(s => s.id === startup.id);
+        if (idx !== -1) {
+            this.startups[idx] = startup;
+        } else {
+            this.startups.push(startup);
+        }
+        return startup;
+    }
 }
 
 function appWithMockStore(startupStore) {
@@ -148,6 +160,33 @@ test('Clapping post updates score and returns success', async () => {
         assert.equal(clapRes.status, 200);
         const body = await clapRes.json();
         assert.equal(body.post.metadata.claps, 1);
+    } finally {
+        if (server.closeAllConnections) {
+            server.closeAllConnections();
+        }
+        server.close();
+    }
+});
+
+test('Explore API fallback seeds a startup in real-time when query returns empty list', async () => {
+    const store = new MockStartupStore();
+    const app = appWithMockStore(store);
+    const { server, url } = await listen(app);
+
+    try {
+        const res = await fetch(`${url}/api/explore/startups?search=zomato`);
+        assert.equal(res.status, 200);
+        const body = await res.json();
+
+        // Assert that the dynamic seeding succeeded and returned the synthesized/mocked Zomato startup
+        assert.equal(body.startups.length, 1);
+        assert.equal(body.startups[0].name.toLowerCase(), 'zomato');
+        assert.equal(body.startups[0].ownerId, 'system-seeded');
+
+        // Confirm it was actually persisted in our store
+        const savedStartups = await store.listStartups();
+        assert.equal(savedStartups.length, 1);
+        assert.equal(savedStartups[0].name.toLowerCase(), 'zomato');
     } finally {
         if (server.closeAllConnections) {
             server.closeAllConnections();
