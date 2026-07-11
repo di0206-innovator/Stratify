@@ -999,9 +999,28 @@ function createApp(options = {}) {
             try {
                 const context = searchData
                     ? JSON.stringify(searchData.results.map(r => ({ title: r.title, summary: r.summary, url: r.url })))
-                    : `No search results available. Rely on your pre-trained knowledge for startup: ${searchName}`;
+                    : "";
 
-                const prompt = `You are a high-fidelity startup intelligence parser. Synthesize a professional startup profile for "${searchName}" based on this context:\n${context}\n\nReturn EXACTLY a valid JSON object matching the following structure and no other text:\n{\n  "name": "Startup Name (proper capitalization)",\n  "pitch": "A short, professional 1-2 sentence pitch highlighting value proposition",\n  "problem": "The key customer problem they address",\n  "solution": "Their technical or product solution",\n  "stage": "ideation" | "mvp" | "launched" | "scaling",\n  "industry": "Primary industry category (e.g. AI, Fintech, SaaS, HealthTech, ClimateTech)",\n  "geography": "Primary HQ country or city (e.g. India, USA, UK, Global)",\n  "teamStatus": "Brief summary of founder/team size or status",\n  "traction": "Key traction data like users, revenue range, or growth milestones if known",\n  "needs": "Standard capital, hiring, or partnership needs",\n  "techStack": "Primary programming language, cloud platform, or framework if known",\n  "websiteUrl": "Official website URL",\n  "revenue": "Annual revenue range/estimate (e.g., $1M-$5M)",\n  "fundingRaised": "Total funding raised (e.g., $10M Series A)"\n}`;
+                const prompt = `You are a high-fidelity startup intelligence parser. Synthesize a professional startup profile for "${searchName}".
+${context ? `Use the following search results as reference context:\n${context}` : 'No search results are available. Rely on your pre-trained general knowledge of the startup ecosystem to fill in accurate details.'}
+
+Return EXACTLY a valid JSON object matching the following structure and no other text:
+{
+  "name": "Startup Name (proper capitalization)",
+  "pitch": "A short, professional 1-2 sentence pitch highlighting value proposition",
+  "problem": "The key customer problem they address",
+  "solution": "Their technical or product solution",
+  "stage": "ideation" | "mvp" | "launched" | "scaling",
+  "industry": "Primary industry category (e.g. AI, Fintech, SaaS, HealthTech, ClimateTech)",
+  "geography": "Primary HQ country or city (e.g. India, USA, UK, Global)",
+  "teamStatus": "Brief summary of founder/team size or status",
+  "traction": "Key traction data like users, revenue range, or growth milestones if known",
+  "needs": "Standard capital, hiring, or partnership needs",
+  "techStack": "Primary programming language, cloud platform, or framework if known",
+  "websiteUrl": "Official website URL",
+  "revenue": "Annual revenue range/estimate (e.g., $1M-$5M)",
+  "fundingRaised": "Total funding raised (e.g., $10M Series A)"
+}`;
 
                 const response = await orchestrator.model.generateContent(prompt);
                 startupJsonStr = response.response.text();
@@ -1102,24 +1121,22 @@ function createApp(options = {}) {
             // Get local list
             let startups = await startupStore.listStartups({ limit: 100 });
 
-            if (industry) startups = startups.filter(s => (s.industry || '').toLowerCase().includes(industry.toLowerCase()));
-            if (stage) startups = startups.filter(s => (s.stage || '').toLowerCase() === stage.toLowerCase());
-            if (geography) startups = startups.filter(s => (s.geography || '').toLowerCase().includes(geography.toLowerCase()));
-
+            // Check if there is any local match by search query (ignoring stage/industry filters)
+            let hasLocalMatch = false;
             if (search) {
                 const q = search.toLowerCase().trim();
-                startups = startups.filter(s =>
+                hasLocalMatch = startups.some(s =>
                     (s.name || '').toLowerCase().includes(q) ||
                     (s.pitch || '').toLowerCase().includes(q)
                 );
             }
 
-            // Real-time lookup fallback: if no startups found locally, and a search query is provided
-            if (startups.length === 0 && search && search.trim().length >= 3) {
+            // Real-time lookup fallback: if no startups found locally across all stages, and a search query is provided
+            if (!hasLocalMatch && search && search.trim().length >= 3) {
                 try {
                     const seededStartup = await fetchAndSeedStartupFromWeb(search.trim(), orchestrator, startupStore, logger);
                     if (seededStartup) {
-                        startups = [seededStartup];
+                        startups.push(seededStartup);
 
                         // Broadcast real-time discovery notification to all connected clients
                         broadcastEvent('post_created', {
@@ -1137,6 +1154,18 @@ function createApp(options = {}) {
                     logger.warn(`[Realtime Explorer] Failed to dynamically seed startup for query "${search}":`, err.message);
                 }
             }
+
+            // Now apply filters (search, stage, industry, geography)
+            if (search) {
+                const q = search.toLowerCase().trim();
+                startups = startups.filter(s =>
+                    (s.name || '').toLowerCase().includes(q) ||
+                    (s.pitch || '').toLowerCase().includes(q)
+                );
+            }
+            if (industry) startups = startups.filter(s => (s.industry || '').toLowerCase().includes(industry.toLowerCase()));
+            if (stage) startups = startups.filter(s => (s.stage || '').toLowerCase() === stage.toLowerCase());
+            if (geography) startups = startups.filter(s => (s.geography || '').toLowerCase().includes(geography.toLowerCase()));
 
             const enriched = startups.map(s => {
                 let matchReason = null;
