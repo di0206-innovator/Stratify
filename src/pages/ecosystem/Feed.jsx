@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MessageSquare, ArrowRight, Share2, Award, Zap, Heart, CheckCircle2, ExternalLink, Sparkles } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import confetti from 'canvas-confetti';
+import useRealtime from '../../lib/useRealtime';
 
 export default function Feed({ user, founderProfile }) {
   const [posts, setPosts] = useState([]);
@@ -30,25 +31,61 @@ export default function Feed({ user, founderProfile }) {
 
   useEffect(() => {
     fetchPosts();
-
-    if (supabase) {
-      const channel = supabase
-        .channel('realtime-posts')
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'posts' },
-          (payload) => {
-            console.log('Realtime post payload received:', payload);
-            fetchPosts();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
   }, []);
+
+  useRealtime({
+    post_created: (newPost) => {
+      setPosts((prev) => {
+        if (prev.some((p) => p.id === newPost.id)) return prev;
+        return [newPost, ...prev];
+      });
+    },
+    post_clapped: ({ postId, claps }) => {
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p.id === postId) {
+            return {
+              ...p,
+              metadata: {
+                ...(p.metadata || {}),
+                claps
+              }
+            };
+          }
+          return p;
+        })
+      );
+    }
+  });
+
+  const handleClap = async (postId) => {
+    try {
+      setPosts((prev) =>
+        prev.map((p) => {
+          if (p.id === postId) {
+            return {
+              ...p,
+              metadata: {
+                ...(p.metadata || {}),
+                claps: (p.metadata?.claps || 0) + 1
+              }
+            };
+          }
+          return p;
+        })
+      );
+
+      confetti({
+        particleCount: 15,
+        spread: 30,
+        colors: ['#C8E64A', '#E11D48']
+      });
+
+      await fetch(`/api/posts/${postId}/clap`, { method: 'POST' });
+    } catch (e) {
+      console.error('Failed to register clap:', e);
+    }
+  };
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
@@ -323,9 +360,12 @@ export default function Feed({ user, founderProfile }) {
               {/* Interaction Details */}
               <div className="flex items-center justify-between pt-4 border-t border-gray-100 text-gray-400 select-none">
                 <div className="flex items-center gap-4">
-                  <button className="flex items-center gap-1 text-[10px] font-bold uppercase hover:text-black transition-colors cursor-pointer">
-                    <Heart size={14} className="hover:text-red-500" />
-                    <span>Clap</span>
+                  <button
+                    onClick={() => handleClap(post.id)}
+                    className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
+                  >
+                    <Heart size={14} className={post.metadata?.claps ? "fill-rose-500 text-rose-500" : "hover:text-rose-500"} />
+                    <span>Clap ({post.metadata?.claps || 0})</span>
                   </button>
                   <button className="flex items-center gap-1 text-[10px] font-bold uppercase hover:text-black transition-colors cursor-pointer">
                     <MessageSquare size={14} />

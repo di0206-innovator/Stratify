@@ -1,0 +1,16 @@
+{
+  "name": "Stratify",
+  "short_name": "Stratify",
+  "description": "Startup economy operating system for founders, investors, and institutions.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF9F6",
+  "theme_color": "#FAF9F6",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

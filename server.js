@@ -109,6 +109,28 @@ function createApp(options = {}) {
     const auth = createAuthMiddleware({ token: appConfig.apiAuthToken, authService });
     const optionalAuth = createOptionalAuthMiddleware({ token: appConfig.apiAuthToken, authService });
 
+    const realtimeClients = new Set();
+
+    function broadcastEvent(type, data, fromIpc = false) {
+        const payload = JSON.stringify({ type, data, timestamp: new Date().toISOString() });
+        for (const client of realtimeClients) {
+            try {
+                client.res.write(`data: ${payload}\n\n`);
+                if (typeof client.res.flush === 'function') {
+                    client.res.flush();
+                }
+            } catch (e) {
+                realtimeClients.delete(client);
+            }
+        }
+
+        if (!fromIpc && process.send) {
+            process.send({ type: 'cluster_broadcast', eventType: type, eventData: data });
+        }
+    }
+
+    app.broadcastEvent = broadcastEvent;
+
     // Use Redis rate limiter (distributed, shared across workers) when available
     const buildLimiter = (windowMs, max) => {
         if (USE_REDIS && createRedisRateLimiter) {
@@ -125,9 +147,20 @@ function createApp(options = {}) {
     app.set('trust proxy', true);
     app.use(compression());
     app.use(helmet({
+        crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+        referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+        hsts: appConfig.nodeEnv === 'production' ? {
+            maxAge: 31536000,
+            includeSubDomains: true,
+            preload: true
+        } : false,
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
+                baseUri: ["'self'"],
+                objectSrc: ["'none'"],
+                formAction: ["'self'"],
+                frameAncestors: ["'self'"],
                 scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://apis.google.com", "https://*.firebaseapp.com", "'unsafe-inline'"],
                 styleSrc: ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
                 fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
@@ -164,7 +197,17 @@ function createApp(options = {}) {
     }));
 
     app.use(express.json({ limit: appConfig.jsonBodyLimit }));
-    app.use(express.static(path.join(__dirname, 'dist')));
+    app.use(express.static(path.join(__dirname, 'dist'), {
+        extensions: ['html'],
+        maxAge: appConfig.nodeEnv === 'production' ? '1h' : 0,
+        setHeaders: (res, filePath) => {
+            if (/\.(js|css|png|jpg|jpeg|svg|webp|ico|woff2?)$/i.test(filePath)) {
+                res.setHeader('Cache-Control', appConfig.nodeEnv === 'production'
+                    ? 'public, max-age=31536000, immutable'
+                    : 'no-store');
+            }
+        }
+    }));
 
     app.get('/api/health', (req, res) => {
         res.json({
@@ -219,6 +262,39 @@ function createApp(options = {}) {
         } catch (error) {
             next(new HttpError(503, 'NOT_READY', 'Service dependencies are not ready.', { cause: error.message }));
         }
+    });
+
+    app.get('/api/realtime/stream', optionalAuth, (req, res) => {
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        res.setHeader('X-Accel-Buffering', 'no');
+        res.flushHeaders();
+
+        const client = { res, userId: req.user?.id || null };
+        realtimeClients.add(client);
+
+        res.write(`data: ${JSON.stringify({ type: 'connected', message: 'Stratify Realtime stream activated.' })}\n\n`);
+        if (typeof res.flush === 'function') {
+            res.flush();
+        }
+
+        const pingInterval = setInterval(() => {
+            try {
+                res.write(`data: ${JSON.stringify({ type: 'ping' })}\n\n`);
+                if (typeof res.flush === 'function') {
+                    res.flush();
+                }
+            } catch (err) {
+                clearInterval(pingInterval);
+                realtimeClients.delete(client);
+            }
+        }, 15000);
+
+        req.on('close', () => {
+            clearInterval(pingInterval);
+            realtimeClients.delete(client);
+        });
     });
 
     app.post('/api/auth/register', async (req, res, next) => {
@@ -1012,9 +1088,42 @@ function createApp(options = {}) {
                 });
             }
 
+            const postWithAuthor = {
+                ...saved,
+                startupName: startup ? startup.name : 'Independent Founder',
+                startupLogo: startup ? startup.logoUrl || startup.logo_url : null,
+                authorName: req.user.name || req.user.username || 'Founder'
+            };
+
+            broadcastEvent('post_created', postWithAuthor);
+
             res.status(201).json({ requestId: req.id, post: saved });
         } catch (error) {
             next(error);
+        }
+    });
+
+    // POST /api/posts/:id/clap
+    app.post('/api/posts/:id/clap', auth, async (req, res, next) => {
+        try {
+            const postId = req.params.id;
+            const post = await startupStore.getPost(postId);
+            if (!post) {
+                throw new HttpError(404, 'NOT_FOUND', 'Post not found.');
+            }
+            
+            const metadata = post.metadata || {};
+            const claps = (metadata.claps || 0) + 1;
+            
+            const updated = await startupStore.updatePost(postId, {
+                metadata: { claps }
+            });
+            
+            broadcastEvent('post_clapped', { postId, claps });
+            
+            res.json({ requestId: req.id, post: updated });
+        } catch (e) {
+            next(e);
         }
     });
 
@@ -1324,6 +1433,7 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
                 status: 'open',
                 submissions: []
             });
+            broadcastEvent('bounty_created', newItem);
             res.json({ requestId: req.id, bounty: newItem });
         } catch (e) {
             next(e);
@@ -1356,6 +1466,7 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
             // Let's assume we can add updateBounty to startupStore next.
             // For now, let's just write this to be clean, and we will add updateBounty to startupStore.
             const updated = await startupStore.updateBounty(bounty.id, { status: bounty.status, submissions: [...(bounty.submissions || []), submission] });
+            broadcastEvent('bounty_submitted', updated);
             res.json({ requestId: req.id, bounty: updated });
         } catch (e) {
             next(e);
@@ -1560,6 +1671,20 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
         app.signalMonitor = {
             stop() {},
             runSweep: async () => {}
+        };
+    }
+
+    if (!options.disableBackgroundMonitor) {
+        app.realtimeSimulator = startBackgroundActivitySimulator({
+            startupStore,
+            signalStore,
+            orchestrator,
+            logger,
+            broadcastEvent
+        });
+    } else {
+        app.realtimeSimulator = {
+            stop() {}
         };
     }
 
@@ -1897,6 +2022,149 @@ function startBackgroundSignalMonitor({ authStore, reportStore, orchestrator, si
     };
 }
 
+function startBackgroundActivitySimulator({ startupStore, signalStore, orchestrator, logger, broadcastEvent }) {
+    const intervalMs = 25000;
+    
+    const NEWS_POOL = [
+        "Stripe acquires Bridge for $1.1B to scale stablecoin payments globally.",
+        "Perplexity AI raises $250M at an $8B valuation to accelerate search features.",
+        "Mistral AI releases Codestral Mamba, a new 7B parameter open-weight model.",
+        "Scale AI valuation reaches $13.8B after closing a $1B Series F round.",
+        "Anthropic launches Claude 3.5 Sonnet, demonstrating state-of-the-art coding capabilities.",
+        "Waymo raises $5.6B in Series C funding to expand autonomous robotaxi service areas.",
+        "Vercel announces v0.dev enterprise version for automated UI system generation.",
+        "X.AI raises $6B Series B to build massive GPU compute cluster Colossus.",
+        "Liquid AI introduces Liquid Neural Networks for sequential time-series processing.",
+        "Physical Intelligence raises $400M from Bezos and OpenAI to build universal robot brains."
+    ];
+
+    const STARTUPS = [
+        { name: "Cognito AI", founder: "Akash" },
+        { name: "BioFlow Labs", founder: "Priya" },
+        { name: "FinGlide", founder: "Sarah" },
+        { name: "AgriLedger", founder: "David" },
+        { name: "CyberShield", founder: "Kenji" },
+        { name: "HealthSync", founder: "Liam" }
+    ];
+
+    const MILESTONES = [
+        "Shipped the first 3 lines of cold brew concentrates to 20 test users in Bengaluru today!",
+        "Completed migrating cap table planner to use advisory lock protections. (+15 score)",
+        "Logged v0.8.2 beta build for our clinical data processing pipeline. (+15 score)",
+        "Onboarded 5 hospitals for our trial clinic portal in Mumbai.",
+        "Finished UPI Auto-pay sandbox integration for subscription flows.",
+        "Optimized Postgres vector similarity search indexes, cutting response times in half.",
+        "Closed pilot deal with 3 mid-sized fintechs for real-time compliance audits.",
+        "Launched the public alpha of our AI legal counsel assistant. 300 signups in 2 hours!",
+        "Designed an automated runway simulator using Google Gemini 2.5."
+    ];
+
+    const BOUNTIES = [
+        { title: "Optimize Postgres indexing for cap table queries", desc: "Our cap table query takes over 200ms on 10k rows. Optimize indices or optimize query structure.", pts: 20, reward: "$150" },
+        { title: "Write a script to parse FDA medical target approvals", desc: "Need a simple node.js parser that calls openFDA and exports a CSV of drug targets.", pts: 30, reward: "$250" },
+        { title: "Integrate TailwindCSS glassmorphism styling into onboarding modals", desc: "Refactor onboarding UI with premium backdrop-filters, custom borders and transitions.", pts: 15, reward: "$100" },
+        { title: "Build an automated daily backlink tracker for SEO pages", desc: "Write a background cron job that fetches search console positions and maps backlinks.", pts: 25, reward: "$200" },
+        { title: "Fix webpack module federation bug in dashboard builder", desc: "Resolve asynchronous chunk loading failures when pulling shared component chunks.", pts: 40, reward: "$300" }
+    ];
+
+    const SIGNALS = [
+        { type: "COMPETITOR ALERT", title: "New competitor raises $8M Seed in Berlin", desc: "A Berlin-based competitor closed a seed round to build compliance automation. High sector pressure." },
+        { type: "REGULATION ALERT", title: "Reserve Bank mandates strict recurring pay limits", desc: "New mandate requires multi-factor approval for all automated subscriptions above $200. High tech impact." },
+        { type: "ECOSYSTEM ALERT", title: "Techstars launches new climate-fintech accelerator", desc: "A 3-month equity program in Singapore with $120k initial check. Applications open next week." },
+        { type: "MARKET SHIFT", title: "Valuations in SaaS stabilize at 10-12x ARR", desc: "Recent public multiples indicate a market rebound for early-stage software startups raising Series A." }
+    ];
+
+    async function runSimulation() {
+        try {
+            const dice = Math.random();
+            if (dice < 0.3) {
+                const newsIdx = Math.floor(Math.random() * NEWS_POOL.length);
+                const content = NEWS_POOL[newsIdx];
+                const post = {
+                    id: 'news-' + crypto.randomUUID(),
+                    startupId: null,
+                    authorId: 'system-news',
+                    content,
+                    type: 'launch',
+                    metadata: { isSystemNews: true },
+                    authorName: 'Ecosystem Wire'
+                };
+                await startupStore.createPost(post);
+                broadcastEvent('post_created', {
+                    ...post,
+                    startupName: 'Global Ecosystem',
+                    startupLogo: null,
+                    authorName: 'Ecosystem Wire'
+                });
+                logger.info(`[Simulator] Broadcasted news update: ${content}`);
+            } else if (dice < 0.6) {
+                const st = STARTUPS[Math.floor(Math.random() * STARTUPS.length)];
+                const ml = MILESTONES[Math.floor(Math.random() * MILESTONES.length)];
+                const post = {
+                    id: 'post-' + crypto.randomUUID(),
+                    startupId: null,
+                    authorId: 'simulated-' + st.founder.toLowerCase(),
+                    content: ml,
+                    type: Math.random() > 0.4 ? 'milestone' : 'update',
+                    metadata: { isSimulated: true },
+                    authorName: st.founder
+                };
+                await startupStore.createPost(post);
+                broadcastEvent('post_created', {
+                    ...post,
+                    startupName: st.name,
+                    startupLogo: null,
+                    authorName: st.founder
+                });
+                logger.info(`[Simulator] Broadcasted founder milestone: ${st.founder} (${st.name})`);
+            } else if (dice < 0.8) {
+                const b = BOUNTIES[Math.floor(Math.random() * BOUNTIES.length)];
+                const bounty = {
+                    id: 'bounty-' + crypto.randomUUID(),
+                    startupId: 'system-bounties',
+                    title: b.title,
+                    description: b.desc,
+                    points: b.pts,
+                    reward: b.reward,
+                    status: 'open',
+                    submissions: []
+                };
+                await startupStore.createBounty(bounty);
+                broadcastEvent('bounty_created', bounty);
+                logger.info(`[Simulator] Broadcasted new bounty: ${b.title}`);
+            } else {
+                const s = SIGNALS[Math.floor(Math.random() * SIGNALS.length)];
+                const signal = {
+                    type: s.type,
+                    title: s.title,
+                    description: s.desc,
+                    impact: Math.random() > 0.5 ? 'High' : 'Medium',
+                    sentiment: Math.random() > 0.5 ? 'Positive' : 'Negative',
+                    source: { title: 'Ecosystem Wire', url: '#' }
+                };
+                broadcastEvent('signal_created', signal);
+                logger.info(`[Simulator] Broadcasted market signal: ${s.title}`);
+            }
+        } catch (err) {
+            logger.error('[Simulator] Simulation cycle failed:', err.message);
+        }
+    }
+
+    const startupTimer = setTimeout(() => {
+        runSimulation().catch(e => logger.error('Initial simulation run failed', e));
+    }, 3000);
+
+    const intervalId = setInterval(runSimulation, intervalMs);
+
+    return {
+        stop() {
+            clearTimeout(startupTimer);
+            clearInterval(intervalId);
+            logger.info('Background activity simulator stopped.');
+        }
+    };
+}
+
 if (require.main === module) {
     const logger = createLogger({ env: config.nodeEnv });
     const app = createApp({ logger });
@@ -1921,6 +2189,7 @@ if (require.main === module) {
     const shutdown = async (signal) => {
         logger.info('Shutdown signal received', { signal, pid: process.pid });
         if (app.signalMonitor) app.signalMonitor.stop();
+        if (app.realtimeSimulator) app.realtimeSimulator.stop();
 
         server.close(async () => {
             logger.info('HTTP server closed');
@@ -1948,6 +2217,9 @@ if (require.main === module) {
     // Cluster worker shutdown support
     process.on('message', (msg) => {
         if (msg === 'shutdown') shutdown('cluster');
+        if (msg && msg.type === 'cluster_broadcast') {
+            app.broadcastEvent(msg.eventType, msg.eventData, true);
+        }
     });
 
     process.on('SIGINT',  () => shutdown('SIGINT'));

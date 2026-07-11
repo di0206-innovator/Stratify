@@ -3,6 +3,7 @@ import { Cpu, ExternalLink, CheckCircle, Clock, RefreshCw } from 'lucide-react';
 import BentoCard from '../../components/BentoCard';
 import { supabase } from '../../lib/supabase';
 import confetti from 'canvas-confetti';
+import useRealtime from '../../lib/useRealtime';
 
 export default function BountyBoard({ founderProfile, user }) {
   const [bounties, setBounties] = useState([]);
@@ -38,25 +39,21 @@ export default function BountyBoard({ founderProfile, user }) {
 
   useEffect(() => {
     fetchBounties();
-
-    if (supabase) {
-      const channel = supabase
-        .channel('realtime-bounties')
-        .on(
-          'postgres_changes',
-          { event: '*', schema: 'public', table: 'bounties' },
-          (payload) => {
-            console.log('Realtime bounty payload received:', payload);
-            fetchBounties();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
   }, []);
+
+  useRealtime({
+    bounty_created: (newBounty) => {
+      setBounties((prev) => {
+        if (prev.some((b) => b.id === newBounty.id)) return prev;
+        return [newBounty, ...prev];
+      });
+    },
+    bounty_submitted: (updatedBounty) => {
+      setBounties((prev) =>
+        prev.map((b) => (b.id === updatedBounty.id ? updatedBounty : b))
+      );
+    }
+  });
 
   const handleCreateBounty = async (e) => {
     e.preventDefault();

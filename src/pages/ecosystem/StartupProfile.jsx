@@ -15,8 +15,7 @@ export default function StartupProfile() {
   const [journey, setJourney] = useState(null);
   const [journeyLoading, setJourneyLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchJourney = async () => {
+  const fetchJourney = async () => {
     setJourneyLoading(true);
     try {
       const res = await fetch(`/api/startups/${id}/journey`, { method: 'POST' });
@@ -33,7 +32,8 @@ export default function StartupProfile() {
     }
   };
 
-  const fetchData = async () => {
+  useEffect(() => {
+    const fetchData = async () => {
       try {
         const res = await fetch(`/api/startups/${id}`);
         let matchedStartup = null;
@@ -282,7 +282,7 @@ export default function StartupProfile() {
                   Generating intelligence brief...
                 </div>
               ) : journey ? (
-                <div dangerouslySetInnerHTML={{ __html: journey.replace(/\n/g, '<br/>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                <div>{renderJourney(journey)}</div>
               ) : (
                 <p className="text-gray-400 italic">Click generate to analyze this startup's founding story, growth, and market potential.</p>
               )}
@@ -458,4 +458,38 @@ export default function StartupProfile() {
       </div>
     </div>
   );
+}
+
+function renderJourney(content) {
+  return String(content || '')
+    .split('\n')
+    .filter(Boolean)
+    .map((line, index) => {
+      const segments = [];
+      const pattern = /\*\*(.*?)\*\*/g;
+      let lastIndex = 0;
+      let match;
+
+      while ((match = pattern.exec(line)) !== null) {
+        if (match.index > lastIndex) {
+          segments.push(line.slice(lastIndex, match.index));
+        }
+        segments.push(
+          <strong key={`strong-${index}-${match.index}`} className="font-semibold text-gray-900">
+            {match[1]}
+          </strong>
+        );
+        lastIndex = match.index + match[0].length;
+      }
+
+      if (lastIndex < line.length) {
+        segments.push(line.slice(lastIndex));
+      }
+
+      return (
+        <p key={`journey-line-${index}`} className="mb-3 last:mb-0">
+          {segments.length > 0 ? segments : line}
+        </p>
+      );
+    });
 }

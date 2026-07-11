@@ -1,13 +1,15 @@
 import React from 'react';
 import { ArrowRight, ArrowUpRight, Check, Network, Radio, Brain, FileText, DollarSign, TrendingUp, BarChart3, Users, Building2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import StartupGraph from '../../components/StartupGraph';
 import Footer from '../../components/Footer';
 
 export default function LandingPage({ openAuthModal, user }) {
+  const navigate = useNavigate();
+
   const handleCTA = () => {
     if (user) {
-      window.location.href = '/dashboard';
+      navigate('/dashboard');
     } else {
       openAuthModal();
     }
@@ -19,8 +21,8 @@ export default function LandingPage({ openAuthModal, user }) {
       {/* ════════════════════════════════════════════════════════════
           SECTION 1: Marketing Navigation
           ════════════════════════════════════════════════════════════ */}
-      <nav className="w-full sticky top-0 z-50 bg-[#FAF9F6]/90 backdrop-blur-md border-b border-gray-200/60">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <nav className="w-full sticky top-0 z-50 bg-[#FAF9F6]/90 backdrop-blur-md border-b border-gray-200/60" aria-label="Marketing navigation">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 min-h-16 py-3 flex flex-wrap items-center justify-between gap-4">
           {/* Brand */}
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-[#1A1A1A] flex items-center justify-center text-white font-outfit font-black text-base">
@@ -41,7 +43,7 @@ export default function LandingPage({ openAuthModal, user }) {
           </div>
 
           {/* Auth */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 ml-auto">
             {user ? (
               <Link
                 to="/dashboard"
@@ -75,7 +77,7 @@ export default function LandingPage({ openAuthModal, user }) {
       {/* ════════════════════════════════════════════════════════════
           SECTION 2: Hero
           ════════════════════════════════════════════════════════════ */}
-      <section className="max-w-6xl mx-auto px-6 pt-20 md:pt-28 pb-20">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 md:pt-28 pb-16 md:pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left: Copy */}
           <div className="animate-fade-in-up">
@@ -123,7 +125,7 @@ export default function LandingPage({ openAuthModal, user }) {
             </div>
 
             {/* Stats strip */}
-            <div className="flex items-center gap-10 md:gap-14">
+            <div className="flex flex-wrap items-center gap-8 md:gap-14">
               <div>
                 <span className="block font-outfit font-black text-2xl text-[#111]">2,400+</span>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400 mt-0.5 block">startups mapped</span>

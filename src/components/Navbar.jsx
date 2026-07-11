@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 export default function Navbar({ founderProfile, user, setUser, openAuthModal, theme, setTheme }) {
   const location = useLocation();
   const [activeDropdown, setActiveDropdown] = React.useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const email = user?.email ? user.email.toLowerCase() : '';
   const isAdmin = user && (
@@ -22,6 +23,23 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
     };
     window.addEventListener('click', handleOutsideClick);
     return () => window.removeEventListener('click', handleOutsideClick);
+  }, []);
+
+  React.useEffect(() => {
+    setActiveDropdown(null);
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  React.useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setActiveDropdown(null);
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
   }, []);
 
   const getNavItems = () => {
@@ -99,8 +117,8 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
   };
 
   return (
-    <header className="w-full bg-[#FAF9F6] border-b border-gray-200 select-none sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
+    <header className="w-full bg-[#FAF9F6] border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-16 py-3 flex flex-wrap items-center justify-between gap-4">
         {/* Brand */}
         <Link to="/dashboard" className="flex items-center gap-2.5 flex-shrink-0 cursor-pointer">
           <div className="w-7 h-7 rounded-lg bg-[#1A1A1A] flex items-center justify-center text-white font-outfit font-black text-sm">
@@ -114,15 +132,30 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           </span>
         </Link>
 
+        <button
+          type="button"
+          className="inline-flex md:hidden items-center rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-700"
+          onClick={() => setIsMobileMenuOpen((value) => !value)}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="primary-navigation"
+          aria-label="Toggle navigation menu"
+        >
+          Menu
+        </button>
+
         {/* Navigation Tabs */}
-        <nav className="flex items-center gap-1 overflow-x-auto hide-scrollbar flex-1 justify-center">
+        <nav
+          id="primary-navigation"
+          aria-label="Primary navigation"
+          className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-1 overflow-x-auto hide-scrollbar md:flex-1 md:justify-center order-3 md:order-none`}
+        >
           {activeCoreNavItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 ${
+                className={`px-3 py-2 text-left md:text-center text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 ${
                   isActive
                     ? 'text-black border-black font-black'
                     : 'text-gray-500 hover:text-black border-transparent'
@@ -137,10 +170,13 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           {executionItems.length > 0 && (
             <div className="relative">
               <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   setActiveDropdown(activeDropdown === 'execution' ? null : 'execution');
                 }}
+                aria-expanded={activeDropdown === 'execution'}
+                aria-haspopup="menu"
                 className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1 cursor-pointer ${
                   executionItems.some(item => location.pathname === item.path)
                     ? 'text-black border-black font-black'
@@ -151,7 +187,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 <span className="text-[9px]">▼</span>
               </button>
               {activeDropdown === 'execution' && (
-                <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md">
+                <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md" role="menu">
                   {executionItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (
@@ -175,10 +211,13 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           {/* Memory & Intel Dropdown */}
           <div className="relative">
             <button
+                type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 setActiveDropdown(activeDropdown === 'intel' ? null : 'intel');
               }}
+              aria-expanded={activeDropdown === 'intel'}
+              aria-haspopup="menu"
               className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1 cursor-pointer ${
                 intelItems.some(item => location.pathname === item.path)
                   ? 'text-black border-black font-black'
@@ -189,7 +228,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               <span className="text-[9px]">▼</span>
             </button>
             {activeDropdown === 'intel' && (
-              <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md">
+              <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md" role="menu">
                 {intelItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   return (
@@ -211,7 +250,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
         </nav>
 
         {/* Profile & Auth Status */}
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto items-center justify-between md:justify-end gap-3 flex-shrink-0 order-4 md:order-none`}>
           {founderProfile ? (
             <Link
               to="/onboarding"

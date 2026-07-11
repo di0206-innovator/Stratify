@@ -50,6 +50,17 @@ function spawnWorkers() {
         spawnWorker();
     }
 
+    cluster.on('message', (worker, msg) => {
+        if (msg && msg.type === 'cluster_broadcast') {
+            const workers = Object.values(cluster.workers);
+            workers.forEach(w => {
+                if (w && w.process.pid !== worker.process.pid) {
+                    w.send(msg);
+                }
+            });
+        }
+    });
+
     cluster.on('exit', (worker, code, signal) => {
         const reason = signal || (code !== 0 ? `exit code ${code}` : 'normal exit');
         logger.warn(`[Cluster] Worker ${worker.process.pid} died (${reason}). Restarting…`);

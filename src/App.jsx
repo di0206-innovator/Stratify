@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import BetaBanner from './components/BetaBanner';
 import AuthModal from './components/AuthModal';
+import Seo from './components/Seo';
+import RealtimeTicker from './components/RealtimeTicker';
 import { supabase } from './lib/supabase';
 
 // Lazy load pages for maximum efficiency and modular bundle sizes
@@ -37,7 +39,21 @@ const PageFallback = () => (
 );
 
 // Intercept window.fetch to automatically append the Supabase session token if authenticated
-const originalFetch = window.fetch;
+const originalFetch = window.fetch.bind(window);
+
+function shouldAttachAuth(url) {
+ const requestUrl = typeof url === 'string' ? url : url?.url;
+ if (!requestUrl) return false;
+ if (requestUrl.startsWith('/api/')) return true;
+
+ try {
+ const parsed = new URL(requestUrl, window.location.origin);
+ return parsed.origin === window.location.origin && parsed.pathname.startsWith('/api/');
+ } catch {
+ return false;
+ }
+}
+
 window.fetch = async (url, options = {}) => {
  let token = null;
 
@@ -50,7 +66,7 @@ window.fetch = async (url, options = {}) => {
  }
  }
 
- if (token) {
+ if (token && shouldAttachAuth(url)) {
  if (!options.headers) {
  options.headers = {};
  }
@@ -92,7 +108,6 @@ export default function App() {
  useEffect(() => {
  document.documentElement.setAttribute('data-theme', theme);
  localStorage.setItem('stratify_theme', theme);
- document.title ="Stratify | Startup Economy Operating System";
  }, [theme]);
 
  const openAuthModal = () => setIsAuthModalOpen(true);
@@ -240,6 +255,7 @@ function AppContent({
 }) {
  const location = useLocation();
  const isPublicRoute = location.pathname === '/' || location.pathname.startsWith('/brief/');
+ const seo = getSeoForPath(location.pathname);
 
  if (!user && !isPublicRoute) {
  return <Navigate to="/" replace />;
@@ -251,6 +267,13 @@ function AppContent({
 
  return (
  <>
+ <Seo {...seo} path={location.pathname} />
+ <a
+   href="#main-content"
+   className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[120] focus:rounded-md focus:bg-black focus:px-4 focus:py-2 focus:text-white"
+ >
+   Skip to main content
+ </a>
  <BetaBanner />
 
  {/* Floating global Beta pill at top right (hidden on mobile, stays out of way of header) */}
@@ -261,12 +284,15 @@ function AppContent({
 
  <div className="min-h-screen bg-canvas flex flex-col w-full text-gray-900 font-inter">
  <div className="flex-1 flex flex-col">
- {location.pathname !== '/' && (
-   <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} theme={theme} setTheme={setTheme} />
- )}
+  {location.pathname !== '/' && (
+    <>
+      <RealtimeTicker />
+      <Navbar founderProfile={founderProfile} user={user} setUser={setUser} openAuthModal={openAuthModal} theme={theme} setTheme={setTheme} />
+    </>
+  )}
 
  {/* Main Pages */}
- <main className="flex-1 pb-16 relative z-10">
+ <main id="main-content" className="flex-1 pb-16 relative z-10">
  <Suspense fallback={<PageFallback />}>
  <Routes>
  {/* Public Landing Page */}
@@ -416,4 +442,53 @@ function AppContent({
  />
  </>
 );
+}
+
+function getSeoForPath(pathname) {
+ const defaults = {
+ title: 'Stratify | Startup Economy Operating System',
+ description: 'Stratify connects founders, investors, and startup institutions in one AI-powered operating system for execution, intelligence, and ecosystem visibility.',
+ robots: 'index, follow',
+ };
+
+ if (pathname === '/') {
+ return defaults;
+ }
+
+ if (pathname.startsWith('/brief/')) {
+ return {
+ ...defaults,
+ title: 'Stratify Brief | Shared Startup Intelligence',
+ description: 'View a shared Stratify brief with startup intelligence, context, and supporting analysis.',
+ };
+ }
+
+ if (pathname === '/about') {
+ return {
+ ...defaults,
+ title: 'About Stratify | Startup Economy Operating System',
+ description: 'Learn about Stratify and its mission to build the operating system for startup ecosystems.',
+ };
+ }
+
+ if (pathname === '/privacy') {
+ return {
+ ...defaults,
+ title: 'Privacy Policy | Stratify',
+ description: 'Read how Stratify handles data, privacy, and platform protections.',
+ };
+ }
+
+ if (pathname === '/terms') {
+ return {
+ ...defaults,
+ title: 'Terms of Service | Stratify',
+ description: 'Review the terms governing access to and use of the Stratify platform.',
+ };
+ }
+
+ return {
+ ...defaults,
+ robots: 'noindex, nofollow',
+ };
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Radio, AlertCircle, Compass, Search, RefreshCw, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import AuthGate from '../../components/AuthGate';
+import useRealtime from '../../lib/useRealtime';
 
 export default function Signals({ founderProfile, user, openAuthModal }) {
   const [signals, setSignals] = useState([]);
@@ -66,6 +67,23 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
   useEffect(() => {
     fetchSignals();
   }, [founderProfile]);
+
+  useRealtime({
+    signal_created: (newSignal) => {
+      setSignals((prev) => {
+        if (prev.some((s) => s.title === newSignal.title)) return prev;
+        const formatted = {
+          id: 'sig-' + Date.now(),
+          createdAt: new Date().toISOString(),
+          relevance: newSignal.impact?.toLowerCase() || 'medium',
+          isRead: false,
+          ...newSignal
+        };
+        return [formatted, ...prev];
+      });
+      setMode('live');
+    }
+  });
 
   const filteredSignals = signals.filter((sig) => {
     const matchesSearch = 
