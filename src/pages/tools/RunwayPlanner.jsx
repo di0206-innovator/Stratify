@@ -40,14 +40,18 @@ export default function RunwayPlanner({ user, openAuthModal }) {
         })
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
-        const data = await res.json();
         const sim = data.simulation;
-        
-        setCash(prev => Math.max(0, prev + sim.cashDelta));
-        setBurn(prev => Math.max(0, prev + sim.burnDelta));
-        setGrowth(prev => Math.max(0, Math.min(100, prev + sim.growthDelta)));
-        setSimulationLog(sim.explanation);
+        if (!sim) {
+          setSimulationLog('Simulation returned empty result. Please try again.');
+          return;
+        }
+        setCash(prev => Math.max(0, prev + (sim.cashDelta || 0)));
+        setBurn(prev => Math.max(0, prev + (sim.burnDelta || 0)));
+        setGrowth(prev => Math.max(0, Math.min(100, prev + (sim.growthDelta || 0))));
+        setSimulationLog(sim.explanation || 'Simulation applied successfully.');
         setScenarioInput('');
 
         confetti({
@@ -56,10 +60,11 @@ export default function RunwayPlanner({ user, openAuthModal }) {
           colors: ['#C8E64A', '#1A1A1A', '#FAF9F6']
         });
       } else {
-        setSimulationLog('Simulation failed. Please try again.');
+        const msg = data?.error?.message || data?.message || `Error ${res.status}: Simulation failed.`;
+        setSimulationLog(msg);
       }
     } catch (err) {
-      setSimulationLog('Failed to connect to simulation engine.');
+      setSimulationLog('Network error — could not reach the simulation engine. Check your connection.');
     } finally {
       setSimulating(false);
     }
@@ -333,9 +338,9 @@ export default function RunwayPlanner({ user, openAuthModal }) {
             </BentoCard>
 
             {/* Widget 2: Key Strategic Indicators */}
-            <BentoCard title="Key Strategic Runway Indicators" badge="Survival Metrics" badgeColor="bg-black" className="flex-1">
-              <div className="grid grid-cols-2 gap-4 h-full">
-                <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl flex flex-col justify-between">
+            <BentoCard title="Key Strategic Runway Indicators" badge="Survival Metrics" badgeColor="bg-black">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl flex flex-col justify-between min-h-[100px]">
                   <span className="text-[9px] font-bold uppercase text-gray-450 tracking-wide">Survival Runway</span>
                   <div className="mt-3">
                     <h3 className="text-3xl font-outfit font-black tracking-tight">
@@ -345,7 +350,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
                   </div>
                 </div>
 
-                <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl flex flex-col justify-between">
+                <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl flex flex-col justify-between min-h-[100px]">
                   <span className="text-[9px] font-bold uppercase text-gray-450 tracking-wide">Net Monthly Burn</span>
                   <div className="mt-3">
                     <h3 className={`text-2xl font-outfit font-black tracking-tight ${burn - revenue > 0 ? 'text-red-500' : 'text-green-600'}`}>
@@ -355,7 +360,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
                   </div>
                 </div>
 
-                <div className="border border-gray-200 p-4 bg-[#FAF9F6] col-span-2 rounded-xl flex flex-col justify-between">
+                <div className="border border-gray-200 p-4 bg-[#FAF9F6] col-span-2 rounded-xl flex flex-col justify-between min-h-[80px]">
                   <span className="text-[9px] font-bold uppercase text-gray-450 tracking-wide">Cash Flow Posture</span>
                   <div className="mt-3">
                     <h4 className="text-sm font-bold uppercase text-black">

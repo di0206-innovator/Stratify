@@ -13,3 +13,5 @@ yarn-error.log*
 out/
 scratch/
 *.log
+.vercel
+.env*

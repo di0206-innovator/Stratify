@@ -148,7 +148,7 @@ export default function EquityPlanner() {
   const unvestedPercent = 100 - vestedPercent;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 pb-32 animate-fade-in text-[#111]">
+    <div className="max-w-6xl mx-auto px-6 py-10 pb-8 animate-fade-in text-[#111]">
       <div className="os-card bg-[#1A1A1A] text-white p-8 sm:p-12 mb-8 relative overflow-hidden select-none">
         <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
         <div className="relative z-10 space-y-2.5 text-left">

@@ -1031,6 +1031,20 @@ function createApp(options = {}) {
         }
     });
 
+function getFallbackJourneyText(startup) {
+    return `### The Journey of ${startup.name}
+
+${startup.name} is a pioneering force in the **${startup.industry || 'technology'}** sector, driven by a mission to address critical market inefficiencies. The company was founded on the vision of bridging gaps and delivering state-of-the-art solutions to modern operational challenges.
+
+#### Solving the Core Challenge
+The genesis of ${startup.name} stems from a clear problem statement: *"${startup.pitch || 'innovating in the space'}"*. Rather than relying on standard solutions, the team developed an advanced approach to streamline workflows and optimize efficiency for their users.
+
+#### Scaling and Future Outlook
+As ${startup.name} continues to expand its reach, the future holds immense potential. The roadmap focuses on expanding product capabilities, driving user adoption, and refining the underlying platform architecture. By maintaining a relentless focus on value creation, ${startup.name} is poised to establish a lasting impact in the industry.
+
+For more information, visit their website: [${startup.websiteUrl || 'Official Website'}](${startup.websiteUrl || '#'})`;
+}
+
     // Generate dynamic journey article
     app.post('/api/startups/:id/journey', optionalAuth, async (req, res, next) => {
         try {
@@ -1039,8 +1053,19 @@ function createApp(options = {}) {
                 throw new HttpError(404, 'NOT_FOUND', 'Startup not found.');
             }
             const prompt = `Write a compelling, journalistic article (in markdown) detailing the journey of the startup "${startup.name}". Industry: ${startup.industry}. Pitch: ${startup.pitch}. Focus on their founding story, growth, and future potential. Keep it engaging, around 400 words. Do not include placeholders, invent plausible narrative based on typical tech startup growth in their sector if details are sparse. End the article with a clear call-to-action containing their website link: ${startup.websiteUrl || 'Not available'}`;
-            const response = await orchestrator.model.generateContent(prompt);
-            const journeyText = response.response.text();
+            
+            let journeyText;
+            if (orchestrator.model) {
+                try {
+                    const response = await orchestrator.model.generateContent(prompt);
+                    journeyText = response.response.text();
+                } catch (err) {
+                    console.warn('Failed to generate journey using Gemini, falling back:', err.message);
+                    journeyText = getFallbackJourneyText(startup);
+                }
+            } else {
+                journeyText = getFallbackJourneyText(startup);
+            }
             res.json({ requestId: req.id, journey: journeyText });
         } catch (error) {
             next(error);
@@ -1050,9 +1075,21 @@ function createApp(options = {}) {
     // ── Decisions (Founder Memory) ──
     app.post('/api/decisions', auth, async (req, res, next) => {
         try {
-            const startup = await startupStore.getStartupByOwner(req.user.id);
+            let startup = await startupStore.getStartupByOwner(req.user.id);
+            // Auto-create a stub startup if none exists so Memory works standalone
             if (!startup) {
-                throw new HttpError(404, 'NOT_FOUND', 'Register a startup first.');
+                const userName = req.user.name || req.user.username || req.user.email?.split('@')[0] || 'Founder';
+                startup = {
+                    id: crypto.randomUUID(),
+                    ownerId: req.user.id,
+                    name: `${userName}'s Startup`,
+                    pitch: '', problem: '', solution: '',
+                    stage: 'idea', industry: '', geography: '',
+                    teamStatus: 'solo', traction: '', needs: '',
+                    techStack: '', score: 10,
+                    deckUrl: '', websiteUrl: '', revenue: '', fundingRaised: ''
+                };
+                await startupStore.saveStartup(startup);
             }
             const body = req.body || {};
             if (!body.title) {
@@ -1374,7 +1411,7 @@ Return EXACTLY a valid JSON object matching the following structure and no other
                 }
             }
 
-            if (trimmedSearch.length >= 2) {
+            if (trimmedSearch.length >= 2 && appConfig.nodeEnv !== 'test') {
                 try {
                     const webResults = await searchStartupCompaniesOnWeb(trimmedSearch, { limit: Math.min(limit, 8) });
                     for (const webStartup of webResults) {
@@ -1515,7 +1552,23 @@ Return EXACTLY a valid JSON object matching the following structure and no other
                 throw new HttpError(400, 'MISSING_FIELD', 'Content is required.');
             }
 
-            const startup = await startupStore.getStartupByOwner(req.user.id);
+            let startup = await startupStore.getStartupByOwner(req.user.id);
+            // Auto-create stub startup so posts always sync to memory
+            if (!startup) {
+                const userName = req.user.name || req.user.username || req.user.email?.split('@')[0] || 'Founder';
+                startup = {
+                    id: crypto.randomUUID(),
+                    ownerId: req.user.id,
+                    name: `${userName}'s Startup`,
+                    pitch: '', problem: '', solution: '',
+                    stage: 'idea', industry: '', geography: '',
+                    teamStatus: 'solo', traction: '', needs: '',
+                    techStack: '', score: 10,
+                    deckUrl: '', websiteUrl: '', revenue: '', fundingRaised: ''
+                };
+                await startupStore.saveStartup(startup);
+            }
+
             const post = {
                 id: crypto.randomUUID(),
                 startupId: startup ? startup.id : null,
@@ -1556,6 +1609,22 @@ Return EXACTLY a valid JSON object matching the following structure and no other
                     title: body.type === 'milestone' ? 'Milestone achieved' : body.type === 'launch' ? 'Product launched' : 'Update posted',
                     description: body.content.slice(0, 200),
                     metadata: { postId: post.id, powUrl: body.metadata?.powUrl || null }
+                });
+
+                // ── AUTO-SYNC to Founder Memory (Intel & Memory) ──
+                // Every founder post is also recorded as a decision/log entry
+                const decisionTitle = body.type === 'milestone' ? `🏆 Milestone: ${body.content.slice(0, 80)}` :
+                                      body.type === 'launch'    ? `🚀 Launch: ${body.content.slice(0, 80)}` :
+                                      body.type === 'update'    ? `📝 Update: ${body.content.slice(0, 80)}` :
+                                                                  `💬 Feed Post: ${body.content.slice(0, 80)}`;
+                await startupStore.createDecision({
+                    id: crypto.randomUUID(),
+                    startupId: startup.id,
+                    authorId: req.user.id,
+                    title: decisionTitle,
+                    context: body.content,
+                    outcome: body.metadata?.powUrl ? `Proof of Work: ${body.metadata.powUrl}` : '',
+                    status: (body.type === 'milestone' || body.type === 'launch') ? 'validated' : 'active'
                 });
             }
 
@@ -1609,10 +1678,14 @@ Return EXACTLY a valid JSON object matching the following structure and no other
         }
     });
 
-    // Runway AI Scenario Simulator
-    app.post('/api/runway/simulate', auth, async (req, res, next) => {
+    // Runway AI Scenario Simulator (optionalAuth — simulation is a stateless calculation, no user data exposed)
+    app.post('/api/runway/simulate', optionalAuth, async (req, res, next) => {
         try {
-            const { cash, burn, revenue, growth, scenarioText } = req.body || {};
+            const { scenarioText } = req.body || {};
+            const cash = Number(req.body?.cash || 0);
+            const burn = Number(req.body?.burn || 0);
+            const revenue = Number(req.body?.revenue || 0);
+            const growth = Number(req.body?.growth || 0);
             if (!scenarioText) {
                 throw new HttpError(400, 'MISSING_FIELD', 'Scenario text is required.');
             }
@@ -1657,7 +1730,8 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
                 result = fallbackSimulate(scenarioText, cash, burn, revenue, growth);
             }
 
-            // Log to timeline
+            // Log to timeline (only if user is authenticated)
+            if (req.user) {
             try {
                 const startup = await startupStore.getStartupByOwner(req.user.id);
                 if (startup) {
@@ -1673,6 +1747,7 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
                 }
             } catch (err) {
                 console.warn('Failed to log runway simulation timeline event:', err.message);
+            }
             }
 
             res.json({ requestId: req.id, simulation: result });
@@ -1710,9 +1785,21 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
     app.post('/api/briefs', auth, async (req, res, next) => {
         try {
             const body = req.body || {};
-            const startup = await startupStore.getStartupByOwner(req.user.id);
+            let startup = await startupStore.getStartupByOwner(req.user.id);
+            // Auto-create stub startup if missing so briefs can be saved standalone
             if (!startup) {
-                throw new HttpError(400, 'BAD_REQUEST', 'You must have a startup to create a brief.');
+                const userName = req.user.name || req.user.username || req.user.email?.split('@')[0] || 'Founder';
+                startup = {
+                    id: crypto.randomUUID(),
+                    ownerId: req.user.id,
+                    name: body.name || `${userName}'s Startup`,
+                    pitch: body.pitch || '', problem: body.problem || '', solution: body.solution || '',
+                    stage: 'idea', industry: '', geography: '',
+                    teamStatus: 'solo', traction: '', needs: '',
+                    techStack: '', score: 10,
+                    deckUrl: body.deckUrl || '', websiteUrl: '', revenue: '', fundingRaised: ''
+                };
+                await startupStore.saveStartup(startup);
             }
             
             const existingBriefs = await startupStore.listBriefs(startup.id);
@@ -2419,6 +2506,106 @@ function clampInt(value, min, max, fallback) {
     const parsed = Number(value);
     if (!Number.isInteger(parsed)) return fallback;
     return Math.min(max, Math.max(min, parsed));
+}
+
+function fallbackSimulate(scenarioText, cash, burn, revenue, growth) {
+    const text = scenarioText.toLowerCase();
+    const cashVal = Number(cash || 0);
+    const burnVal = Number(burn || 0);
+    const revVal = Number(revenue || 0);
+    const growthVal = Number(growth || 0);
+    let cashDelta = 0;
+    let burnDelta = 0;
+    let growthDelta = 0;
+    let explanation = "Rule-based analysis applied.";
+
+    // Helper to parse numbers like 500k, 1.5m, 2000
+    const parseAmount = (str) => {
+        const match = str.match(/(?:[\$\s]|^)(\d+(?:\.\d+)?)\s*(k|m|million|thousand)?/i);
+        if (!match) return null;
+        let val = parseFloat(match[1]);
+        const unit = (match[2] || '').toLowerCase();
+        if (unit === 'k' || unit === 'thousand') val *= 1000;
+        if (unit === 'm' || unit === 'million') val *= 1000000;
+        return val;
+    };
+
+    if (text.includes('hire') || text.includes('add') || text.includes('employ') || text.includes('recruit')) {
+        // Extract numbers
+        const words = text.split(/\s+/);
+        let count = 1;
+        for (let i = 0; i < words.length; i++) {
+            const num = parseInt(words[i], 10);
+            if (!isNaN(num) && num > 0) {
+                count = num;
+                break;
+            }
+        }
+        
+        let ratePerPerson = 5000; // default $5k/mo
+        let growthPerPerson = 0;
+        
+        if (text.includes('dev') || text.includes('engineer') || text.includes('senior') || text.includes('programmer') || text.includes('tech')) {
+            ratePerPerson = 10000; // devs are expensive
+            explanation = `Hiring ${count} technical personnel increases monthly burn by $${(ratePerPerson * count).toLocaleString()}/month to accelerate product development.`;
+        } else if (text.includes('marketing') || text.includes('sales') || text.includes('growth')) {
+            ratePerPerson = 6000;
+            growthPerPerson = 1.5;
+            growthDelta = growthPerPerson * count;
+            explanation = `Adding ${count} sales/marketing hires increases burn by $${(ratePerPerson * count).toLocaleString()}/month, projecting a +${growthDelta}% boost in monthly growth rate.`;
+        } else {
+            explanation = `Hiring ${count} team members increases monthly burn by $${(ratePerPerson * count).toLocaleString()}/month.`;
+        }
+        
+        burnDelta = ratePerPerson * count;
+    } else if (text.includes('raise') || text.includes('funding') || text.includes('invest') || text.includes('vc') || text.includes('capital') || text.includes('seed')) {
+        const amount = parseAmount(text) || 250000; // default 250k
+        cashDelta = amount;
+        explanation = `Successfully securing $${amount.toLocaleString()} in new capital increases cash reserves, extending runway.`;
+    } else if (text.includes('cut') || text.includes('reduce') || text.includes('lower') || text.includes('save') || text.includes('layoff') || text.includes('fire')) {
+        let amount = parseAmount(text);
+        if (!amount) {
+            // Check if percentage
+            const pctMatch = text.match(/(\d+)\s*%/);
+            if (pctMatch) {
+                const pct = parseInt(pctMatch[1], 10) / 100;
+                amount = burnVal * pct;
+            } else {
+                amount = burnVal * 0.15; // default 15% cut
+            }
+        }
+        
+        burnDelta = -amount;
+        if (text.includes('layoff') || text.includes('fire') || text.includes('staff') || text.includes('team')) {
+            growthDelta = -1.0;
+            explanation = `Reducing staff lowers monthly burn by $${amount.toLocaleString()}/month, but may impact short-term velocity (-1% growth rate impact).`;
+        } else {
+            explanation = `Cost reduction initiatives lower monthly burn by $${amount.toLocaleString()}/month, optimizing efficiency.`;
+        }
+    } else if (text.includes('launch') || text.includes('release') || text.includes('ship')) {
+        growthDelta = 3.0;
+        burnDelta = 1500;
+        explanation = `Launching the product/feature boosts growth rate by +3% while incurring minor hosting/operational overhead ($1,500/mo).`;
+    } else if (text.includes('rent') || text.includes('office') || text.includes('space')) {
+        const amount = parseAmount(text) || 3000;
+        if (text.includes('cut') || text.includes('reduce') || text.includes('downsize') || text.includes('leave') || text.includes('close')) {
+            burnDelta = -amount;
+            explanation = `Downsizing office space reduces monthly burn by $${amount.toLocaleString()}/month.`;
+        } else {
+            burnDelta = amount;
+            explanation = `Acquiring office space increases monthly burn by $${amount.toLocaleString()}/month.`;
+        }
+    } else {
+        // Generic fallback
+        explanation = `Simulation analyzed: "${scenarioText}". Evaluated minimal financial delta under default conservative model parameters.`;
+    }
+
+    return {
+        cashDelta,
+        burnDelta,
+        growthDelta,
+        explanation
+    };
 }
 
 function startBackgroundSignalMonitor({ authStore, reportStore, orchestrator, signalStore, logger, config }) {

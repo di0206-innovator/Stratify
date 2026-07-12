@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { BrainCircuit, Plus, Target, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { BrainCircuit, Plus, Target, CheckCircle, XCircle, RefreshCw, AlertCircle, Zap } from 'lucide-react';
 import AuthGate from '../../components/AuthGate';
+import Toast from '../../components/Toast';
 
 export default function FounderMemory({ founderProfile, user, openAuthModal }) {
   const [decisions, setDecisions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [saving, setSaving] = useState(false);
   
   const [title, setTitle] = useState('');
   const [context, setContext] = useState('');
   const [outcome, setOutcome] = useState('');
   const [status, setStatus] = useState('active');
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   const fetchDecisions = async () => {
     setLoading(true);
@@ -19,6 +27,12 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
       if (res.ok) {
         const data = await res.json();
         setDecisions(data.decisions || []);
+      } else if (res.status === 401) {
+        // Not logged in — AuthGate will handle it
+        setDecisions([]);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data?.error?.message || 'Failed to load memory.', 'error');
       }
     } catch (e) {
       console.error('Fetch error:', e);
@@ -28,11 +42,14 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
   };
 
   useEffect(() => {
-    fetchDecisions();
-  }, []);
+    if (user) fetchDecisions();
+    else setLoading(false);
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!title.trim()) return;
+    setSaving(true);
     try {
       const res = await fetch('/api/decisions', {
         method: 'POST',
@@ -45,16 +62,26 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
         setContext('');
         setOutcome('');
         setStatus('active');
+        showToast('Decision logged to memory ✓');
         fetchDecisions();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        const msg = data?.error?.message || `Failed to save (${res.status}). Please try again.`;
+        showToast(msg, 'error');
       }
     } catch (e) {
+      showToast('Network error — could not save. Check your connection.', 'error');
       console.error('Post error:', e);
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <AuthGate user={user} openAuthModal={openAuthModal} message="Sign in to access your Founder Memory — a strategic record of decisions, pivots, and experiments.">
       <div className="max-w-4xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-[#111]">
+        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200/60 select-none">
           <div className="flex items-center gap-3">
@@ -64,7 +91,7 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
             <div>
               <h1 className="text-2xl sm:text-3xl font-outfit font-black tracking-tight">Founder Memory</h1>
               <p className="font-inter text-gray-500 mt-1 text-xs sm:text-sm">
-                Log decisions and experiments. Build your startup's strategic brain.
+                Log decisions and experiments. Feed posts auto-sync here too.
               </p>
             </div>
           </div>
@@ -78,17 +105,26 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
             <button
               onClick={fetchDecisions}
               className="os-btn p-2 border-gray-250 rounded-lg hover:border-black"
+              title="Refresh"
             >
               <RefreshCw size={14} />
             </button>
           </div>
         </div>
 
+        {/* Feed Sync Banner */}
+        <div className="flex items-center gap-2 bg-[#C8E64A]/10 border border-[#C8E64A]/30 rounded-xl px-4 py-3 text-xs font-semibold select-none">
+          <Zap size={14} className="text-black shrink-0" />
+          <span className="text-[#111]">
+            <strong>Auto-synced:</strong> Posts you share on the Feed are automatically logged here as memory entries.
+          </span>
+        </div>
+
         {/* Form */}
         {showForm && (
           <form onSubmit={handleSubmit} className="bg-white border border-gray-200 p-6 rounded-xl space-y-4 animate-slide-up shadow-sm">
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1.5 tracking-wide">Decision / Hypothesis Title</label>
+              <label className="block text-xs font-bold uppercase text-gray-500 mb-1.5 tracking-wide">Decision / Hypothesis Title *</label>
               <input 
                 required
                 value={title}
@@ -132,8 +168,12 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
               )}
             </div>
             <div className="pt-2 select-none">
-              <button type="submit" className="w-full bg-[#1A1A1A] text-white py-3 font-outfit font-bold text-xs uppercase tracking-wider hover:bg-[#333] transition-colors rounded-lg">
-                Save to Memory
+              <button 
+                type="submit" 
+                disabled={saving}
+                className="w-full bg-[#1A1A1A] text-white py-3 font-outfit font-bold text-xs uppercase tracking-wider hover:bg-[#333] transition-colors rounded-lg disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save to Memory'}
               </button>
             </div>
           </form>
@@ -151,8 +191,14 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
             </div>
             <h3 className="font-outfit font-bold text-lg text-black">Empty Memory</h3>
             <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
-              Log your strategic decisions, product pivots, and experiments to build context for the intelligence layer.
+              Log your strategic decisions, product pivots, and experiments — or post a milestone on the <strong>Feed</strong> and it will auto-appear here.
             </p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="inline-flex items-center gap-2 bg-[#C8E64A] text-black px-4 py-2 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-[#B5D235] transition-all"
+            >
+              <Plus size={14} /> Log Your First Decision
+            </button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -160,7 +206,7 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
               <div key={d.id} className="os-card bg-white p-5 hover:border-black transition-all">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2.5 mb-3 select-none">
+                    <div className="flex items-center gap-2.5 mb-3 select-none flex-wrap">
                       <h3 className="font-outfit font-bold text-base text-[#111] leading-tight">{d.title}</h3>
                       {d.status === 'active' && (
                         <span className="bg-gray-50 border border-gray-200 text-gray-500 rounded-md font-bold text-[9px] px-2 py-0.5 uppercase tracking-wide">
@@ -175,6 +221,12 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
                       {d.status === 'invalidated' && (
                         <span className="bg-red-50 border border-red-200 text-red-600 rounded-md font-bold text-[9px] px-2 py-0.5 uppercase tracking-wide flex items-center gap-1">
                           <XCircle size={10} /> Invalidated
+                        </span>
+                      )}
+                      {/* Show badge if synced from feed */}
+                      {(d.title?.startsWith('🏆') || d.title?.startsWith('🚀') || d.title?.startsWith('📝') || d.title?.startsWith('💬')) && (
+                        <span className="bg-[#C8E64A]/20 border border-[#C8E64A]/40 text-black rounded-md font-bold text-[9px] px-2 py-0.5 uppercase tracking-wide flex items-center gap-1">
+                          <Zap size={9} /> Feed Sync
                         </span>
                       )}
                     </div>

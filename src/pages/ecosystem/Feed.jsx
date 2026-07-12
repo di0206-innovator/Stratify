@@ -87,9 +87,14 @@ export default function Feed({ user, founderProfile }) {
     }
   };
 
+  const [syncedToIntel, setSyncedToIntel] = useState(false);
+  const [postError, setPostError] = useState('');
+
   const handlePostSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
+    setPostError('');
+    setSyncedToIntel(false);
 
     if ((postType === 'milestone' || postType === 'launch') && powUrl.trim()) {
       setVerifying(true);
@@ -132,6 +137,8 @@ export default function Feed({ user, founderProfile }) {
         setPowUrl('');
         setPostType('post');
         setVerificationLogs([]);
+        setSyncedToIntel(true);
+        setTimeout(() => setSyncedToIntel(false), 5000);
         await fetchPosts();
 
         // Celebration for major milestones/launches
@@ -143,13 +150,18 @@ export default function Feed({ user, founderProfile }) {
             colors: ['#C8E64A', '#1A1A1A', '#FAF9F6']
           });
         }
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setPostError(data?.error?.message || `Post failed (${res.status}). Please try again.`);
       }
     } catch (err) {
+      setPostError('Network error — could not publish post.');
       console.error('Failed to create post:', err);
     } finally {
       setSubmitting(false);
     }
   };
+
 
   const getPostTypeStyle = (type) => {
     switch (type) {
@@ -292,6 +304,21 @@ export default function Feed({ user, founderProfile }) {
               <ArrowRight size={14} />
             </button>
           </div>
+
+          {/* Error display */}
+          {postError && (
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-xs font-semibold text-red-600">
+              {postError}
+            </div>
+          )}
+
+          {/* Sync confirmation */}
+          {syncedToIntel && (
+            <div className="mt-3 p-3 bg-[#C8E64A]/15 border border-[#C8E64A]/40 rounded-lg flex items-center gap-2 text-xs font-semibold text-black animate-slide-up">
+              <CheckCircle2 size={14} className="text-green-600 shrink-0" />
+              Post published! <strong>Auto-synced to Intel & Memory</strong> — view it in Founder Memory.
+            </div>
+          )}
         </form>
       )}
 

@@ -164,18 +164,25 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
       if (res.ok) {
         const data = await res.json();
         setBriefId(data.brief.id);
+        setToast({ message: 'Brief saved & locked to Investor Data Room ✓ — also logged to Timeline', type: 'success' });
         confetti({
           particleCount: 80,
           spread: 50,
           colors: ['#C8E64A', '#1A1A1A', '#FAF9F6']
         });
+      } else {
+        const data = await res.json().catch(() => ({}));
+        const msg = data?.error?.message || `Save failed (${res.status}). Please try again.`;
+        setToast({ message: msg, type: 'error' });
       }
     } catch (err) {
+      setToast({ message: 'Network error — could not save brief. Check your connection.', type: 'error' });
       console.error('Failed to save brief:', err);
     } finally {
       setSavingBrief(false);
     }
   };
+
 
   const copyLink = () => {
     const link = `${window.location.origin}/brief/${briefId}`;

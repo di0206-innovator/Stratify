@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield, Users, Cpu, Settings } from 'lucide-react';
+import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield, Users, Cpu, Settings, Calendar, BrainCircuit } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabase';
 
@@ -67,29 +67,37 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
     const role = founderProfile?.role || 'founder';
     if (role !== 'founder') return [];
     return [
-      { path: '/runway', label: 'Runway', icon: TrendingUp },
+      { path: '/runway', label: 'Runway Planner', icon: TrendingUp },
       { path: '/equity', label: 'Cap Table', icon: Users },
       { path: '/bounties', label: 'Bounties', icon: Cpu },
       { path: '/opportunities', label: 'Opportunities', icon: UserCog },
+      { path: '/timeline', label: 'Timeline', icon: Calendar },
+      { path: '/memory', label: 'Founder Memory', icon: BrainCircuit },
     ];
   };
 
   const getIntelItems = () => {
     const role = founderProfile?.role || 'founder';
+    // Always include the intelligence workspace
+    const base = [
+      { path: '/intelligence', label: 'Insights & Briefs', icon: FileText },
+      { path: '/signals', label: 'Market Signals', icon: Radio },
+    ];
     if (role === 'institution' || role === 'government') {
       return [
+        ...base,
         { path: '/opportunities', label: 'Programs & Grants', icon: UserCog },
         { path: '/timeline', label: 'Timeline', icon: TrendingUp },
       ];
     }
     if (role === 'vc') {
       return [
-        { path: '/signals', label: 'Signals', icon: Radio },
+        ...base,
         { path: '/timeline', label: 'Timeline', icon: TrendingUp },
       ];
     }
     return [
-      { path: '/signals', label: 'Signals', icon: Radio },
+      ...base,
       { path: '/memory', label: 'Memory', icon: Cpu },
       { path: '/timeline', label: 'Timeline', icon: TrendingUp },
     ];

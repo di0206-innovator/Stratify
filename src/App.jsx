@@ -59,32 +59,41 @@ window.fetch = async (url, options = {}) => {
 
  if (supabase?.auth) {
  try {
- const { data: { session } } = await supabase.auth.getSession();
- token = session?.access_token;
+ // Try getSession first (fast, cached), then getUser as fallback for OAuth sessions
+ const { data: sessionData } = await supabase.auth.getSession();
+ token = sessionData?.session?.access_token;
+ if (!token) {
+ const { data: userData } = await supabase.auth.getUser();
+ token = userData?.user ? sessionData?.session?.access_token : null;
+ }
  } catch (e) {
  console.warn('Failed to retrieve Supabase session token for request:', e);
  }
  }
 
+ // Clone options to avoid mutating the caller's object
+ const fetchOptions = { ...options };
+
  if (token && shouldAttachAuth(url)) {
- if (!options.headers) {
- options.headers = {};
- }
- if (options.headers instanceof Headers) {
- options.headers.set('Authorization', `Bearer ${token}`);
- } else if (Array.isArray(options.headers)) {
- const hasAuth = options.headers.some(([key]) => key.toLowerCase() === 'authorization');
- if (!hasAuth) {
- options.headers.push(['Authorization', `Bearer ${token}`]);
- }
+ if (!fetchOptions.headers) {
+ fetchOptions.headers = { 'Authorization': `Bearer ${token}` };
+ } else if (fetchOptions.headers instanceof Headers) {
+ const h = new Headers(fetchOptions.headers);
+ h.set('Authorization', `Bearer ${token}`);
+ fetchOptions.headers = h;
+ } else if (Array.isArray(fetchOptions.headers)) {
+ const hasAuth = fetchOptions.headers.some(([key]) => key.toLowerCase() === 'authorization');
+ fetchOptions.headers = hasAuth
+ ? fetchOptions.headers
+ : [...fetchOptions.headers, ['Authorization', `Bearer ${token}`]];
  } else {
- options.headers = {
- ...options.headers,
+ fetchOptions.headers = {
+ ...fetchOptions.headers,
  'Authorization': `Bearer ${token}`
  };
  }
  }
- return originalFetch(url, options);
+ return originalFetch(url, fetchOptions);
 };
 
 export default function App() {
@@ -257,13 +266,19 @@ function AppContent({
  const isPublicRoute = location.pathname === '/' || location.pathname.startsWith('/brief/');
  const seo = getSeoForPath(location.pathname);
 
- if (!user && !isPublicRoute) {
- return <Navigate to="/" replace />;
- }
+  // Only redirect unauthenticated users from private routes
+  const isOnboardingRoute = location.pathname === '/onboarding';
+  const isSettingsRoute = location.pathname === '/settings';
+  const isAdminRoute = location.pathname === '/admin';
+  
+  if (!user && !isPublicRoute) {
+  return <Navigate to="/" replace />;
+  }
 
- if (user && !founderProfile && !isPublicRoute && location.pathname !== '/onboarding') {
- return <Navigate to="/onboarding" replace />;
- }
+  // Only redirect to onboarding from dashboard — let all other pages handle missing profile gracefully
+  if (user && !founderProfile && location.pathname === '/dashboard') {
+  return <Navigate to="/onboarding" replace />;
+  }
 
  return (
  <>
@@ -298,23 +313,29 @@ function AppContent({
  {/* Public Landing Page */}
  <Route path="/" element={<LandingPage openAuthModal={openAuthModal} user={user} />} />
 
- {/* Private Dashboard */}
- <Route 
- path="/dashboard" 
- element={
- founderProfile ? (
- <Dashboard 
- founderProfile={founderProfile} 
- currentReport={currentReport}
- setCurrentReport={setCurrentReport}
- user={user}
- openAuthModal={openAuthModal}
- />
+  {/* Private Dashboard */}
+  <Route 
+  path="/dashboard" 
+  element={
+  founderProfile ? (
+  <Dashboard 
+  founderProfile={founderProfile} 
+  currentReport={currentReport}
+  setCurrentReport={setCurrentReport}
+  user={user}
+  openAuthModal={openAuthModal}
+  />
 ) : (
- <Navigate to="/onboarding" replace />
+  <Navigate to="/onboarding" replace />
 )
- } 
- />
+  } 
+  />
+
+  {/* Insights & Briefs alias */}
+  <Route
+  path="/insights"
+  element={<Navigate to="/intelligence" replace />}
+  />
  
  {/* Onboarding */}
  <Route 
@@ -361,35 +382,35 @@ function AppContent({
  element={<ReportDetail />} 
  />
 
- {/* Runway Planner */}
- <Route 
- path="/runway" 
- element={founderProfile?.role === 'founder' ? <RunwayPlanner user={user} openAuthModal={openAuthModal} /> : <Navigate to="/dashboard" replace />} 
- />
+  {/* Runway Planner - accessible standalone, page handles auth internally */}
+  <Route 
+  path="/runway" 
+  element={<RunwayPlanner user={user} openAuthModal={openAuthModal} founderProfile={founderProfile} />} 
+  />
 
- {/* Equity Cap Split Planner */}
- <Route 
- path="/equity" 
- element={founderProfile?.role === 'founder' ? <EquityPlanner user={user} openAuthModal={openAuthModal} /> : <Navigate to="/dashboard" replace />} 
- />
+  {/* Equity Cap Split Planner - accessible standalone */}
+  <Route 
+  path="/equity" 
+  element={<EquityPlanner user={user} openAuthModal={openAuthModal} founderProfile={founderProfile} />} 
+  />
 
- {/* Micro Bounty Board */}
- <Route 
- path="/bounties" 
- element={founderProfile?.role === 'founder' ? <BountyBoard founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} /> : <Navigate to="/dashboard" replace />} 
- />
+  {/* Micro Bounty Board - accessible standalone */}
+  <Route 
+  path="/bounties" 
+  element={<BountyBoard founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} />} 
+  />
 
- {/* Public whitelist-guarded Pitch Brief Data Room */}
- <Route 
- path="/brief/:id" 
- element={<PitchBrief mode="public" />} 
- />
+  {/* Public whitelist-guarded Pitch Brief Data Room */}
+  <Route 
+  path="/brief/:id" 
+  element={<PitchBrief mode="public" />} 
+  />
 
- {/* Founder Memory */}
- <Route 
- path="/memory" 
- element={founderProfile?.role === 'founder' ? <FounderMemory founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} /> : <Navigate to="/dashboard" replace />} 
- />
+  {/* Founder Memory - accessible standalone, uses AuthGate internally */}
+  <Route 
+  path="/memory" 
+  element={<FounderMemory founderProfile={founderProfile} user={user} openAuthModal={openAuthModal} />} 
+  />
  <Route path="/settings" element={<Settings user={user} openAuthModal={openAuthModal} />} />
  <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/" replace />} />
 
