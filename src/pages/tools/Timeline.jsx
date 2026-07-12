@@ -74,8 +74,10 @@ export default function Timeline({ founderProfile, user, openAuthModal }) {
     return acc;
   }, {});
 
+  const isEcosystem = founderProfile?.role === 'vc' || founderProfile?.role === 'institution' || founderProfile?.role === 'government';
+
   return (
-    <AuthGate user={user} openAuthModal={openAuthModal} message="Sign in to view your startup's activity timeline — every decision, milestone, and change.">
+    <AuthGate user={user} openAuthModal={openAuthModal} message={isEcosystem ? "Sign in to view the ecosystem activity timeline." : "Sign in to view your startup's activity timeline — every decision, milestone, and change."}>
       <div className="max-w-4xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-[#111]">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200/60 select-none">
@@ -84,8 +86,12 @@ export default function Timeline({ founderProfile, user, openAuthModal }) {
               <Clock size={24} />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-outfit font-black tracking-tight">Startup Timeline</h1>
-              <p className="font-inter text-gray-500 mt-1 text-xs sm:text-sm">Your startup's living history — every decision, milestone, and change.</p>
+              <h1 className="text-2xl sm:text-3xl font-outfit font-black tracking-tight">
+                {isEcosystem ? 'Ecosystem Timeline' : 'Startup Timeline'}
+              </h1>
+              <p className="font-inter text-gray-500 mt-1 text-xs sm:text-sm">
+                {isEcosystem ? 'Real-time activity feed of regional startups — milestones, launches, and decisions.' : "Your startup's living history — every decision, milestone, and change."}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -130,10 +136,13 @@ export default function Timeline({ founderProfile, user, openAuthModal }) {
             <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
               <Clock size={24} className="text-gray-400" />
             </div>
-            <h3 className="font-outfit font-bold text-lg text-black">No Events Yet</h3>
+            <h3 className="font-outfit font-bold text-lg text-black">
+              {isEcosystem ? 'No Ecosystem Activity' : 'No Events Yet'}
+            </h3>
             <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
-              Your timeline will populate as you post updates, achieve milestones, log decisions, and generate reports. 
-              Start by posting an update on the <Link to="/feed" className="underline text-black font-semibold">Feed</Link>.
+              {isEcosystem 
+                ? 'Updates, milestones, and strategic decisions will appear here as startups log their progress.'
+                : 'Your timeline will populate as you post updates, achieve milestones, log decisions, and generate reports. Start by posting an update on the Feed.'}
             </p>
           </div>
         ) : (

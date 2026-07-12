@@ -34,28 +34,31 @@ export default function InstitutionDashboard({ founderProfile, user }) {
     fetchData();
   }, []);
 
-  const handleCreateProgram = (e) => {
+  const handleCreateProgram = async (e) => {
     e.preventDefault();
     if (!newProgram.title || !newProgram.description) return;
     
-    const created = {
-      id: `custom-scheme-${Date.now()}`,
-      name: newProgram.title,
-      description: newProgram.description,
-      incentive: newProgram.budget || 'Grants / Subsidies',
-      geography: newProgram.geography,
-      industry: newProgram.industry
-    };
-
-    setGovSchemes(prev => [created, ...prev]);
-    setIsCreateModalOpen(false);
-    setNewProgram({
-      title: '',
-      description: '',
-      budget: '',
-      geography: founderProfile?.geography || 'Any',
-      industry: 'Any'
-    });
+    try {
+      const res = await fetch('/api/gov-schemes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProgram)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setGovSchemes(prev => [data.scheme, ...prev]);
+        setIsCreateModalOpen(false);
+        setNewProgram({
+          title: '',
+          description: '',
+          budget: '',
+          geography: founderProfile?.geography || 'Any',
+          industry: 'Any'
+        });
+      }
+    } catch (err) {
+      console.error('Failed to deploy program:', err);
+    }
   };
 
   const filteredSchemes = govSchemes.filter(scheme => {

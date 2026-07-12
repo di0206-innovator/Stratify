@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Rocket, Gift, Building2, Briefcase, Calendar, RefreshCw,
-  Globe, Sparkles, MapPin, Search
+  Globe, Sparkles, MapPin, Search, Plus, X, Landmark
 } from 'lucide-react';
 
 const TYPE_CONFIG = {
@@ -12,20 +12,39 @@ const TYPE_CONFIG = {
   role: { icon: Briefcase, color: 'bg-gray-50 text-gray-500 border-gray-200', label: 'Role' },
 };
 
-export default function Opportunities({ founderProfile }) {
+export default function Opportunities({ founderProfile, user, openAuthModal }) {
   const [opportunities, setOpportunities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [posting, setPosting] = useState(false);
+  const [newOpp, setNewOpp] = useState({
+    title: '',
+    type: 'grant',
+    organization: '',
+    description: '',
+    geography: 'Global',
+    industries: 'Any',
+    stages: '',
+    deadline: '',
+    link: ''
+  });
+
+  const isInstitution = founderProfile?.role === 'institution' || founderProfile?.role === 'government';
 
   const fetchOpportunities = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (typeFilter !== 'all') params.set('type', typeFilter);
-      if (founderProfile?.geography) params.set('geography', founderProfile.geography);
-      if (founderProfile?.industry) params.set('industry', founderProfile.industry);
-      if (founderProfile?.startupStage) params.set('stage', founderProfile.startupStage);
+      
+      const isFounder = founderProfile?.role === 'founder' || !founderProfile?.role;
+      if (isFounder) {
+        if (founderProfile?.geography) params.set('geography', founderProfile.geography);
+        if (founderProfile?.industry) params.set('industry', founderProfile.industry);
+        if (founderProfile?.startupStage) params.set('stage', founderProfile.startupStage);
+      }
 
       const res = await fetch(`/api/opportunities?${params.toString()}`);
       if (res.ok) {
@@ -41,7 +60,7 @@ export default function Opportunities({ founderProfile }) {
 
   useEffect(() => {
     fetchOpportunities();
-  }, [typeFilter]);
+  }, [typeFilter, founderProfile]);
 
   const filteredOpportunities = opportunities.filter(opp => {
     if (!search) return true;
@@ -53,6 +72,38 @@ export default function Opportunities({ founderProfile }) {
       (opp.industries || '').toLowerCase().includes(q)
     );
   });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!newOpp.title) return;
+    setPosting(true);
+    try {
+      const res = await fetch('/api/opportunities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newOpp)
+      });
+      if (res.ok) {
+        setIsCreateModalOpen(false);
+        setNewOpp({
+          title: '',
+          type: 'grant',
+          organization: '',
+          description: '',
+          geography: 'Global',
+          industries: 'Any',
+          stages: '',
+          deadline: '',
+          link: ''
+        });
+        fetchOpportunities();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPosting(false);
+    }
+  };
 
   const typeOptions = [
     { value: 'all', label: 'All Types' },
@@ -78,7 +129,15 @@ export default function Opportunities({ founderProfile }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="bg-[#C8E64A]/25 border border-[#C8E64A]/40 text-black px-3 py-1.5 font-bold text-xs uppercase rounded-full shadow-sm">
+          {isInstitution && (
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-1.5 bg-[#C8E64A] text-black border-0 px-3.5 py-1.5 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg shadow-sm hover:bg-[#B5D235] transition-all cursor-pointer"
+            >
+              <Plus size={14} /> Post Opportunity
+            </button>
+          )}
+          <span className="bg-gray-100 border border-gray-200 text-gray-700 px-3 py-1.5 font-bold text-xs uppercase rounded-lg shadow-sm select-none">
             {filteredOpportunities.length} found
           </span>
           <button
@@ -224,6 +283,151 @@ export default function Opportunities({ founderProfile }) {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Deploy Ecosystem Opportunity Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
+          <div className="bg-white border border-gray-200 shadow-2xl rounded-2xl w-full max-w-lg overflow-hidden animate-slide-up select-none">
+            <div className="bg-[#FAF9F6] border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Landmark className="text-gray-500" size={18} />
+                <h3 className="font-outfit font-black text-sm uppercase tracking-wide">Post New Ecosystem Opportunity</h3>
+              </div>
+              <button 
+                onClick={() => setIsCreateModalOpen(false)}
+                className="text-gray-400 hover:text-black transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Opportunity Title *</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. DeepTech Accelerator 2026"
+                  value={newOpp.title}
+                  onChange={e => setNewOpp(prev => ({ ...prev, title: e.target.value }))}
+                  className="os-input"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Type *</label>
+                  <select
+                    value={newOpp.type}
+                    onChange={e => setNewOpp(prev => ({ ...prev, type: e.target.value }))}
+                    className="os-input font-semibold"
+                  >
+                    <option value="accelerator">Accelerator</option>
+                    <option value="grant">Grant</option>
+                    <option value="program">Program</option>
+                    <option value="competition">Competition</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Hosting Organization *</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="e.g. Startup India, EU Commission"
+                    value={newOpp.organization}
+                    onChange={e => setNewOpp(prev => ({ ...prev, organization: e.target.value }))}
+                    className="os-input"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Description *</label>
+                <textarea 
+                  required
+                  rows={3}
+                  placeholder="Describe program benefits, requirements, and equity/funding scope..."
+                  value={newOpp.description}
+                  onChange={e => setNewOpp(prev => ({ ...prev, description: e.target.value }))}
+                  className="os-input resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Geography</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. India, Global"
+                    value={newOpp.geography}
+                    onChange={e => setNewOpp(prev => ({ ...prev, geography: e.target.value }))}
+                    className="os-input"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Focus Industries</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. SaaS, DeepTech"
+                    value={newOpp.industries}
+                    onChange={e => setNewOpp(prev => ({ ...prev, industries: e.target.value }))}
+                    className="os-input"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Target Stages</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Seed, Growth"
+                    value={newOpp.stages}
+                    onChange={e => setNewOpp(prev => ({ ...prev, stages: e.target.value }))}
+                    className="os-input"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Application Deadline</label>
+                  <input 
+                    type="date" 
+                    value={newOpp.deadline}
+                    onChange={e => setNewOpp(prev => ({ ...prev, deadline: e.target.value }))}
+                    className="os-input font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Application Link</label>
+                  <input 
+                    type="url" 
+                    placeholder="https://..."
+                    value={newOpp.link}
+                    onChange={e => setNewOpp(prev => ({ ...prev, link: e.target.value }))}
+                    className="os-input"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                <button 
+                  type="button" 
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="px-4 py-2 bg-white border border-gray-250 text-gray-650 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:border-black cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  disabled={posting}
+                  className="px-5 py-2 bg-[#C8E64A] text-black border-0 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-[#B5D235] cursor-pointer shadow-sm disabled:opacity-55"
+                >
+                  {posting ? 'Deploying...' : 'Deploy Opportunity'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

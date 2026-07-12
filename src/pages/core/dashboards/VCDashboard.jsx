@@ -8,6 +8,7 @@ export default function VCDashboard({ founderProfile, user }) {
   const [trendingStartups, setTrendingStartups] = useState([]);
   const [loading, setLoading] = useState(true);
   const [thesisKeyword, setThesisKeyword] = useState('');
+  const [reportsCount, setReportsCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,8 +18,14 @@ export default function VCDashboard({ founderProfile, user }) {
           const data = await res.json();
           setTrendingStartups(data.startups || []);
         }
+
+        const repRes = await fetch('/api/reports');
+        if (repRes.ok) {
+          const repData = await repRes.json();
+          setReportsCount(repData.reports ? repData.reports.length : 0);
+        }
       } catch (err) {
-        console.error('Failed to load trending startups:', err);
+        console.error('Failed to load VC metrics:', err);
       } finally {
         setLoading(false);
       }
@@ -116,7 +123,7 @@ export default function VCDashboard({ founderProfile, user }) {
         <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
           <div>
             <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Active Diligence Tasks</p>
-            <h3 className="text-3xl font-outfit font-black text-[#111]">3 <span className="text-xs text-gray-400 font-light">Briefs</span></h3>
+            <h3 className="text-3xl font-outfit font-black text-[#111]">{reportsCount} <span className="text-xs text-gray-400 font-light">{reportsCount === 1 ? 'Brief' : 'Briefs'}</span></h3>
           </div>
           <div className="w-10 h-10 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
             <Activity size={18} />

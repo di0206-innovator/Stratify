@@ -1188,11 +1188,9 @@ For more information, visit their website: [${startup.websiteUrl || 'Official We
     app.get('/api/timeline', auth, async (req, res, next) => {
         try {
             const startup = await startupStore.getStartupByOwner(req.user.id);
-            if (!startup) {
-                return res.json({ requestId: req.id, events: [] });
-            }
             const eventType = req.query.type || null;
-            const events = await startupStore.listTimeline(startup.id, { eventType });
+            // If the user doesn't own a startup (e.g. VC/Institution), list all timeline events across the ecosystem
+            const events = await startupStore.listTimeline(startup ? startup.id : null, { eventType });
             res.json({ requestId: req.id, events });
         } catch (error) {
             next(error);
@@ -1996,17 +1994,83 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
     // Matched government schemes
     app.get('/api/gov-schemes', auth, async (req, res, next) => {
         try {
-            if (req.user.role === 'institution' || req.user.role === 'vc') {
-                const { getMatchedSchemes } = require('./lib/startupStore');
-                const schemes = getMatchedSchemes('Any', 'Any');
-                return res.json({ requestId: req.id, schemes });
+            // Get custom opportunities of type program/grant
+            const opportunities = await startupStore.listOpportunities({ limit: 100 });
+            const customSchemes = opportunities
+                .filter(opp => opp.type === 'program' || opp.type === 'grant')
+                .map(opp => ({
+                    id: opp.id,
+                    name: opp.title,
+                    geography: opp.geography,
+                    industry: opp.industries,
+                    description: opp.description,
+                    incentive: opp.incentive || 'Grants / Subsidies',
+                    link: opp.link
+                }));
+
+            let geography = 'Any';
+            let industry = 'Any';
+
+            // Find matching criteria if user is a founder
+            const userRole = req.user.role || 'founder';
+            if (userRole === 'founder') {
+                const startup = await startupStore.getStartupByOwner(req.user.id);
+                if (startup) {
+                    geography = startup.geography;
+                    industry = startup.industry;
+                }
             }
-            const startup = await startupStore.getStartupByOwner(req.user.id);
-            if (!startup) {
-                return res.json({ requestId: req.id, schemes: [] });
-            }
-            const schemes = getMatchedSchemes(startup.geography, startup.industry);
+
+            const { getMatchedSchemes } = require('./lib/startupStore');
+            const matchedMock = getMatchedSchemes(geography, industry);
+            
+            // Filter custom schemes by geography and industry matches if founder
+            const filteredCustom = (userRole === 'institution' || userRole === 'vc')
+                ? customSchemes
+                : customSchemes.filter(s => {
+                    const geoLower = String(geography || '').toLowerCase();
+                    const indLower = String(industry || '').toLowerCase();
+                    const matchGeo = s.geography === 'Any' || geoLower.includes(s.geography.toLowerCase()) || s.geography.toLowerCase().includes(geoLower);
+                    const matchInd = s.industry === 'Any' || s.industry.toLowerCase().split(', ').some(ind => indLower.includes(ind) || ind.includes(indLower));
+                    return matchGeo && matchInd;
+                });
+
+            const schemes = [...filteredCustom, ...matchedMock];
             res.json({ requestId: req.id, schemes });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.post('/api/gov-schemes', auth, async (req, res, next) => {
+        try {
+            const body = req.body || {};
+            if (!body.title) {
+                throw new HttpError(400, 'MISSING_FIELD', 'Program title is required.');
+            }
+            const opp = {
+                id: crypto.randomUUID(),
+                title: body.title,
+                type: body.type || 'program',
+                organization: req.user.name || 'Ecosystem Partner',
+                description: body.description || '',
+                geography: body.geography || 'Global',
+                industries: body.industry || 'Any',
+                incentive: body.budget || 'Grants / Subsidies',
+                stages: '',
+                deadline: null,
+                link: body.link || null
+            };
+            const saved = await startupStore.createOpportunity(opp);
+            res.status(201).json({ requestId: req.id, scheme: {
+                id: saved.id,
+                name: saved.title,
+                geography: saved.geography,
+                industry: saved.industries,
+                description: saved.description,
+                incentive: saved.incentive,
+                link: saved.link
+            } });
         } catch (error) {
             next(error);
         }

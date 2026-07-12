@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Sparkles, Trophy, Award, MapPin, Target, Layers, ArrowLeft, CheckCircle2, ExternalLink, Clock } from 'lucide-react';
+import { Sparkles, Trophy, Award, MapPin, Target, Layers, ArrowLeft, CheckCircle2, ExternalLink, Clock, FileText, Shield, Activity } from 'lucide-react';
 
-export default function StartupProfile() {
+export default function StartupProfile({ founderProfile, user }) {
   const { id } = useParams();
   const [startup, setStartup] = useState(null);
   const [timeline, setTimeline] = useState([]);
@@ -14,6 +14,61 @@ export default function StartupProfile() {
   const [hoveredNode, setHoveredNode] = useState(null);
   const [journey, setJourney] = useState(null);
   const [journeyLoading, setJourneyLoading] = useState(false);
+  const [diligenceReports, setDiligenceReports] = useState([]);
+  const [diligenceLoading, setDiligenceLoading] = useState(false);
+
+  const fetchDiligenceReports = async (startupName) => {
+    if (!user || !startupName) return;
+    try {
+      const res = await fetch('/api/reports');
+      if (res.ok) {
+        const data = await res.json();
+        const filtered = (data.reports || []).filter(r => 
+          (r.title || '').toLowerCase().includes(startupName.toLowerCase()) || 
+          (r.executiveSnapshot || '').toLowerCase().includes(startupName.toLowerCase())
+        );
+        setDiligenceReports(filtered);
+      }
+    } catch (e) {
+      console.error('Failed to load diligence reports:', e);
+    }
+  };
+
+  const handleGenerateDiligence = async () => {
+    if (!user) return;
+    setDiligenceLoading(true);
+    try {
+      const query = `Compile a comprehensive VC due diligence report on ${startup.name} addressing sector market size, product feasibility, and potential growth risks.`;
+      const res = await fetch('/api/reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query,
+          sources: ['web', 'wikipedia', 'sec'],
+          founderProfile: {
+            name: startup.name,
+            pitch: startup.pitch,
+            problem: startup.problem,
+            solution: startup.solution,
+            stage: startup.stage,
+            industry: startup.industry,
+            geography: startup.geography,
+            needs: startup.needs
+          },
+          reportOptions: {
+            reportType: 'DILIGENCE'
+          }
+        })
+      });
+      if (res.ok) {
+        await fetchDiligenceReports(startup.name);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDiligenceLoading(false);
+    }
+  };
 
   const fetchJourney = async () => {
     setJourneyLoading(true);
@@ -46,6 +101,10 @@ export default function StartupProfile() {
           setBriefs(data.briefs || []);
           setSignals(data.signals || []);
           setOpportunities(data.opportunities || []);
+          
+          if (matchedStartup?.name) {
+            await fetchDiligenceReports(matchedStartup.name);
+          }
         }
       } catch (e) {
         console.error('Failed to load startup details:', e);
@@ -54,7 +113,7 @@ export default function StartupProfile() {
       }
     };
     fetchData();
-  }, [id]);
+  }, [id, user]);
 
   if (loading) {
     return (
@@ -288,6 +347,61 @@ export default function StartupProfile() {
               )}
             </div>
           </div>
+
+          {/* VC & Institution Due Diligence Audit Section */}
+          {user && (founderProfile?.role === 'vc' || founderProfile?.role === 'institution' || founderProfile?.role === 'government') && (
+            <div className="os-card bg-[#FAF9F6] border border-gray-200 p-6 space-y-4">
+              <div className="flex justify-between items-center border-b border-gray-250/60 pb-3">
+                <div className="flex items-center gap-2">
+                  <Shield className="text-black" size={16} />
+                  <h3 className="text-sm font-outfit font-bold uppercase text-black tracking-wider">
+                    Due Diligence & Ecosystem Audit
+                  </h3>
+                </div>
+                {diligenceReports.length === 0 && !diligenceLoading && (
+                  <button 
+                    onClick={handleGenerateDiligence}
+                    className="flex items-center gap-1 bg-black text-white hover:bg-[#333] px-3.5 py-1.5 rounded-lg text-xs font-outfit font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    <Activity size={12} /> Run Due Diligence
+                  </button>
+                )}
+              </div>
+
+              {diligenceLoading ? (
+                <div className="py-8 text-center flex flex-col items-center justify-center space-y-2">
+                  <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                  <p className="text-xs font-outfit font-bold uppercase tracking-wider text-gray-550">AI Orchestrator Compiling Brief...</p>
+                </div>
+              ) : diligenceReports.length > 0 ? (
+                <div className="space-y-3">
+                  <div className="bg-[#C8E64A]/10 border border-[#C8E64A]/30 p-4 rounded-xl flex items-start gap-3">
+                    <FileText className="text-black shrink-0 mt-0.5" size={16} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-4">
+                        <h4 className="font-outfit font-bold text-xs uppercase text-black truncate">
+                          {diligenceReports[0].title}
+                        </h4>
+                        <Link 
+                          to={`/intelligence/${diligenceReports[0].id}`}
+                          className="text-[10px] font-bold text-black uppercase hover:underline flex items-center gap-1 shrink-0"
+                        >
+                          Open Report <ExternalLink size={10} />
+                        </Link>
+                      </div>
+                      <p className="text-xs text-gray-555 mt-1.5 leading-relaxed font-inter font-light">
+                        {diligenceReports[0].executiveSnapshot || 'Comprehensive strategic diligence analysis completed for this startup.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-6 text-gray-400 italic text-xs leading-relaxed">
+                  No diligence audits generated for this startup yet. Click "Run Due Diligence" to trigger AI analysis.
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Tech Stack & Team */}
           <div className="os-card bg-white p-6">

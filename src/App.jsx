@@ -357,7 +357,7 @@ function AppContent({
  {/* Startup Showcase Profile */}
  <Route 
  path="/startups/:id" 
- element={<StartupProfile />} 
+ element={<StartupProfile founderProfile={founderProfile} user={user} />} 
  />
 
  {/* Signals */}
