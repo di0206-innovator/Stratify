@@ -8,6 +8,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
   const [govSchemes, setGovSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [programSearch, setProgramSearch] = useState('');
   const [newProgram, setNewProgram] = useState({
     title: '',
     description: '',
@@ -57,6 +58,16 @@ export default function InstitutionDashboard({ founderProfile, user }) {
     });
   };
 
+  const filteredSchemes = govSchemes.filter(scheme => {
+    const term = programSearch.toLowerCase().trim();
+    if (!term) return true;
+    return (
+      (scheme.name || scheme.title || '').toLowerCase().includes(term) ||
+      (scheme.description || '').toLowerCase().includes(term) ||
+      (scheme.geography || '').toLowerCase().includes(term)
+    );
+  });
+
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-10 space-y-8 animate-fade-in relative">
       {/* Header Area */}
@@ -85,6 +96,39 @@ export default function InstitutionDashboard({ founderProfile, user }) {
           >
             <Plus size={14} /> Deploy New Program
           </button>
+        </div>
+      </div>
+
+      {/* Stats Metric Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 select-none">
+        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Mandate Region Score</p>
+            <h3 className="text-3xl font-outfit font-black text-[#111]">84% <span className="text-xs text-gray-400 font-light">Average</span></h3>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-[#C8E64A]/10 border border-[#C8E64A]/30 flex items-center justify-center text-[#111]">
+            <Activity size={18} />
+          </div>
+        </div>
+
+        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Deployed Programs</p>
+            <h3 className="text-3xl font-outfit font-black text-[#111]">{govSchemes.length} <span className="text-xs text-gray-400 font-light">Active</span></h3>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+            <Building size={18} />
+          </div>
+        </div>
+
+        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Ecosystem Grants Deployed</p>
+            <h3 className="text-3xl font-outfit font-black text-[#111]">$4.5M <span className="text-xs text-gray-400 font-light">Allocated</span></h3>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
+            <FileText size={18} />
+          </div>
         </div>
       </div>
 
@@ -124,26 +168,35 @@ export default function InstitutionDashboard({ founderProfile, user }) {
         {/* Right Column: Active Grants & Programs */}
         <div className="lg:col-span-2 space-y-6">
           <div className="os-card min-h-[400px] flex flex-col">
-            <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-200/60">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-3 border-b border-gray-200/60">
               <div className="flex items-center gap-2">
                 <FileText size={16} className="text-gray-400" />
-                <h3 className="font-outfit font-bold text-base text-[#111]">Active Programs & Grants ({govSchemes.length})</h3>
+                <h3 className="font-outfit font-bold text-base text-[#111]">Active Programs & Grants ({filteredSchemes.length})</h3>
               </div>
-              <button 
-                onClick={() => setIsCreateModalOpen(true)}
-                className="text-xs text-gray-500 hover:text-gray-900 font-semibold hover:underline"
-              >
-                + New Program
-              </button>
+              <div className="flex items-center gap-3">
+                <input 
+                  type="text" 
+                  value={programSearch}
+                  onChange={(e) => setProgramSearch(e.target.value)}
+                  placeholder="Filter programs..."
+                  className="px-2.5 py-1 text-xs border border-gray-250 rounded-lg focus:outline-none focus:border-black font-semibold font-outfit"
+                />
+                <button 
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="text-xs text-gray-500 hover:text-gray-900 font-semibold hover:underline whitespace-nowrap"
+                >
+                  + New Program
+                </button>
+              </div>
             </div>
             
             {loading ? (
               <div className="flex-1 flex items-center justify-center">
                 <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
               </div>
-            ) : govSchemes.length > 0 ? (
+            ) : filteredSchemes.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {govSchemes.map(scheme => (
+                {filteredSchemes.map(scheme => (
                   <div key={scheme.id} className="border border-gray-250 rounded-lg p-5 hover:border-black transition-colors cursor-pointer bg-white flex flex-col justify-between group shadow-sm">
                     <div>
                       <h4 className="font-outfit font-bold text-sm mb-2 text-[#111] group-hover:text-black leading-snug">{scheme.name || scheme.title}</h4>
@@ -167,7 +220,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
                 </div>
                 <h4 className="font-semibold text-gray-900 mb-1">No Active Grants</h4>
                 <p className="text-xs text-gray-500 max-w-sm mb-5 leading-relaxed">
-                  Deploy programs to support technical founders in your mandate region.
+                  Deploy programs or adjust your search filter to find regional programs.
                 </p>
                 <button onClick={() => setIsCreateModalOpen(true)} className="os-btn">
                   Create Program

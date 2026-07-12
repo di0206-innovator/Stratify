@@ -26,6 +26,35 @@ export default function VCDashboard({ founderProfile, user }) {
     fetchData();
   }, []);
 
+  const getMatchScore = (startup) => {
+    let score = 70; // Base match fit score
+    
+    // Sector alignment
+    if (founderProfile.industry && startup.industry) {
+      if (startup.industry.toLowerCase().includes(founderProfile.industry.toLowerCase()) || 
+          founderProfile.industry.toLowerCase().includes(startup.industry.toLowerCase())) {
+        score += 15;
+      }
+    }
+    
+    // Keyword match
+    if (thesisKeyword.trim()) {
+      const kw = thesisKeyword.toLowerCase().trim();
+      const name = (startup.name || '').toLowerCase();
+      const pitch = (startup.pitch || '').toLowerCase();
+      const industry = (startup.industry || '').toLowerCase();
+      const stage = (startup.stage || '').toLowerCase();
+      
+      if (name.includes(kw) || pitch.includes(kw) || industry.includes(kw) || stage.includes(kw)) {
+        score += 15;
+      } else {
+        score -= 10;
+      }
+    }
+    
+    return Math.min(100, Math.max(0, score));
+  };
+
   const filteredStartups = trendingStartups.filter(startup => {
     if (!thesisKeyword.trim()) return true;
     const kw = thesisKeyword.toLowerCase().trim();
@@ -52,13 +81,46 @@ export default function VCDashboard({ founderProfile, user }) {
             {founderProfile.name}
           </h1>
           <p className="text-gray-500 mt-2 max-w-xl text-sm leading-relaxed">
-            Manage your deal flow, monitor portfolio signals, and discover new founders matching your {founderProfile.industry} thesis.
+            Manage your deal flow, monitor portfolio signals, and discover new founders matching your {founderProfile.industry || 'mandated'} thesis.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Link to="/explore" className="os-btn-primary">
             <Search size={16} /> Explore Graph
           </Link>
+        </div>
+      </div>
+
+      {/* Stats Metric Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 select-none">
+        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Ecosystem Match Rate</p>
+            <h3 className="text-3xl font-outfit font-black text-[#111]">92% <span className="text-xs text-gray-400 font-light">Average</span></h3>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-[#C8E64A]/10 border border-[#C8E64A]/30 flex items-center justify-center text-[#111]">
+            <Target size={18} />
+          </div>
+        </div>
+
+        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Matching Pipeline</p>
+            <h3 className="text-3xl font-outfit font-black text-[#111]">{filteredStartups.length} <span className="text-xs text-gray-400 font-light">Deals</span></h3>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+            <Users size={18} />
+          </div>
+        </div>
+
+        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Active Diligence Tasks</p>
+            <h3 className="text-3xl font-outfit font-black text-[#111]">3 <span className="text-xs text-gray-400 font-light">Briefs</span></h3>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
+            <Activity size={18} />
+          </div>
         </div>
       </div>
 
@@ -121,14 +183,27 @@ export default function VCDashboard({ founderProfile, user }) {
             ) : filteredStartups.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredStartups.map(startup => (
-                  <div key={startup.id} className="border border-gray-200 rounded-lg p-4 hover:border-black transition-colors cursor-pointer bg-white">
-                    <h4 className="font-bold text-sm mb-1 text-[#111]">{startup.name}</h4>
-                    <p className="text-xs text-gray-500 line-clamp-2 mb-3 leading-relaxed">{startup.pitch}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold uppercase rounded">{startup.stage}</span>
-                      <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold uppercase rounded">{startup.industry}</span>
+                  <Link 
+                    key={startup.id} 
+                    to={`/startups/${startup.id}`} 
+                    className="border border-gray-250 rounded-lg p-5 hover:border-black transition-all cursor-pointer bg-white flex flex-col justify-between group shadow-sm hover:shadow-md text-left"
+                  >
+                    <div>
+                      <h4 className="font-outfit font-bold text-sm mb-1.5 text-[#111] group-hover:text-black leading-snug">{startup.name}</h4>
+                      <p className="text-xs text-gray-500 line-clamp-3 mb-4 leading-relaxed font-light font-inter">{startup.pitch}</p>
                     </div>
-                  </div>
+                    <div className="flex flex-wrap items-center gap-1.5 pt-3 border-t border-gray-100 select-none">
+                      <span className="px-2 py-0.5 bg-[#C8E64A]/20 border border-[#C8E64A]/30 text-black text-[9px] font-black uppercase rounded-md">
+                        {startup.stage}
+                      </span>
+                      <span className="px-2 py-0.5 bg-gray-50 border border-gray-200 text-gray-500 text-[9px] font-bold uppercase rounded-md">
+                        {startup.industry}
+                      </span>
+                      <span className="ml-auto px-2 py-0.5 bg-green-55/20 border border-green-255/35 text-green-700 text-[9px] font-bold uppercase rounded-md">
+                        {getMatchScore(startup)}% Match
+                      </span>
+                    </div>
+                  </Link>
                 ))}
               </div>
             ) : (

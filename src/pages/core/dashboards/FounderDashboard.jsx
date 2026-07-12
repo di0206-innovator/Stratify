@@ -8,6 +8,7 @@ export default function FounderDashboard({ founderProfile, user, openAuthModal, 
   const [myStartup, setMyStartup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
+  const [decisionsCount, setDecisionsCount] = useState(0);
 
   useEffect(() => {
     const handleOutsideClick = () => {
@@ -31,8 +32,24 @@ export default function FounderDashboard({ founderProfile, user, openAuthModal, 
         setLoading(false);
       }
     };
+
+    const fetchDecisions = async () => {
+      try {
+        const res = await fetch('/api/decisions');
+        if (res.ok) {
+          const data = await res.json();
+          setDecisionsCount(data.decisions?.length || 0);
+        }
+      } catch (e) {
+        console.error('Failed to load decisions:', e);
+      }
+    };
+
     fetchData();
-  }, []);
+    if (user) {
+      fetchDecisions();
+    }
+  }, [user]);
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-10 space-y-8 animate-fade-in">
@@ -82,6 +99,39 @@ export default function FounderDashboard({ founderProfile, user, openAuthModal, 
                 </Link>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Metric Strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 select-none">
+        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Stratify Validation Score</p>
+            <h3 className="text-3xl font-outfit font-black text-[#111]">{myStartup?.score || founderProfile.score || 10} <span className="text-xs text-gray-400 font-light">/ 100</span></h3>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-[#C8E64A]/10 border border-[#C8E64A]/30 flex items-center justify-center text-[#111]">
+            <Target size={18} />
+          </div>
+        </div>
+
+        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Active Bounties</p>
+            <h3 className="text-3xl font-outfit font-black text-[#111]">2 <span className="text-xs text-gray-400 font-light">Tasks</span></h3>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+            <Zap size={18} />
+          </div>
+        </div>
+
+        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+          <div>
+            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Logged Memories</p>
+            <h3 className="text-3xl font-outfit font-black text-[#111]">{decisionsCount} <span className="text-xs text-gray-400 font-light">Pivots</span></h3>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
+            <BookOpen size={18} />
           </div>
         </div>
       </div>
