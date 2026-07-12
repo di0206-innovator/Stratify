@@ -163,7 +163,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-3 py-2 text-left md:text-center text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 ${
+                className={`px-3 py-2 text-left md:text-center text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                   isActive
                     ? 'text-black border-black font-black'
                     : 'text-gray-500 hover:text-black border-transparent'
@@ -179,7 +179,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
             <div className="relative flex items-center">
               <Link
                 to="/runway"
-                className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 ${
+                className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                   executionItems.some(item => location.pathname === item.path)
                     ? 'text-black border-black font-black'
                     : 'text-gray-500 hover:text-black border-transparent'
@@ -229,7 +229,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           <div className="relative flex items-center">
             <Link
               to="/intelligence"
-              className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 ${
+              className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                 intelItems.some(item => location.pathname === item.path)
                   ? 'text-black border-black font-black'
                   : 'text-gray-500 hover:text-black border-transparent'
