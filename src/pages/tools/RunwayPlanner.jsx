@@ -378,7 +378,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
           </div>
 
           {/* Right Bento: Advice & Projection list */}
-          <div className="col-span-12 lg:col-span-7 space-y-6 flex flex-col justify-stretch">
+          <div className="col-span-12 lg:col-span-7 space-y-6">
             {/* Widget 3: Strategic Advice Desk */}
             <BentoCard title="Strategic Advice Desk" badge="FINANCIAL COUNSEL" badgeColor="bg-black" className="h-auto">
               <div className={`border p-5 rounded-xl ${Advice.color} space-y-2`}>

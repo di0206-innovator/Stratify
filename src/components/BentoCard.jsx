@@ -21,7 +21,7 @@ export default function BentoCard({
 )}
  </div>
 )}
- <div className="flex-1 flex flex-col">
+ <div className="flex-auto flex flex-col">
  {children}
  </div>
  </div>
