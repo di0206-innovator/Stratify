@@ -2,17 +2,42 @@ import React, { useState, useEffect } from 'react';
 import { Zap, ShieldAlert, Award, Play } from 'lucide-react';
 import useRealtime from '../lib/useRealtime';
 
+const FALLBACK_TICKER_ITEMS = [
+  { id: 'fallback-1', text: 'Stratify live wire is warming up.', type: 'news' },
+  { id: 'fallback-2', text: 'Startup search will surface ecosystem activity here as it lands.', type: 'signal' },
+  { id: 'fallback-3', text: 'New founder posts, discoveries, and programs stream into this wire in real time.', type: 'milestone' }
+];
+
 export default function RealtimeTicker() {
-  const [tickerItems, setTickerItems] = useState([
-    { id: '1', text: "Stripe acquires Bridge for $1.1B to scale stablecoin payments.", type: "news" },
-    { id: '2', text: "Cognito AI raises $12M Seed to automate developer operations.", type: "funding" },
-    { id: '3', text: "BioFlow Labs posted milestone: Onboarded 5 hospitals for beta clinic portal.", type: "milestone" },
-    { id: '4', text: "NEW BOUNTY: Optimize Postgres indexing for Cap Table splits (Reward: $150).", type: "bounty" },
-    { id: '5', text: "Perplexity AI raises $250M at an $8B valuation to accelerate search.", type: "news" },
-    { id: '6', text: "Reserve Bank of India mandates strict verification for digital lending apps.", type: "regulation" }
-  ]);
+  const [tickerItems, setTickerItems] = useState(FALLBACK_TICKER_ITEMS);
 
   const [highlightedId, setHighlightedId] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadTicker = async () => {
+      try {
+        const res = await fetch('/api/live/ticker?limit=10');
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (!cancelled && Array.isArray(data.items) && data.items.length > 0) {
+          setTickerItems(data.items);
+        }
+      } catch (error) {
+        console.error('Failed to load live ticker items:', error);
+      }
+    };
+
+    loadTicker();
+    const intervalId = setInterval(loadTicker, 45000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(intervalId);
+    };
+  }, []);
 
   // Subscribe to real-time events to push them dynamically into the ticker!
   useRealtime({
@@ -99,24 +124,28 @@ export default function RealtimeTicker() {
           100% { transform: translate3d(-50%, 0, 0); }
         }
         .ticker-wrap {
-          overflow: hidden;
           width: 100%;
           background: rgba(26, 26, 26, 0.98);
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          display: flex;
-          align-items: center;
-          height: 38px;
           position: sticky;
           top: 0;
           z-index: 49;
-          font-family: 'Inter', sans-serif;
           user-select: none;
+        }
+        .ticker-shell {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          min-height: 48px;
+          overflow: hidden;
         }
         .ticker-container {
           display: flex;
+          align-items: center;
           white-space: nowrap;
           animation: ticker-scroll 35s linear infinite;
           width: max-content;
+          min-width: 100%;
         }
         .ticker-container:hover {
           animation-play-state: paused;
@@ -125,7 +154,8 @@ export default function RealtimeTicker() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 3px 10px;
+          min-height: 28px;
+          padding: 4px 10px;
           margin: 0 15px;
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 6px;
@@ -136,30 +166,38 @@ export default function RealtimeTicker() {
           transition: all 0.3s ease;
         }
         .ticker-live-alert {
-          display: flex;
+          display: inline-flex;
           align-items: center;
+          justify-content: center;
           gap: 6px;
           background: #C8E64A;
           color: #000;
-          font-family: 'Outfit', sans-serif;
           font-weight: 900;
           font-size: 10px;
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          padding: 0 15px;
-          height: 100%;
-          border-right: 1px solid rgba(255, 255, 255, 0.15);
-          z-index: 50;
-          shrink-0: true;
-          box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+          line-height: 1;
+          padding: 0 14px;
+          height: 32px;
+          min-width: 172px;
+          border-radius: 10px;
+          flex-shrink: 0;
+          white-space: nowrap;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
         }
-        .ticker-live-alert span {
+        .ticker-live-alert .pulse-dot {
           width: 6px;
           height: 6px;
           background: #000;
           border-radius: 50%;
           display: inline-block;
           animation: pulse 1.2s infinite;
+        }
+        .ticker-live-alert .ticker-live-label {
+          display: block;
+          white-space: nowrap;
+          line-height: 1;
+          transform: translateY(0.5px);
         }
         @keyframes pulse {
           0% { transform: scale(0.9); opacity: 1; }
@@ -168,27 +206,30 @@ export default function RealtimeTicker() {
         }
       `}</style>
 
-      <div className="ticker-wrap flex items-center">
-        {/* Ticker Title */}
-        <div className="ticker-live-alert flex items-center shrink-0">
-          <span></span>
-          <span>LIVE ECOSYSTEM WIRE</span>
-        </div>
-
-        {/* Scrolling tape */}
-        <div className="ticker-container flex items-center">
-          {/* Double content for seamless looping */}
-          {[...tickerItems, ...tickerItems].map((item, idx) => (
-            <div
-              key={`${item.id}-${idx}`}
-              className={`ticker-item ${getItemStyle(item.type)} ${
-                highlightedId === item.id ? 'scale-105 border-white bg-white/20' : ''
-              }`}
-            >
-              {renderIcon(item.type)}
-              <span className="truncate max-w-lg">{item.text}</span>
+      <div className="ticker-wrap">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="ticker-shell">
+            <div className="ticker-live-alert">
+              <span className="pulse-dot"></span>
+              <span className="ticker-live-label">Live Ecosystem Wire</span>
             </div>
-          ))}
+
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <div className="ticker-container flex items-center">
+                {[...tickerItems, ...tickerItems].map((item, idx) => (
+                  <div
+                    key={`${item.id}-${idx}`}
+                    className={`ticker-item ${getItemStyle(item.type)} ${
+                      highlightedId === item.id ? 'scale-105 border-white bg-white/20' : ''
+                    }`}
+                  >
+                    {renderIcon(item.type)}
+                    <span className="truncate max-w-lg">{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>

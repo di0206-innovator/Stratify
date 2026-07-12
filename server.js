@@ -1,3 +1,8 @@
+const dns = require('dns');
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
+
 require('dotenv').config();
 
 const express = require('express');
@@ -27,6 +32,7 @@ const { createMetrics } = require('./lib/metrics');
 const { FileReportStore } = require('./lib/reportStore');
 const { FileSignalStore } = require('./lib/signalStore');
 const { PgStartupStore, FileStartupStore, getMatchedSchemes } = require('./lib/startupStore');
+const { getWritableDataDir, getWritableDataPath } = require('./lib/runtimePaths');
 
 // ── Scalable backends (auto-selected when DATABASE_URL / REDIS_URL are set) ──
 const USE_PG    = !!(process.env.DATABASE_URL || process.env.PGHOST);
@@ -44,6 +50,214 @@ if (USE_REDIS) {
 }
 
 const config = getConfig();
+
+function normalizeText(value) {
+    return String(value || '').toLowerCase().trim();
+}
+
+function tokenizeSearchQuery(value) {
+    return normalizeText(value)
+        .split(/\s+/)
+        .map((token) => token.trim())
+        .filter(Boolean);
+}
+
+function getStartupSearchText(startup) {
+    return [
+        startup.name,
+        startup.pitch,
+        startup.problem,
+        startup.solution,
+        startup.industry,
+        startup.geography,
+        startup.stage,
+        startup.teamStatus,
+        startup.team_status,
+        startup.traction,
+        startup.needs,
+        startup.techStack,
+        startup.tech_stack
+    ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+}
+
+function scoreStartupSearch(startup, query) {
+    const normalizedQuery = normalizeText(query);
+    if (!normalizedQuery) return 0;
+
+    const tokens = tokenizeSearchQuery(query);
+    const haystack = getStartupSearchText(startup);
+    const name = normalizeText(startup.name);
+    const pitch = normalizeText(startup.pitch);
+    let score = 0;
+
+    if (name === normalizedQuery) score += 160;
+    if (name.startsWith(normalizedQuery)) score += 120;
+    if (name.includes(normalizedQuery)) score += 90;
+    if (pitch.includes(normalizedQuery)) score += 30;
+    if (haystack.includes(normalizedQuery)) score += 24;
+
+    for (const token of tokens) {
+        if (name.includes(token)) score += 24;
+        if (pitch.includes(token)) score += 10;
+        if (haystack.includes(token)) score += 6;
+    }
+
+    return score;
+}
+
+function matchesStartupSearch(startup, query) {
+    return scoreStartupSearch(startup, query) > 0;
+}
+
+function matchesStartupStage(startup, stage) {
+    const normalizedFilter = normalizeText(stage);
+    if (!normalizedFilter || normalizedFilter === 'all') return true;
+
+    const normalizedStage = normalizeText(startup.stage);
+    const stageAliases = {
+        idea: ['idea', 'ideation', 'pre-seed'],
+        seed: ['seed', 'pre-seed'],
+        mvp: ['mvp', 'prototype', 'beta'],
+        launched: ['launched', 'launch', 'live'],
+        scaling: ['scaling', 'scale', 'series a', 'series b'],
+        growth: ['growth', 'unicorn', 'late stage']
+    };
+
+    return (stageAliases[normalizedFilter] || [normalizedFilter]).some((alias) => normalizedStage.includes(alias));
+}
+
+function decodeHtmlEntities(value) {
+    return String(value || '')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&nbsp;/g, ' ');
+}
+
+function normalizeSearchResultUrl(rawUrl) {
+    let decoded = decodeHtmlEntities(rawUrl);
+
+    if (decoded.startsWith('//')) {
+        decoded = `https:${decoded}`;
+    }
+
+    try {
+        const parsed = new URL(decoded);
+        if (parsed.hostname.includes('duckduckgo.com')) {
+            const wrapped = parsed.searchParams.get('uddg');
+            if (wrapped) return decodeURIComponent(wrapped);
+        }
+        return parsed.toString();
+    } catch {
+        return decoded;
+    }
+}
+
+function stripTags(value) {
+    return decodeHtmlEntities(String(value || '').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+}
+
+function extractStartupNameFromTitle(title, fallbackUrl = '') {
+    const cleaned = stripTags(title)
+        .replace(/\s+[|\-–—]\s+.*$/, '')
+        .replace(/\s+\(.+?\)\s*$/, '')
+        .trim();
+    if (cleaned) return cleaned;
+
+    try {
+        const hostname = new URL(fallbackUrl).hostname.replace(/^www\./, '');
+        return hostname.split('.')[0];
+    } catch {
+        return 'Startup Result';
+    }
+}
+
+function inferIndustryFromText(text) {
+    const normalized = normalizeText(text);
+    const rules = [
+        ['fintech', ['payments', 'banking', 'fintech', 'lending', 'card']],
+        ['healthtech', ['health', 'biotech', 'hospital', 'clinical', 'medtech']],
+        ['ai', ['ai', 'artificial intelligence', 'machine learning', 'llm']],
+        ['saas', ['software', 'platform', 'saas', 'workflow']],
+        ['climate', ['climate', 'carbon', 'energy', 'sustainability']],
+        ['ecommerce', ['commerce', 'retail', 'marketplace', 'shopping']]
+    ];
+
+    for (const [industry, keywords] of rules) {
+        if (keywords.some((keyword) => normalized.includes(keyword))) {
+            return industry;
+        }
+    }
+
+    return 'startup';
+}
+
+async function searchStartupCompaniesOnWeb(query, { limit = 8, fetchImpl = fetch } = {}) {
+    const startupQuery = `${query} startup company`;
+    const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(startupQuery)}`;
+    const response = await fetchImpl(url, {
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`DuckDuckGo startup search failed with ${response.status}`);
+    }
+
+    const html = await response.text();
+    const results = [];
+    const resultRegex = /<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?(?:<a[^>]*class="[^"]*result__snippet[^"]*"[^>]*>|<div[^>]*class="[^"]*result__snippet[^"]*"[^>]*>)([\s\S]*?)(?:<\/a>|<\/div>)/gi;
+    let match;
+
+    while ((match = resultRegex.exec(html)) && results.length < limit) {
+        const rawUrl = normalizeSearchResultUrl(match[1]);
+        const title = stripTags(match[2]);
+        const summary = stripTags(match[3]);
+
+        if (!rawUrl || !title) continue;
+        if (/duckduckgo\.com/i.test(rawUrl)) continue;
+
+        const startupName = extractStartupNameFromTitle(title, rawUrl);
+        const searchableText = `${title} ${summary} ${rawUrl}`;
+        const searchScore = scoreStartupSearch({
+            name: startupName,
+            pitch: summary,
+            problem: summary,
+            solution: summary,
+            industry: inferIndustryFromText(searchableText),
+            geography: '',
+            stage: 'live'
+        }, query);
+
+        results.push({
+            id: `web-${crypto.createHash('md5').update(rawUrl).digest('hex').slice(0, 12)}`,
+            name: startupName,
+            pitch: summary || title,
+            problem: '',
+            solution: '',
+            stage: 'live',
+            industry: inferIndustryFromText(searchableText),
+            geography: 'Web',
+            teamStatus: 'Live web result',
+            traction: '',
+            needs: '',
+            techStack: '',
+            websiteUrl: rawUrl,
+            externalUrl: rawUrl,
+            score: Math.max(45, searchScore),
+            searchScore: Math.max(45, searchScore),
+            sourceType: 'web_search'
+        });
+    }
+
+    return results;
+}
 
 function createApp(options = {}) {
     const app = express();
@@ -73,7 +287,7 @@ function createApp(options = {}) {
         reportStore = new PgReportStore({ maxReports: appConfig.maxStoredReports });
     } else {
         reportStore = options.reportStore || new FileReportStore({
-            filePath: appConfig.reportStorePath || path.join(__dirname, 'data', 'reports.json'),
+            filePath: appConfig.reportStorePath || getWritableDataPath('reports.json'),
             maxReports: appConfig.maxStoredReports
         });
     }
@@ -82,12 +296,12 @@ function createApp(options = {}) {
         signalStore = new PgSignalStore({ redis });
     } else {
         signalStore = options.signalStore || new FileSignalStore({
-            filePath: appConfig.signalStorePath || path.join(__dirname, 'data', 'signals.json')
+            filePath: appConfig.signalStorePath || getWritableDataPath('signals.json')
         });
     }
 
     const authStore = options.authStore || new FileAuthStore({
-        filePath: appConfig.authStorePath || path.join(__dirname, 'data', 'auth.json')
+        filePath: appConfig.authStorePath || getWritableDataPath('auth.json')
     });
 
     if (USE_PG && !options.authService) {
@@ -103,7 +317,7 @@ function createApp(options = {}) {
         if (USE_PG) {
             startupStore = new PgStartupStore();
         } else {
-            startupStore = new FileStartupStore();
+            startupStore = new FileStartupStore(getWritableDataDir());
         }
     }
     const auth = createAuthMiddleware({ token: appConfig.apiAuthToken, authService });
@@ -1117,26 +1331,31 @@ Return EXACTLY a valid JSON object matching the following structure and no other
         try {
             const { industry, stage, geography, search } = req.query;
             const limit = Number(req.query.limit || 30);
+            const trimmedSearch = String(search || '').trim();
 
             // Get local list
             let startups = await startupStore.listStartups({ limit: 100 });
 
             // Check if there is any local match by search query (ignoring stage/industry filters)
             let hasLocalMatch = false;
-            if (search) {
-                const q = search.toLowerCase().trim();
-                hasLocalMatch = startups.some(s =>
-                    (s.name || '').toLowerCase().includes(q) ||
-                    (s.pitch || '').toLowerCase().includes(q)
-                );
+            let localMatches = [];
+            if (trimmedSearch) {
+                localMatches = startups
+                    .map((startup) => ({ startup, searchScore: scoreStartupSearch(startup, trimmedSearch) }))
+                    .filter((entry) => entry.searchScore > 0)
+                    .sort((a, b) => b.searchScore - a.searchScore || (b.startup.score || 0) - (a.startup.score || 0));
+                hasLocalMatch = localMatches.length > 0;
             }
 
-            // Real-time lookup fallback: if no startups found locally across all stages, and a search query is provided
-            if (!hasLocalMatch && search && search.trim().length >= 3) {
+            // Real-time lookup fallback: if search is provided and local results are weak, synthesize a live startup profile.
+            if (trimmedSearch.length >= 3 && localMatches.length < Math.min(limit, 6)) {
                 try {
-                    const seededStartup = await fetchAndSeedStartupFromWeb(search.trim(), orchestrator, startupStore, logger);
+                    const seededStartup = await fetchAndSeedStartupFromWeb(trimmedSearch, orchestrator, startupStore, logger);
                     if (seededStartup) {
-                        startups.push(seededStartup);
+                        const alreadyPresent = startups.some((startup) => normalizeText(startup.name) === normalizeText(seededStartup.name));
+                        if (!alreadyPresent) {
+                            startups.push(seededStartup);
+                        }
 
                         // Broadcast real-time discovery notification to all connected clients
                         broadcastEvent('post_created', {
@@ -1151,21 +1370,47 @@ Return EXACTLY a valid JSON object matching the following structure and no other
                         });
                     }
                 } catch (err) {
-                    logger.warn(`[Realtime Explorer] Failed to dynamically seed startup for query "${search}":`, err.message);
+                    logger.warn(`[Realtime Explorer] Failed to dynamically seed startup for query "${trimmedSearch}":`, err.message);
+                }
+            }
+
+            if (trimmedSearch.length >= 2) {
+                try {
+                    const webResults = await searchStartupCompaniesOnWeb(trimmedSearch, { limit: Math.min(limit, 8) });
+                    for (const webStartup of webResults) {
+                        const duplicate = startups.some((startup) => {
+                            return normalizeText(startup.name) === normalizeText(webStartup.name)
+                                || normalizeText(startup.websiteUrl) === normalizeText(webStartup.websiteUrl);
+                        });
+                        if (!duplicate) {
+                            startups.push(webStartup);
+                        }
+                    }
+                } catch (err) {
+                    logger.warn(`[Realtime Explorer] Public startup search failed for "${trimmedSearch}":`, err.message);
                 }
             }
 
             // Now apply filters (search, stage, industry, geography)
-            if (search) {
-                const q = search.toLowerCase().trim();
-                startups = startups.filter(s =>
-                    (s.name || '').toLowerCase().includes(q) ||
-                    (s.pitch || '').toLowerCase().includes(q)
-                );
-            }
-            if (industry) startups = startups.filter(s => (s.industry || '').toLowerCase().includes(industry.toLowerCase()));
-            if (stage) startups = startups.filter(s => (s.stage || '').toLowerCase() === stage.toLowerCase());
-            if (geography) startups = startups.filter(s => (s.geography || '').toLowerCase().includes(geography.toLowerCase()));
+            const filtered = startups.filter((startup) => {
+                if (trimmedSearch && !matchesStartupSearch(startup, trimmedSearch)) return false;
+                if (industry && !(startup.industry || '').toLowerCase().includes(industry.toLowerCase())) return false;
+                if (stage && !matchesStartupStage(startup, stage)) return false;
+                if (geography && !(startup.geography || '').toLowerCase().includes(geography.toLowerCase())) return false;
+                return true;
+            });
+
+            startups = filtered
+                .map((startup) => ({
+                    ...startup,
+                    searchScore: trimmedSearch ? scoreStartupSearch(startup, trimmedSearch) : 0
+                }))
+                .sort((a, b) => {
+                    if (trimmedSearch) {
+                        return b.searchScore - a.searchScore || (b.score || 0) - (a.score || 0);
+                    }
+                    return (b.score || 0) - (a.score || 0);
+                });
 
             const enriched = startups.map(s => {
                 let matchReason = null;
@@ -1194,7 +1439,55 @@ Return EXACTLY a valid JSON object matching the following structure and no other
                 return { ...s, matchReason };
             });
 
-            res.json({ requestId: req.id, startups: enriched });
+            res.json({
+                requestId: req.id,
+                startups: enriched.slice(0, limit),
+                meta: {
+                    mode: trimmedSearch ? 'startup_search' : 'directory',
+                    query: trimmedSearch || null,
+                    localMatches: hasLocalMatch
+                }
+            });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.get('/api/live/ticker', optionalAuth, async (req, res, next) => {
+        try {
+            const limit = Math.max(3, Math.min(20, Number(req.query.limit || 10)));
+            const [posts, startups, opportunities] = await Promise.all([
+                startupStore.listPosts({ limit: 8 }),
+                startupStore.getTrendingStartups({ limit: 6 }),
+                startupStore.listOpportunities({ limit: 4 })
+            ]);
+
+            const items = [
+                ...posts.map((post) => ({
+                    id: `post-${post.id}`,
+                    type: post.metadata?.isSystemNews ? 'news' : (post.type === 'milestone' || post.type === 'launch' ? 'milestone' : 'post'),
+                    text: post.metadata?.isSystemNews
+                        ? post.content
+                        : `${post.startupName || post.authorName || 'Founder'}: ${String(post.content || '').slice(0, 120)}`,
+                    createdAt: post.createdAt || post.created_at || new Date().toISOString()
+                })),
+                ...startups.map((startup) => ({
+                    id: `startup-${startup.id}`,
+                    type: 'funding',
+                    text: `${startup.name} is trending in ${startup.industry || 'the ecosystem'} at the ${startup.stage || 'active'} stage.`,
+                    createdAt: startup.updated_at || startup.created_at || new Date().toISOString()
+                })),
+                ...opportunities.map((opp) => ({
+                    id: `opp-${opp.id}`,
+                    type: 'bounty',
+                    text: `${opp.organization || 'Ecosystem Program'}: ${opp.title} now open for ${opp.stages || 'active'} startups.`,
+                    createdAt: opp.created_at || new Date().toISOString()
+                }))
+            ]
+                .filter((item) => item.text)
+                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+            res.json({ requestId: req.id, items: items.slice(0, limit) });
         } catch (error) {
             next(error);
         }

@@ -6,9 +6,11 @@ export default function Explore({ user, founderProfile }) {
   const [startups, setStartups] = useState([]);
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [matchingId, setMatchingId] = useState(null);
   const [activeTab, setActiveTab] = useState('startups'); // 'startups' or 'people'
   const [search, setSearch] = useState('');
+  const [searchMeta, setSearchMeta] = useState(null);
   
   // Filters
   const [stageFilter, setStageFilter] = useState('all');
@@ -24,9 +26,11 @@ export default function Explore({ user, founderProfile }) {
 
   const fetchExploreData = async () => {
     setLoading(true);
+    setError('');
     try {
       const queryParams = new URLSearchParams();
-      if (search) queryParams.set('search', search);
+      const trimmedSearch = search.trim();
+      if (trimmedSearch) queryParams.set('search', trimmedSearch);
 
       if (activeTab === 'startups') {
         if (stageFilter && stageFilter !== 'all') queryParams.set('stage', stageFilter);
@@ -36,6 +40,11 @@ export default function Explore({ user, founderProfile }) {
         if (res.ok) {
           const data = await res.json();
           setStartups(data.startups || []);
+          setSearchMeta(data.meta || null);
+        } else {
+          setStartups([]);
+          setSearchMeta(null);
+          setError('Could not load startup search results right now.');
         }
       } else {
         if (roleFilter && roleFilter !== 'all') queryParams.set('role', roleFilter);
@@ -44,10 +53,21 @@ export default function Explore({ user, founderProfile }) {
         if (res.ok) {
           const data = await res.json();
           setPeople(data.people || []);
+          setSearchMeta(null);
+        } else {
+          setPeople([]);
+          setError('Could not load people search results right now.');
         }
       }
     } catch (e) {
       console.error('Fetch error:', e);
+      if (activeTab === 'startups') {
+        setStartups([]);
+        setSearchMeta(null);
+      } else {
+        setPeople([]);
+      }
+      setError('Something went wrong while loading explore results.');
     } finally {
       setLoading(false);
     }
@@ -71,19 +91,36 @@ export default function Explore({ user, founderProfile }) {
     }
   };
 
-  const filteredStartups = startups.filter(s => {
-    const q = search.toLowerCase();
-    const matchSearch = (s.name || '').toLowerCase().includes(q) || (s.pitch || '').toLowerCase().includes(q);
-    const matchStage = stageFilter === 'all' || (s.stage || '').toLowerCase() === stageFilter.toLowerCase();
-    return matchSearch && matchStage;
-  });
-
   const filteredPeople = people.filter(p => {
     const q = search.toLowerCase();
     const matchSearch = (p.name || '').toLowerCase().includes(q) || (p.email || '').toLowerCase().includes(q);
     const matchRole = roleFilter === 'all' || p.role === roleFilter;
     return matchSearch && matchRole;
   });
+
+  const StartupCardWrapper = ({ startup, children }) => {
+    if (startup.externalUrl) {
+      return (
+        <a
+          href={startup.externalUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="os-card bg-white hover:border-black transition-all flex flex-col justify-between group"
+        >
+          {children}
+        </a>
+      );
+    }
+
+    return (
+      <Link
+        to={`/startups/${startup.id}`}
+        className="os-card bg-white hover:border-black transition-all flex flex-col justify-between group"
+      >
+        {children}
+      </Link>
+    );
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-[#111]">
@@ -129,7 +166,7 @@ export default function Explore({ user, founderProfile }) {
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder={`Search ${activeTab}...`}
+            placeholder={activeTab === 'startups' ? 'Search any startup, company, sector, or founder...' : `Search ${activeTab}...`}
             className="os-input pl-10 pr-4 py-2 font-semibold text-sm focus:outline-none"
           />
         </div>
@@ -141,10 +178,12 @@ export default function Explore({ user, founderProfile }) {
             className="os-input md:w-44 px-4 py-2 font-semibold text-sm focus:outline-none"
           >
             <option value="all">All Stages</option>
-            <option value="ideation">Ideation</option>
+            <option value="idea">Idea</option>
+            <option value="seed">Seed</option>
             <option value="mvp">MVP</option>
             <option value="launched">Launched</option>
             <option value="scaling">Scaling</option>
+            <option value="growth">Growth / Unicorn</option>
           </select>
         ) : (
           <select
@@ -160,6 +199,30 @@ export default function Explore({ user, founderProfile }) {
         )}
       </div>
 
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+          {error}
+        </div>
+      )}
+
+      {activeTab === 'startups' && (
+        <div className="rounded-xl border border-gray-200 bg-[#FAF9F6] px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Startup Search</p>
+            <p className="text-sm text-gray-700">
+              {search.trim()
+                ? `Searching the startup graph${searchMeta?.localMatches ? '' : ' and the live web'} for "${search.trim()}".`
+                : 'Use this like startup-specific search: company names, sectors, products, founders, investors, or markets.'}
+            </p>
+          </div>
+          {searchMeta?.mode === 'startup_search' && (
+            <span className="shrink-0 rounded-full border border-[#C8E64A]/40 bg-[#C8E64A]/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#111]">
+              Real-time startup search
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Grid */}
       {loading ? (
         <div className="text-center py-16">
@@ -168,11 +231,10 @@ export default function Explore({ user, founderProfile }) {
         </div>
       ) : activeTab === 'startups' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredStartups.map(startup => (
-            <Link 
+          {startups.map(startup => (
+            <StartupCardWrapper
               key={startup.id} 
-              to={`/startups/${startup.id}`}
-              className="os-card bg-white hover:border-black transition-all flex flex-col justify-between group"
+              startup={startup}
             >
               <div>
                 <div className="flex items-start justify-between mb-3 border-b border-gray-100 pb-2">
@@ -204,15 +266,26 @@ export default function Explore({ user, founderProfile }) {
                     {startup.matchReason}
                   </div>
                 )}
+                {startup.sourceType === 'web_search' && (
+                  <div className="w-full mt-3 text-xs font-semibold text-gray-800 bg-sky-50 border border-sky-200 p-2.5 rounded-lg">
+                    <span className="uppercase text-[9px] font-bold mr-1 bg-sky-600 text-white px-1.5 py-0.5 rounded">WEB</span>
+                    Live startup search result
+                  </div>
+                )}
+                {search.trim() && startup.searchScore > 0 && (
+                  <div className="w-full mt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400">
+                    Search relevance {startup.searchScore}
+                  </div>
+                )}
               </div>
-            </Link>
+            </StartupCardWrapper>
           ))}
-          {filteredStartups.length === 0 && (
+          {startups.length === 0 && (
             <div className="col-span-full border border-dashed border-gray-300 p-16 text-center bg-white rounded-2xl select-none">
               <span className="block text-[9px] font-bold uppercase text-gray-400 mb-2 tracking-wider">ECOSYSTEM EXPLORER</span>
               <h4 className="font-outfit font-bold text-lg text-black mb-1">No Startups Found</h4>
               <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
-                Adjust your industry/stage filters above, or define a new workspace vertical to bootstrap deal flow.
+                Try another keyword, or broaden the stage filter to search across more of the mapped ecosystem.
               </p>
             </div>
           )}
