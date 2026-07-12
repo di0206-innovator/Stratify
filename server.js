@@ -33,6 +33,7 @@ const { FileReportStore } = require('./lib/reportStore');
 const { FileSignalStore } = require('./lib/signalStore');
 const { PgStartupStore, FileStartupStore, getMatchedSchemes } = require('./lib/startupStore');
 const { getWritableDataDir, getWritableDataPath } = require('./lib/runtimePaths');
+const { getSupabaseAdmin } = require('./lib/supabaseServer');
 
 // ── Scalable backends (auto-selected when DATABASE_URL / REDIS_URL are set) ──
 const USE_PG    = !!(process.env.DATABASE_URL || process.env.PGHOST);
@@ -1075,52 +1076,74 @@ For more information, visit their website: [${startup.websiteUrl || 'Official We
     // ── Decisions (Founder Memory) ──
     app.post('/api/decisions', auth, async (req, res, next) => {
         try {
-            let startup = await startupStore.getStartupByOwner(req.user.id);
-            // Auto-create a stub startup if none exists so Memory works standalone
-            if (!startup) {
-                const userName = req.user.name || req.user.username || req.user.email?.split('@')[0] || 'Founder';
-                startup = {
-                    id: crypto.randomUUID(),
-                    ownerId: req.user.id,
-                    name: `${userName}'s Startup`,
-                    pitch: '', problem: '', solution: '',
-                    stage: 'idea', industry: '', geography: '',
-                    teamStatus: 'solo', traction: '', needs: '',
-                    techStack: '', score: 10,
-                    deckUrl: '', websiteUrl: '', revenue: '', fundingRaised: ''
-                };
-                await startupStore.saveStartup(startup);
-            }
+            const sb = getSupabaseAdmin();
             const body = req.body || {};
             if (!body.title) {
                 throw new HttpError(400, 'MISSING_FIELD', 'Decision title is required.');
             }
-            const decision = {
-                id: crypto.randomUUID(),
-                startupId: startup.id,
-                authorId: req.user.id,
-                title: body.title,
-                context: body.context || '',
-                outcome: body.outcome || '',
-                status: body.status || 'active'
-            };
-            const saved = await startupStore.createDecision(decision);
 
-            // Increment startup score
+            const userId = req.user.id;
+
+            if (sb) {
+                // ── Supabase path (Vercel / production) ──────────────────────
+                // Upsert a stub startup so decisions have a parent row
+                let startupId = null;
+                const { data: existing } = await sb.from('startups').select('id,score').eq('owner_id', userId).maybeSingle();
+                if (existing) {
+                    startupId = existing.id;
+                    // bump score
+                    await sb.from('startups').update({ score: (existing.score || 10) + 5, updated_at: new Date().toISOString() }).eq('id', startupId);
+                } else {
+                    const userName = req.user.name || req.user.username || req.user.email?.split('@')[0] || 'Founder';
+                    const newStartup = {
+                        id: crypto.randomUUID(),
+                        owner_id: userId,
+                        name: `${userName}'s Startup`,
+                        score: 15
+                    };
+                    await sb.from('startups').insert(newStartup);
+                    startupId = newStartup.id;
+                }
+
+                const decisionId = crypto.randomUUID();
+                const { data: saved, error: insertErr } = await sb.from('decisions').insert({
+                    id: decisionId,
+                    startup_id: startupId,
+                    author_id: userId,
+                    title: body.title,
+                    context: body.context || '',
+                    outcome: body.outcome || '',
+                    status: body.status || 'active'
+                }).select().single();
+
+                if (insertErr) throw new HttpError(500, 'DB_ERROR', insertErr.message);
+
+                // Also log a timeline event
+                await sb.from('timeline_events').insert({
+                    id: crypto.randomUUID(),
+                    startup_id: startupId,
+                    actor_id: userId,
+                    event_type: 'decision',
+                    title: `Decision: ${body.title}`,
+                    description: body.context || '',
+                    metadata: { decisionId }
+                }).catch(() => {});
+
+                return res.status(201).json({ requestId: req.id, decision: saved });
+            }
+
+            // ── Fallback: local file / PG store ──────────────────────────
+            let startup = await startupStore.getStartupByOwner(userId);
+            if (!startup) {
+                const userName = req.user.name || req.user.username || req.user.email?.split('@')[0] || 'Founder';
+                startup = { id: crypto.randomUUID(), ownerId: userId, name: `${userName}'s Startup`, pitch: '', problem: '', solution: '', stage: 'idea', industry: '', geography: '', teamStatus: 'solo', traction: '', needs: '', techStack: '', score: 10, deckUrl: '', websiteUrl: '', revenue: '', fundingRaised: '' };
+                await startupStore.saveStartup(startup);
+            }
+            const decision = { id: crypto.randomUUID(), startupId: startup.id, authorId: userId, title: body.title, context: body.context || '', outcome: body.outcome || '', status: body.status || 'active' };
+            const saved = await startupStore.createDecision(decision);
             startup.score = (startup.score || 10) + 5;
             await startupStore.updateStartup(startup.id, { score: startup.score });
-
-            // Emit timeline event
-            await startupStore.createTimelineEvent({
-                id: crypto.randomUUID(),
-                startupId: startup.id,
-                actorId: req.user.id,
-                eventType: 'decision',
-                title: `Decision: ${decision.title}`,
-                description: decision.context,
-                metadata: { decisionId: decision.id }
-            });
-
+            await startupStore.createTimelineEvent({ id: crypto.randomUUID(), startupId: startup.id, actorId: userId, eventType: 'decision', title: `Decision: ${decision.title}`, description: decision.context, metadata: { decisionId: decision.id } });
             res.status(201).json({ requestId: req.id, decision: saved });
         } catch (error) {
             next(error);
@@ -1129,10 +1152,28 @@ For more information, visit their website: [${startup.websiteUrl || 'Official We
 
     app.get('/api/decisions', auth, async (req, res, next) => {
         try {
-            const startup = await startupStore.getStartupByOwner(req.user.id);
-            if (!startup) {
-                return res.json({ requestId: req.id, decisions: [] });
+            const sb = getSupabaseAdmin();
+            const userId = req.user.id;
+
+            if (sb) {
+                // ── Supabase path ──────────────────────────────────────────
+                const { data: startup } = await sb.from('startups').select('id').eq('owner_id', userId).maybeSingle();
+                if (!startup) return res.json({ requestId: req.id, decisions: [] });
+
+                const { data: decisions, error } = await sb
+                    .from('decisions')
+                    .select('*')
+                    .eq('startup_id', startup.id)
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+
+                if (error) throw new HttpError(500, 'DB_ERROR', error.message);
+                return res.json({ requestId: req.id, decisions: decisions || [] });
             }
+
+            // ── Fallback ───────────────────────────────────────────────────
+            const startup = await startupStore.getStartupByOwner(userId);
+            if (!startup) return res.json({ requestId: req.id, decisions: [] });
             const decisions = await startupStore.listDecisions(startup.id);
             res.json({ requestId: req.id, decisions });
         } catch (error) {
