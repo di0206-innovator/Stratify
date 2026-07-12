@@ -7,6 +7,15 @@ import {
 export default function FounderDashboard({ founderProfile, user, openAuthModal, currentReport, setCurrentReport }) {
   const [myStartup, setMyStartup] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOutsideClick = () => {
+      setIsActionDropdownOpen(false);
+    };
+    window.addEventListener('click', handleOutsideClick);
+    return () => window.removeEventListener('click', handleOutsideClick);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,13 +52,37 @@ export default function FounderDashboard({ founderProfile, user, openAuthModal, 
             {myStartup ? myStartup.pitch : 'Initialize your startup graph to unlock automated intelligence.'}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Link to="/startups/my" className="os-btn">
+        <div className="flex items-center gap-3 relative">
+          <Link to={`/startups/${myStartup?.id || 'my'}`} className="os-btn select-none">
             View Public Profile
           </Link>
-          <button className="os-btn-primary">
-            New Strategic Action
-          </button>
+          <div className="relative">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsActionDropdownOpen(!isActionDropdownOpen);
+              }}
+              className="os-btn-primary flex items-center gap-1.5 select-none"
+            >
+              New Strategic Action <span className="text-[9px]">▼</span>
+            </button>
+            {isActionDropdownOpen && (
+              <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-gray-200 shadow-xl rounded-xl z-50 py-1" onClick={(e) => e.stopPropagation()}>
+                <Link to="/intelligence" onClick={() => setIsActionDropdownOpen(false)} className="block px-4 py-2.5 text-xs font-bold uppercase text-gray-700 hover:bg-[#C8E64A]/15 hover:text-black transition-colors">
+                  💡 Generate brief / report
+                </Link>
+                <Link to="/runway" onClick={() => setIsActionDropdownOpen(false)} className="block px-4 py-2.5 text-xs font-bold uppercase text-gray-700 hover:bg-[#C8E64A]/15 hover:text-black transition-colors">
+                  📊 Simulate runway Burn
+                </Link>
+                <Link to="/memory" onClick={() => setIsActionDropdownOpen(false)} className="block px-4 py-2.5 text-xs font-bold uppercase text-gray-700 hover:bg-[#C8E64A]/15 hover:text-black transition-colors">
+                  🧠 Log hypothesis memory
+                </Link>
+                <Link to="/bounties" onClick={() => setIsActionDropdownOpen(false)} className="block px-4 py-2.5 text-xs font-bold uppercase text-gray-700 hover:bg-[#C8E64A]/15 hover:text-black transition-colors">
+                  🛠️ Post micro bounty task
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

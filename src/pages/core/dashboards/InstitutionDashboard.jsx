@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Building, MapPin, Activity, FileText, ArrowRight, ShieldCheck, Search, BookOpen
+  Building, MapPin, Activity, FileText, ArrowRight, ShieldCheck, Search, BookOpen, Plus, X, Landmark
 } from 'lucide-react';
 
 export default function InstitutionDashboard({ founderProfile, user }) {
   const [govSchemes, setGovSchemes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newProgram, setNewProgram] = useState({
+    title: '',
+    description: '',
+    budget: '',
+    geography: founderProfile?.geography || 'Any',
+    industry: 'Any'
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,8 +33,32 @@ export default function InstitutionDashboard({ founderProfile, user }) {
     fetchData();
   }, []);
 
+  const handleCreateProgram = (e) => {
+    e.preventDefault();
+    if (!newProgram.title || !newProgram.description) return;
+    
+    const created = {
+      id: `custom-scheme-${Date.now()}`,
+      name: newProgram.title,
+      description: newProgram.description,
+      incentive: newProgram.budget || 'Grants / Subsidies',
+      geography: newProgram.geography,
+      industry: newProgram.industry
+    };
+
+    setGovSchemes(prev => [created, ...prev]);
+    setIsCreateModalOpen(false);
+    setNewProgram({
+      title: '',
+      description: '',
+      budget: '',
+      geography: founderProfile?.geography || 'Any',
+      industry: 'Any'
+    });
+  };
+
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-10 space-y-8 animate-fade-in">
+    <div className="w-full max-w-7xl mx-auto px-6 py-10 space-y-8 animate-fade-in relative">
       {/* Header Area */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-200/60">
         <div>
@@ -44,9 +76,15 @@ export default function InstitutionDashboard({ founderProfile, user }) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link to="/explore" className="os-btn-primary">
-            <Search size={16} /> Regional Map
+          <Link to="/explore" className="os-btn">
+            <Search size={14} className="inline mr-1" /> Explore Directory
           </Link>
+          <button 
+            onClick={() => setIsCreateModalOpen(true)}
+            className="os-btn-primary flex items-center gap-1.5"
+          >
+            <Plus size={14} /> Deploy New Program
+          </button>
         </div>
       </div>
 
@@ -89,9 +127,14 @@ export default function InstitutionDashboard({ founderProfile, user }) {
             <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-200/60">
               <div className="flex items-center gap-2">
                 <FileText size={16} className="text-gray-400" />
-                <h3 className="font-outfit font-bold text-base text-[#111]">Active Programs & Grants</h3>
+                <h3 className="font-outfit font-bold text-base text-[#111]">Active Programs & Grants ({govSchemes.length})</h3>
               </div>
-              <button className="text-xs text-gray-500 hover:text-gray-900 font-medium">Manage Programs</button>
+              <button 
+                onClick={() => setIsCreateModalOpen(true)}
+                className="text-xs text-gray-500 hover:text-gray-900 font-semibold hover:underline"
+              >
+                + New Program
+              </button>
             </div>
             
             {loading ? (
@@ -101,11 +144,18 @@ export default function InstitutionDashboard({ founderProfile, user }) {
             ) : govSchemes.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {govSchemes.map(scheme => (
-                  <div key={scheme.id} className="border border-gray-200 rounded-lg p-4 hover:border-black transition-colors cursor-pointer bg-white">
-                    <h4 className="font-bold text-sm mb-1 text-[#111]">{scheme.title}</h4>
-                    <p className="text-xs text-gray-500 line-clamp-2 mb-3 leading-relaxed">{scheme.description}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold uppercase rounded">{scheme.budget}</span>
+                  <div key={scheme.id} className="border border-gray-250 rounded-lg p-5 hover:border-black transition-colors cursor-pointer bg-white flex flex-col justify-between group shadow-sm">
+                    <div>
+                      <h4 className="font-outfit font-bold text-sm mb-2 text-[#111] group-hover:text-black leading-snug">{scheme.name || scheme.title}</h4>
+                      <p className="text-xs text-gray-500 line-clamp-3 mb-4 leading-relaxed font-light">{scheme.description}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 pt-3 border-t border-gray-100">
+                      <span className="px-2.5 py-0.5 bg-[#C8E64A]/25 border border-[#C8E64A]/40 text-black text-[9px] font-black uppercase rounded-md">
+                        {scheme.incentive || scheme.budget}
+                      </span>
+                      <span className="px-2 py-0.5 bg-gray-50 border border-gray-200 text-gray-500 text-[9px] font-bold uppercase rounded-md flex items-center gap-1">
+                        <MapPin size={8} /> {scheme.geography}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -119,7 +169,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
                 <p className="text-xs text-gray-500 max-w-sm mb-5 leading-relaxed">
                   Deploy programs to support technical founders in your mandate region.
                 </p>
-                <button className="os-btn">
+                <button onClick={() => setIsCreateModalOpen(true)} className="os-btn">
                   Create Program
                 </button>
               </div>
@@ -127,6 +177,92 @@ export default function InstitutionDashboard({ founderProfile, user }) {
           </div>
         </div>
       </div>
+
+      {/* Deploy Program Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
+          <div className="bg-white border border-gray-200 shadow-2xl rounded-2xl w-full max-w-lg overflow-hidden animate-slide-up">
+            <div className="bg-[#FAF9F6] border-b border-gray-200 px-6 py-4 flex items-center justify-between select-none">
+              <div className="flex items-center gap-2">
+                <Landmark className="text-gray-500" size={18} />
+                <h3 className="font-outfit font-black text-sm uppercase tracking-wide">Deploy New Grant Program</h3>
+              </div>
+              <button 
+                onClick={() => setIsCreateModalOpen(false)}
+                className="text-gray-400 hover:text-black transition-colors cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleCreateProgram} className="p-6 space-y-4">
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Program Name *</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="e.g. DeepTech Commercialization Grant Scheme"
+                  value={newProgram.title}
+                  onChange={e => setNewProgram(prev => ({ ...prev, title: e.target.value }))}
+                  className="os-input"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Description & Scope *</label>
+                <textarea 
+                  required
+                  rows={3}
+                  placeholder="Provide details about funding scope, target founders, and application guidelines..."
+                  value={newProgram.description}
+                  onChange={e => setNewProgram(prev => ({ ...prev, description: e.target.value }))}
+                  className="os-input resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Incentive / Budget *</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="e.g. Up to $100k non-dilutive"
+                    value={newProgram.budget}
+                    onChange={e => setNewProgram(prev => ({ ...prev, budget: e.target.value }))}
+                    className="os-input"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Geography Mandate</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. India, EU, Global"
+                    value={newProgram.geography}
+                    onChange={e => setNewProgram(prev => ({ ...prev, geography: e.target.value }))}
+                    className="os-input"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 select-none">
+                <button 
+                  type="button" 
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="px-4 py-2 bg-white border border-gray-250 text-gray-650 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:border-black cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="px-5 py-2 bg-[#C8E64A] text-black border-0 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-[#B5D235] cursor-pointer shadow-sm"
+                >
+                  Deploy Program
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

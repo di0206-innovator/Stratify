@@ -7,6 +7,7 @@ import {
 export default function VCDashboard({ founderProfile, user }) {
   const [trendingStartups, setTrendingStartups] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [thesisKeyword, setThesisKeyword] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,6 +25,17 @@ export default function VCDashboard({ founderProfile, user }) {
     };
     fetchData();
   }, []);
+
+  const filteredStartups = trendingStartups.filter(startup => {
+    if (!thesisKeyword.trim()) return true;
+    const kw = thesisKeyword.toLowerCase().trim();
+    return (
+      (startup.name || '').toLowerCase().includes(kw) ||
+      (startup.pitch || '').toLowerCase().includes(kw) ||
+      (startup.industry || '').toLowerCase().includes(kw) ||
+      (startup.stage || '').toLowerCase().includes(kw)
+    );
+  });
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-10 space-y-8 animate-fade-in">
@@ -59,14 +71,20 @@ export default function VCDashboard({ founderProfile, user }) {
             <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
               <Crosshair size={120} />
             </div>
-            <div className="relative z-10">
-              <h3 className="font-outfit font-bold text-lg mb-1.5 text-white">Thesis Matcher</h3>
-              <p className="text-gray-400 text-xs mb-6 max-w-[200px] leading-relaxed">
-                Run compatibility scores against inbound pitch briefs.
-              </p>
-              <Link to="/explore" className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E64A] text-[#111] font-semibold text-xs rounded hover:bg-[#B5D235] transition-colors shadow-sm animate-fade-in">
-                Run Analysis <ArrowRight size={14} />
-              </Link>
+            <div className="relative z-10 space-y-4">
+              <div>
+                <h3 className="font-outfit font-bold text-lg mb-1.5 text-white">Thesis Matcher</h3>
+                <p className="text-gray-400 text-xs leading-relaxed">
+                  Enter focus keywords to instantly filter deal flow pipeline matching your investment thesis.
+                </p>
+              </div>
+              <input
+                type="text"
+                value={thesisKeyword}
+                onChange={(e) => setThesisKeyword(e.target.value)}
+                placeholder="e.g. SaaS, Seed, India, AI"
+                className="w-full text-xs px-3 py-2 bg-white/10 hover:bg-white/15 focus:bg-white/20 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none transition-all font-semibold font-outfit"
+              />
             </div>
           </div>
 
@@ -89,7 +107,9 @@ export default function VCDashboard({ founderProfile, user }) {
             <div className="flex items-center justify-between mb-6 pb-3 border-b border-gray-200/60">
               <div className="flex items-center gap-2">
                 <TrendingUp size={16} className="text-gray-400" />
-                <h3 className="font-outfit font-bold text-base text-[#111]">Trending in your Thesis</h3>
+                <h3 className="font-outfit font-bold text-base text-[#111]">
+                  {thesisKeyword.trim() ? `Matching Thesis Pipeline (${filteredStartups.length})` : 'Trending in your Thesis'}
+                </h3>
               </div>
               <Link to="/explore" className="text-xs text-gray-500 hover:text-gray-900 font-medium">View Pipeline</Link>
             </div>
@@ -98,9 +118,9 @@ export default function VCDashboard({ founderProfile, user }) {
               <div className="flex-1 flex items-center justify-center">
                 <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
               </div>
-            ) : trendingStartups.length > 0 ? (
+            ) : filteredStartups.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {trendingStartups.map(startup => (
+                {filteredStartups.map(startup => (
                   <div key={startup.id} className="border border-gray-200 rounded-lg p-4 hover:border-black transition-colors cursor-pointer bg-white">
                     <h4 className="font-bold text-sm mb-1 text-[#111]">{startup.name}</h4>
                     <p className="text-xs text-gray-500 line-clamp-2 mb-3 leading-relaxed">{startup.pitch}</p>
@@ -116,13 +136,13 @@ export default function VCDashboard({ founderProfile, user }) {
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                   <Users size={20} className="text-gray-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">No Active Deals</h4>
+                <h4 className="font-semibold text-gray-900 mb-1">No Matching Deals</h4>
                 <p className="text-xs text-gray-500 max-w-sm mb-5 leading-relaxed">
-                  Adjust your thesis filters or explore the graph to find startups matching your criteria.
+                  No startups match your current focus keywords. Try updating your filters or exploring the graph.
                 </p>
-                <Link to="/explore" className="os-btn">
-                  Open Deal Flow
-                </Link>
+                <button onClick={() => setThesisKeyword('')} className="os-btn">
+                  Clear Filters
+                </button>
               </div>
             )}
           </div>

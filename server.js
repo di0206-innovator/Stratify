@@ -263,6 +263,9 @@ async function searchStartupCompaniesOnWeb(query, { limit = 8, fetchImpl = fetch
 function createApp(options = {}) {
     const app = express();
     const appConfig = options.config || config;
+    if (appConfig.nodeEnv === 'test') {
+        process.env.NODE_ENV = 'test';
+    }
     const logger = options.logger || createLogger({ env: appConfig.nodeEnv });
 
     // Automatically run database migrations on server startup (crucial for Vercel serverless entrypoint)
@@ -1993,6 +1996,11 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
     // Matched government schemes
     app.get('/api/gov-schemes', auth, async (req, res, next) => {
         try {
+            if (req.user.role === 'institution' || req.user.role === 'vc') {
+                const { getMatchedSchemes } = require('./lib/startupStore');
+                const schemes = getMatchedSchemes('Any', 'Any');
+                return res.json({ requestId: req.id, schemes });
+            }
             const startup = await startupStore.getStartupByOwner(req.user.id);
             if (!startup) {
                 return res.json({ requestId: req.id, schemes: [] });
