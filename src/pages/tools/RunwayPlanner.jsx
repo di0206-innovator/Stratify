@@ -302,7 +302,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
             </BentoCard>
 
             {/* AI Business Scenario Simulator */}
-            <BentoCard title="AI Scenario Simulator" badge="NATURAL LANGUAGE" badgeColor="bg-black">
+            <BentoCard title="AI Scenario Simulator" badge="NATURAL LANGUAGE" badgeColor="bg-black" className="h-auto">
               <form onSubmit={runSimulation} className="space-y-4">
                 <div>
                   <label className="block text-[10px] font-bold uppercase text-gray-400 tracking-wide mb-1.5">
@@ -338,7 +338,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
             </BentoCard>
 
             {/* Widget 2: Key Strategic Indicators */}
-            <BentoCard title="Key Strategic Runway Indicators" badge="Survival Metrics" badgeColor="bg-black">
+            <BentoCard title="Key Strategic Runway Indicators" badge="Survival Metrics" badgeColor="bg-black" className="h-auto">
               <div className="grid grid-cols-2 gap-4">
                 <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl flex flex-col justify-between min-h-[100px]">
                   <span className="text-[9px] font-bold uppercase text-gray-450 tracking-wide">Survival Runway</span>
@@ -402,7 +402,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
             </BentoCard>
 
             {/* Widget 4: Month-by-month cash flow projections */}
-            <BentoCard title="Cash Balance Projections" badge="24-Month Forecast" badgeColor="bg-black" className="flex-1">
+            <BentoCard title="Cash Balance Projections" badge="24-Month Forecast" badgeColor="bg-black" className="h-auto">
               {/* Interactive SVG Chart */}
               <div className="p-4 bg-white border border-gray-150 rounded-xl mb-4">
                 {/* Dynamic Tooltip */}

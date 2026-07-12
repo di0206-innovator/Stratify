@@ -167,7 +167,7 @@ export default function BountyBoard({ founderProfile, user }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
         {/* Left Column (Active Bounties Board) */}
         <div className="lg:col-span-2 space-y-6">
@@ -247,7 +247,7 @@ export default function BountyBoard({ founderProfile, user }) {
         </div>
 
         {/* Right Column (Founder Post Panel & Active Submissions Console) */}
-        <div className="space-y-6">
+        <div className="lg:col-span-1 space-y-6">
           
           {/* Post Bounty (Only for Founders) */}
           {founderProfile && founderProfile.role === 'founder' && (
