@@ -39,6 +39,7 @@ export default function LandingPage({ openAuthModal, user }) {
             <a href="#system" className="text-sm text-gray-600 hover:text-[#111] transition-colors font-medium">Product</a>
             <a href="#roles" className="text-sm text-gray-600 hover:text-[#111] transition-colors font-medium">Roles</a>
             <a href="#compounds" className="text-sm text-gray-600 hover:text-[#111] transition-colors font-medium">Graph</a>
+            <a href="#pricing" className="text-sm text-gray-600 hover:text-[#111] transition-colors font-medium">Pricing</a>
             <a href="#testimonial" className="text-sm text-gray-600 hover:text-[#111] transition-colors font-medium">Customers</a>
           </div>
 
@@ -381,6 +382,126 @@ export default function LandingPage({ openAuthModal, user }) {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* ════════════════════════════════════════════════════════════
+          SECTION 7.5: Pricing Plans (Show Only)
+          ════════════════════════════════════════════════════════════ */}
+      <section id="pricing" className="max-w-6xl mx-auto px-6 py-24 border-t border-gray-200/60">
+        <div className="text-center mb-16 animate-fade-in-up">
+          <p className="section-label mb-4">Flexible plans for the entire ecosystem</p>
+          <h2 className="font-outfit font-black text-3xl md:text-5xl tracking-tight text-[#111] mb-5">
+            Transparent Pricing. Mapped to your scale.
+          </h2>
+          <p className="text-base text-gray-500 max-w-md mx-auto">
+            Choose the workspace built specifically for your role. All plans come with full graph indexing capabilities.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch select-none">
+          {/* Plan 1: Founder OS */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 flex flex-col justify-between hover:shadow-lg transition-all animate-fade-in-up">
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[10px] font-bold uppercase rounded font-outfit">Founder OS</span>
+              </div>
+              <div className="mb-6">
+                <span className="text-4xl font-outfit font-black text-[#111]">$49</span>
+                <span className="text-gray-400 text-sm font-semibold"> / mo</span>
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed mb-6 font-inter font-light">
+                Perfect for early-stage and scaling founders seeking unified runway, cap table, and memory loops.
+              </p>
+              <div className="border-t border-gray-100 pt-6">
+                <span className="block text-[10px] font-black text-gray-400 uppercase tracking-wider mb-4">Key Capabilities</span>
+                <ul className="space-y-3.5">
+                  {['Unified Startup Graph', 'Cap Table Scenarios', 'Runway & Burn Modeling', 'AI Journey Generation'].map((feat) => (
+                    <li key={feat} className="flex items-center gap-2.5 text-xs text-gray-700 font-semibold">
+                      <Check size={14} className="text-[#C8E64A] shrink-0" />
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <button 
+              onClick={handleCTA}
+              className="w-full mt-8 py-2.5 bg-white border border-gray-250 hover:border-black text-[#111] text-xs font-outfit font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer"
+            >
+              Select Plan
+            </button>
+          </div>
+
+          {/* Plan 2: Investor OS (Featured) */}
+          <div className="bg-[#1A1A1A] text-white rounded-2xl border-0 p-8 flex flex-col justify-between hover:shadow-xl transition-all relative overflow-hidden group animate-fade-in-up">
+            <div className="absolute top-0 right-0 bg-[#C8E64A] text-black text-[9px] font-black uppercase px-3 py-1 rounded-bl-lg tracking-wider">
+              Popular Choice
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <span className="px-2.5 py-1 bg-white/10 text-white text-[10px] font-bold uppercase rounded font-outfit">Investor OS</span>
+              </div>
+              <div className="mb-6">
+                <span className="text-4xl font-outfit font-black text-white">$299</span>
+                <span className="text-gray-400 text-sm font-semibold"> / mo</span>
+              </div>
+              <p className="text-xs text-gray-400 leading-relaxed mb-6 font-inter font-light">
+                Engineered for VCs, angels, and syndicate leads looking to source pipeline and automate diligence briefs.
+              </p>
+              <div className="border-t border-white/10 pt-6">
+                <span className="block text-[10px] font-black text-gray-505 uppercase tracking-wider mb-4">Investor Features</span>
+                <ul className="space-y-3.5">
+                  {['Ecosystem-Wide Search', 'Sector Thesis Matcher', 'One-Click Diligence Audits', 'Secure Investor Data Rooms'].map((feat) => (
+                    <li key={feat} className="flex items-center gap-2.5 text-xs text-white/90 font-semibold">
+                      <Check size={14} className="text-[#C8E64A] shrink-0" />
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <button 
+              onClick={handleCTA}
+              className="w-full mt-8 py-2.5 bg-[#C8E64A] text-black hover:bg-[#B5D235] text-xs font-outfit font-bold uppercase tracking-wider rounded-lg border-0 transition-all cursor-pointer"
+            >
+              Select Plan
+            </button>
+          </div>
+
+          {/* Plan 3: Institution OS */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 flex flex-col justify-between hover:shadow-lg transition-all animate-fade-in-up">
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[10px] font-bold uppercase rounded font-outfit">Institution OS</span>
+              </div>
+              <div className="mb-6">
+                <span className="text-4xl font-outfit font-black text-[#111]">$999</span>
+                <span className="text-gray-400 text-sm font-semibold"> / mo</span>
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed mb-6 font-inter font-light">
+                Designed for government grants, academic institutions, and regional ecosystem builders.
+              </p>
+              <div className="border-t border-gray-100 pt-6">
+                <span className="block text-[10px] font-black text-gray-400 uppercase tracking-wider mb-4">Institutional Features</span>
+                <ul className="space-y-3.5">
+                  {['Regional Health Telemetry', 'Program & Grant Deployment', 'Public Impact Analysis', 'API Integration & Directory Exports'].map((feat) => (
+                    <li key={feat} className="flex items-center gap-2.5 text-xs text-gray-700 font-semibold">
+                      <Check size={14} className="text-[#C8E64A] shrink-0" />
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <button 
+              onClick={handleCTA}
+              className="w-full mt-8 py-2.5 bg-white border border-gray-250 hover:border-black text-[#111] text-xs font-outfit font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer"
+            >
+              Select Plan
+            </button>
           </div>
         </div>
       </section>
