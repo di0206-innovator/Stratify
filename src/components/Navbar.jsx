@@ -155,7 +155,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
         <nav
           id="primary-navigation"
           aria-label="Primary navigation"
-          className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-1 overflow-x-auto hide-scrollbar md:flex-1 md:justify-center order-3 md:order-none`}
+          className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-1 md:flex-1 md:justify-center order-3 md:order-none`}
         >
           {activeCoreNavItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -176,7 +176,17 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
 
           {/* Execution Dropdown */}
           {executionItems.length > 0 && (
-            <div className="relative">
+            <div className="relative flex items-center">
+              <Link
+                to="/runway"
+                className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 ${
+                  executionItems.some(item => location.pathname === item.path)
+                    ? 'text-black border-black font-black'
+                    : 'text-gray-500 hover:text-black border-transparent'
+                }`}
+              >
+                Execution
+              </Link>
               <button
                 type="button"
                 onClick={(e) => {
@@ -185,17 +195,16 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 }}
                 aria-expanded={activeDropdown === 'execution'}
                 aria-haspopup="menu"
-                className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1 cursor-pointer ${
+                className={`p-2 -ml-1 text-xs font-semibold transition-colors flex items-center cursor-pointer ${
                   executionItems.some(item => location.pathname === item.path)
-                    ? 'text-black border-black font-black'
-                    : 'text-gray-500 hover:text-black border-transparent'
+                    ? 'text-black'
+                    : 'text-gray-500 hover:text-black'
                 }`}
               >
-                <span>Execution</span>
                 <span className="text-[9px]">▼</span>
               </button>
               {activeDropdown === 'execution' && (
-                <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md" role="menu">
+                <div className="absolute left-0 top-full mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md" role="menu">
                   {executionItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (
@@ -217,26 +226,35 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           )}
 
           {/* Memory & Intel Dropdown */}
-          <div className="relative">
+          <div className="relative flex items-center">
+            <Link
+              to="/intelligence"
+              className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 ${
+                intelItems.some(item => location.pathname === item.path)
+                  ? 'text-black border-black font-black'
+                  : 'text-gray-500 hover:text-black border-transparent'
+              }`}
+            >
+              Intel & Memory
+            </Link>
             <button
-                type="button"
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 setActiveDropdown(activeDropdown === 'intel' ? null : 'intel');
               }}
               aria-expanded={activeDropdown === 'intel'}
               aria-haspopup="menu"
-              className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1 cursor-pointer ${
+              className={`p-2 -ml-1 text-xs font-semibold transition-colors flex items-center cursor-pointer ${
                 intelItems.some(item => location.pathname === item.path)
-                  ? 'text-black border-black font-black'
-                  : 'text-gray-500 hover:text-black border-transparent'
+                  ? 'text-black'
+                  : 'text-gray-500 hover:text-black'
               }`}
             >
-              <span>Intel & Memory</span>
               <span className="text-[9px]">▼</span>
             </button>
             {activeDropdown === 'intel' && (
-              <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md" role="menu">
+              <div className="absolute left-0 top-full mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md" role="menu">
                 {intelItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   return (

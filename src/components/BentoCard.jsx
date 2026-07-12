@@ -10,7 +10,7 @@ export default function BentoCard({
  rowSpan = '' 
 }) {
  return (
- <div className={`os-card flex flex-col justify-between overflow-hidden ${colSpan} ${rowSpan} ${className}`}>
+ <div className={`os-card flex flex-col justify-between ${colSpan} ${rowSpan} ${className}`}>
  {(title || badge) && (
  <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-4 select-none">
  {title && <h2 className="text-sm font-bold tracking-wide uppercase text-gray-800">{title}</h2>}
@@ -21,7 +21,7 @@ export default function BentoCard({
 )}
  </div>
 )}
- <div className="flex-1 flex flex-col min-h-0">
+ <div className="flex-1 flex flex-col">
  {children}
  </div>
  </div>

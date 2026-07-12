@@ -219,7 +219,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
 
         <div className="grid grid-cols-12 gap-8">
           {/* Left Bento: Controls & Metrics */}
-          <div className="col-span-12 lg:col-span-5 space-y-6 flex flex-col justify-stretch">
+          <div className="col-span-12 lg:col-span-5 space-y-6">
             {/* Widget 1: Interactive Financial Controls */}
             <BentoCard title="Financial Controls" badge="REAL-TIME SLIDERS" badgeColor="bg-black" className="h-auto">
               <div className="space-y-5">
