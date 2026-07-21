@@ -29,6 +29,7 @@ const Settings = lazy(() => import('./pages/core/Settings'));
 const Privacy = lazy(() => import('./pages/marketing/Privacy'));
 const Terms = lazy(() => import('./pages/marketing/Terms'));
 const About = lazy(() => import('./pages/marketing/About'));
+const Upgrade = lazy(() => import('./pages/marketing/Upgrade'));
 
 // Fallback spinner for lazy-loaded pages
 const PageFallback = () => (
@@ -227,14 +228,14 @@ export default function App() {
  claimAnonymousReport();
  }, [user, currentReport]);
 
- if (loading) {
- return (
- <div className="min-h-screen bg-[#F8F7F4] flex flex-col items-center justify-center p-4">
- <div className="w-12 h-12 border-[4px] border-neo-black border-t-transparent rounded-full animate-spin"></div>
- <h2 className="font-outfit font-black uppercase text-xs tracking-wider mt-4">BOOTING FOUNDER STRATEGY OS...</h2>
- </div>
-);
- }
+  if (loading) {
+  return (
+  <div className="min-h-screen bg-canvas flex flex-col items-center justify-center p-4">
+  <div className="w-12 h-12 border-[4px] border-text-primary border-t-transparent rounded-full animate-spin"></div>
+  <h2 className="font-outfit font-black uppercase text-xs tracking-wider mt-4 text-text-primary">BOOTING FOUNDER STRATEGY OS...</h2>
+  </div>
+ );
+  }
 
  return (
  <BrowserRouter>
@@ -263,7 +264,7 @@ function AppContent({
  theme, setTheme, openAuthModal, isAdmin, hydrateUser
 }) {
  const location = useLocation();
- const isPublicRoute = location.pathname === '/' || location.pathname.startsWith('/brief/');
+ const isPublicRoute = location.pathname === '/' || location.pathname.startsWith('/brief/') || location.pathname === '/upgrade';
  const seo = getSeoForPath(location.pathname);
 
   // Only redirect unauthenticated users from private routes
@@ -292,9 +293,9 @@ function AppContent({
  <BetaBanner />
 
  {/* Floating global Beta pill at top right (hidden on mobile, stays out of way of header) */}
- <div className="fixed top-20 right-6 z-45 hidden lg:flex items-center gap-1.5 bg-[#FAF9F6]/85 backdrop-blur border border-gray-200/80 px-2.5 py-1 rounded-full shadow-sm select-none pointer-events-none">
-   <span className="w-1.5 h-1.5 rounded-full bg-[#C8E64A] animate-pulse"></span>
-   <span className="font-outfit font-black text-[9px] text-gray-800 tracking-wider uppercase">Beta OS</span>
+ <div className="fixed top-20 right-6 z-45 hidden lg:flex items-center gap-1.5 bg-canvas/85 backdrop-blur border border-DEFAULT px-2.5 py-1 rounded-full shadow-sm select-none pointer-events-none">
+   <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+   <span className="font-outfit font-black text-[9px] text-text-primary tracking-wider uppercase">Beta OS</span>
  </div>
 
  <div className="min-h-screen bg-canvas flex flex-col w-full text-gray-900 font-inter">
@@ -311,7 +312,7 @@ function AppContent({
  <Suspense fallback={<PageFallback />}>
  <Routes>
  {/* Public Landing Page */}
- <Route path="/" element={<LandingPage openAuthModal={openAuthModal} user={user} />} />
+ <Route path="/" element={<LandingPage openAuthModal={openAuthModal} user={user} theme={theme} setTheme={setTheme} />} />
 
   {/* Private Dashboard */}
   <Route 
@@ -436,6 +437,7 @@ function AppContent({
   <Route path="/privacy" element={<Privacy />} />
   <Route path="/terms" element={<Terms />} />
   <Route path="/about" element={<About />} />
+  <Route path="/upgrade" element={<Upgrade />} />
 
   {/* Wildcard Fallback */}
   <Route path="*" element={<Navigate to="/" replace />} />
@@ -445,9 +447,9 @@ function AppContent({
  </div>
 
  {location.pathname !== '/' && (
-   <footer className="w-full bg-[#FAF9F6] border-t border-gray-200 py-4 select-none mt-auto">
+   <footer className="w-full bg-canvas border-t border-DEFAULT py-4 select-none mt-auto">
      <div className="max-w-7xl mx-auto px-4 text-center">
-       <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-gray-500">
+       <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-text-muted">
          © {new Date().getFullYear()} STRATIFY LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.
        </span>
      </div>
@@ -500,15 +502,23 @@ function getSeoForPath(pathname) {
  };
  }
 
- if (pathname === '/terms') {
- return {
- ...defaults,
- title: 'Terms of Service | Stratify',
- description: 'Review the terms governing access to and use of the Stratify platform.',
- };
- }
+  if (pathname === '/terms') {
+    return {
+      ...defaults,
+      title: 'Terms of Service | Stratify',
+      description: 'Review the terms governing access to and use of the Stratify platform.',
+    };
+  }
 
- return {
+  if (pathname === '/upgrade') {
+    return {
+      ...defaults,
+      title: 'Upgrade — Premium Plans Coming Soon | Stratify',
+      description: 'Premium features are rolling out soon. Join the waitlist to be first in line for advanced AI capabilities, investor data rooms, and more.',
+    };
+  }
+
+  return {
  ...defaults,
  robots: 'noindex, nofollow',
  };

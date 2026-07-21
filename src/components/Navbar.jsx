@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield, Users, Cpu, Settings, Calendar, BrainCircuit } from 'lucide-react';
+import { LayoutDashboard, Radio, FileText, UserCog, TrendingUp, Shield, Users, Cpu, Settings, Calendar, BrainCircuit, Sun, Moon } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabase';
 
@@ -129,11 +129,11 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
   };
 
   return (
-    <header className="w-full bg-[#FAF9F6] border-b border-gray-200 sticky top-12 z-50">
+    <header className="w-full bg-canvas border-b border-DEFAULT sticky top-12 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-16 py-3 flex flex-wrap items-center justify-between gap-4">
         {/* Brand */}
         <Link to="/dashboard" className="flex items-center gap-2.5 flex-shrink-0 cursor-pointer">
-          <div className="w-7 h-7 rounded-lg bg-[#1A1A1A] flex items-center justify-center text-white font-outfit font-black text-sm">
+          <div className="w-7 h-7 rounded-lg bg-surface-dark flex items-center justify-center text-white font-outfit font-black text-sm">
             S
           </div>
           <span className="font-outfit font-black text-base tracking-tight uppercase">
@@ -146,7 +146,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
 
         <button
           type="button"
-          className="inline-flex md:hidden items-center rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-700"
+          className="inline-flex md:hidden items-center rounded-lg border border-DEFAULT px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary"
           onClick={() => setIsMobileMenuOpen((value) => !value)}
           aria-expanded={isMobileMenuOpen}
           aria-controls="primary-navigation"
@@ -281,8 +281,18 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           </div>
         </nav>
 
-        {/* Profile & Auth Status */}
+        {/* Theme Toggle & Profile & Auth Status */}
         <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto items-center justify-between md:justify-end gap-3 flex-shrink-0 order-4 md:order-none relative`}>
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="p-2 rounded-lg border border-DEFAULT bg-card hover:bg-hover transition-all cursor-pointer text-text-secondary hover:text-text-primary"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
           {user ? (
             <div className="relative">
               <button
@@ -295,56 +305,56 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 aria-expanded={isProfileDropdownOpen}
                 aria-haspopup="menu"
                 aria-label="Toggle profile menu"
-                className="flex items-center gap-2 p-1 rounded-full border border-gray-200 hover:border-black bg-white transition-all cursor-pointer shadow-sm select-none"
+                className="flex items-center gap-2 p-1 rounded-full border border-DEFAULT hover:border-text-primary bg-card transition-all cursor-pointer shadow-sm select-none"
               >
-                <div className="w-8 h-8 rounded-full bg-[#1A1A1A] text-[#C8E64A] flex items-center justify-center font-outfit font-black text-xs uppercase shadow-sm">
+                <div className="w-8 h-8 rounded-full bg-surface-dark text-accent flex items-center justify-center font-outfit font-black text-xs uppercase shadow-sm">
                   {(user.username || user.email || 'U')[0].toUpperCase()}
                 </div>
-                <span className="hidden sm:inline font-outfit font-bold text-xs uppercase px-1 text-gray-700">{user.username || user.email.split('@')[0]}</span>
-                <span className="text-[9px] text-gray-500 pr-1">▼</span>
+                <span className="hidden sm:inline font-outfit font-bold text-xs uppercase px-1 text-text-secondary">{user.username || user.email.split('@')[0]}</span>
+                <span className="text-[9px] text-text-muted pr-1">▼</span>
               </button>
 
               {isProfileDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 shadow-xl rounded-xl z-[120] py-2 animate-slide-up" onClick={(e) => e.stopPropagation()}>
+                <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-DEFAULT shadow-xl rounded-xl z-[120] py-2 animate-slide-up" onClick={(e) => e.stopPropagation()}>
                   {/* Profile Header */}
                   <div className="px-4 py-3 border-b border-gray-150">
-                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Signed in as</p>
-                    <p className="text-xs font-bold text-black truncate mt-0.5">{user.email}</p>
+                    <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Signed in as</p>
+                    <p className="text-xs font-bold text-text-primary truncate mt-0.5">{user.email}</p>
                     {founderProfile ? (
-                      <span className="inline-block mt-2 px-2.5 py-0.5 bg-[#C8E64A]/25 border border-[#C8E64A]/30 text-black text-[9px] font-black uppercase rounded-md tracking-wider">
+                      <span className="inline-block mt-2 px-2.5 py-0.5 bg-accent-muted border border-accent/30 text-text-primary text-[9px] font-black uppercase rounded-md tracking-wider">
                         {founderProfile.role === 'vc' ? 'VC / Investor' : founderProfile.role === 'institution' ? 'Institution Partner' : 'Startup Founder'}
                       </span>
                     ) : (
-                      <span className="inline-block mt-2 px-2.5 py-0.5 bg-gray-100 border border-gray-200 text-gray-500 text-[9px] font-black uppercase rounded-md tracking-wider">
+                      <span className="inline-block mt-2 px-2.5 py-0.5 bg-hover border border-DEFAULT text-text-muted text-[9px] font-black uppercase rounded-md tracking-wider">
                         Profile Pending
                       </span>
                     )}
                   </div>
 
                   {/* Menu Items */}
-                  <div className="py-1">
+                  <div className="py-1 border-b border-DEFAULT">
                     <Link
                       to="/dashboard"
                       onClick={() => setIsProfileDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                      className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-hover hover:text-text-primary transition-colors"
                     >
-                      <LayoutDashboard size={14} className="text-gray-400" />
+                      <LayoutDashboard size={14} className="text-text-muted" />
                       Dashboard Home
                     </Link>
                     <Link
                       to="/settings"
                       onClick={() => setIsProfileDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                      className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-hover hover:text-text-primary transition-colors"
                     >
-                      <Settings size={14} className="text-gray-400" />
+                      <Settings size={14} className="text-text-muted" />
                       Settings & Account
                     </Link>
                     <Link
                       to="/onboarding"
                       onClick={() => setIsProfileDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-black transition-colors"
+                      className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-hover hover:text-text-primary transition-colors"
                     >
-                      <UserCog size={14} className="text-gray-400" />
+                      <UserCog size={14} className="text-text-muted" />
                       Switch Workspace Role
                     </Link>
                   </div>

@@ -185,13 +185,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
  onClick={onClose}
  >
  <div
- className="w-full max-w-md bg-white relative p-6 space-y-5"
+ className="w-full max-w-md bg-card relative p-6 space-y-5 border border-DEFAULT shadow-xl"
  onClick={(e) => e.stopPropagation()}
  >
  {/* Close Button */}
  <button
  onClick={onClose}
- className="absolute top-4 right-4 p-1 bg-white hover:bg-neo-pink transition-all cursor-pointer text-black"
+ className="absolute top-4 right-4 p-1 bg-card hover:bg-hover transition-all cursor-pointer text-text-primary rounded-md"
  aria-label="Close"
  >
  <X size={16} strokeWidth={3} />
@@ -199,16 +199,16 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
  {/* Modal Header */}
  <div className="text-center pt-2">
- <div className="inline-flex items-center gap-1.5 bg-neo-lavender border-2 border-black px-3 py-1 font-outfit font-black text-xs uppercase tracking-wider mb-2">
+ <div className="inline-flex items-center gap-1.5 bg-neo-lavender border-2 border-black px-3 py-1 font-outfit font-black text-xs uppercase tracking-wider mb-2 text-black">
  <Lock size={12} strokeWidth={3} />
  SECURE GATEWAY
  </div>
- <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
+ <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-text-primary">
  {mode === 'login' && 'SIGN IN'}
  {mode === 'register' && 'CREATE ACCOUNT'}
  {mode === 'forgot' && 'RESET PASSWORD'}
  </h2>
- <p className="text-xs font-semibold text-gray-500 mt-1 max-w-xs mx-auto">
+ <p className="text-xs font-semibold text-text-secondary mt-1 max-w-xs mx-auto">
  {mode === 'login' && 'Sign in with your Google account or email and password.'}
  {mode === 'register' && 'Create your account to save reports and strategy profiles.'}
  {mode === 'forgot' && 'Enter your email to receive a password reset link.'}
@@ -222,7 +222,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
  id="google-signin-btn"
  onClick={handleGoogleSignIn}
  disabled={loading}
- className="w-full bg-white text-black font-black py-2.5 hover:-translate-x-[2px] hover:-translate-y-[2px] hover: active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center justify-center gap-2.5 cursor-pointer uppercase text-xs tracking-wider"
+ className="w-full bg-canvas text-text-primary border border-DEFAULT font-black py-2.5 hover:bg-hover active:shadow-none transition-all flex items-center justify-center gap-2.5 cursor-pointer uppercase text-xs tracking-wider"
  >
  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -237,9 +237,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
  {/* Divider */}
  {mode !== 'forgot' && (
  <div className="relative flex items-center">
- <div className="flex-grow border-t-2 border-black border-dashed" />
- <span className="flex-shrink mx-4 font-outfit font-black text-[10px] uppercase text-gray-400">OR EMAIL</span>
- <div className="flex-grow border-t-2 border-black border-dashed" />
+ <div className="flex-grow border-t border-DEFAULT border-dashed" />
+ <span className="flex-shrink mx-4 font-outfit font-black text-[10px] uppercase text-text-muted">OR EMAIL</span>
+ <div className="flex-grow border-t border-DEFAULT border-dashed" />
  </div>
 )}
 
@@ -247,7 +247,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
  <form onSubmit={handleAuthSubmit} className="space-y-4">
  {mode === 'register' && (
  <div>
- <label htmlFor="auth-username" className="block text-xs font-black uppercase mb-1">
+ <label htmlFor="auth-username" className="block text-xs font-black uppercase mb-1 text-text-primary">
  Display Name
  </label>
  <input
@@ -257,13 +257,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
  onChange={(e) => setUsername(e.target.value)}
  placeholder="e.g. Jane Founder"
  required
- className="w-full border-[2px] border-black px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#C084FC] focus: transition-all"
+ className="w-full border border-DEFAULT bg-input-bg text-text-primary px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#C084FC] transition-all"
  />
  </div>
 )}
 
  <div>
- <label htmlFor="auth-email" className="block text-xs font-black uppercase mb-1">
+ <label htmlFor="auth-email" className="block text-xs font-black uppercase mb-1 text-text-primary">
  Email Address
  </label>
  <input
@@ -274,14 +274,14 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
  placeholder="founder@example.com"
  required
  autoComplete="email"
- className="w-full border-[2px] border-black px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#C084FC] focus: transition-all"
+ className="w-full border border-DEFAULT bg-input-bg text-text-primary px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#C084FC] transition-all"
  />
  </div>
 
  {mode !== 'forgot' && (
  <div>
- <label htmlFor="auth-password" className="block text-xs font-black uppercase mb-1">
- Password {mode === 'register' && <span className="text-gray-400 font-normal normal-case">(min 8 chars)</span>}
+ <label htmlFor="auth-password" className="block text-xs font-black uppercase mb-1 text-text-primary">
+ Password {mode === 'register' && <span className="text-text-muted font-normal normal-case">(min 8 chars)</span>}
  </label>
  <div className="relative">
  <input
@@ -292,12 +292,12 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
  placeholder="••••••••"
  required
  autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
- className="w-full border-[2px] border-black px-3 py-2 pr-10 text-xs font-semibold focus:outline-none focus:border-[#C084FC] focus: transition-all"
+ className="w-full border border-DEFAULT bg-input-bg text-text-primary px-3 py-2 pr-10 text-xs font-semibold focus:outline-none focus:border-[#C084FC] transition-all"
  />
  <button
  type="button"
  onClick={() => setShowPassword(v => !v)}
- className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors cursor-pointer"
+ className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors cursor-pointer"
  tabIndex={-1}
  >
  {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -307,7 +307,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
  {/* Password strength bar */}
  {strength && (
  <div className="mt-1.5">
- <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+ <div className="h-1 bg-hover rounded-full overflow-hidden">
  <div
  className="h-full rounded-full transition-all duration-300"
  style={{ width: strength.width, backgroundColor: strength.color }}
@@ -340,7 +340,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
  type="submit"
  id={`auth-submit-${mode}`}
  disabled={loading}
- className="w-full bg-emerald-500 text-black font-black py-2.5 hover:-translate-x-[1px] hover:-translate-y-[1px] hover: active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer uppercase text-xs tracking-wider disabled:opacity-60 disabled:cursor-not-allowed"
+ className="w-full bg-emerald-500 text-white font-black py-2.5 hover:bg-emerald-600 active:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer uppercase text-xs tracking-wider disabled:opacity-60 disabled:cursor-not-allowed border border-emerald-600 rounded-sm"
  >
  {mode === 'login' && <LogIn size={14} />}
  {mode === 'register' && <UserPlus size={14} />}
@@ -356,18 +356,18 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
  </form>
 
  {/* Footer Nav */}
- <div className="border-t-2 border-black pt-3 flex items-center justify-between font-outfit font-black text-[10px] uppercase">
+ <div className="border-t border-DEFAULT pt-3 flex items-center justify-between font-outfit font-black text-[10px] uppercase">
  {mode === 'login' ? (
  <>
- <button onClick={() => switchMode('register')} className="text-[#C084FC] hover:text-black border-b border-[#C084FC] hover:border-black transition-colors cursor-pointer">
+ <button onClick={() => switchMode('register')} className="text-[#C084FC] hover:text-text-primary border-b border-[#C084FC] hover:border-text-primary transition-colors cursor-pointer">
  CREATE ACCOUNT
  </button>
- <button onClick={() => switchMode('forgot')} className="text-gray-400 hover:text-black border-b border-gray-400 hover:border-black transition-colors cursor-pointer">
+ <button onClick={() => switchMode('forgot')} className="text-text-muted hover:text-text-primary border-b border-DEFAULT hover:border-text-primary transition-colors cursor-pointer">
  FORGOT PASSWORD?
  </button>
  </>
 ) : (
- <button onClick={() => switchMode('login')} className="text-[#C084FC] hover:text-black border-b border-[#C084FC] hover:border-black transition-colors cursor-pointer mx-auto">
+ <button onClick={() => switchMode('login')} className="text-[#C084FC] hover:text-text-primary border-b border-[#C084FC] hover:border-text-primary transition-colors cursor-pointer mx-auto">
  ALREADY HAVE AN ACCOUNT? SIGN IN
  </button>
 )}

@@ -8,6 +8,7 @@ export default {
     extend: {
       colors: {
         canvas: 'var(--color-canvas)',
+        card: 'var(--color-card)',
         accent: 'var(--color-accent)',
         'accent-hover': 'var(--color-accent-hover)',
         'accent-muted': 'var(--color-accent-muted)',
@@ -16,6 +17,8 @@ export default {
         'text-primary': 'var(--color-text)',
         'text-secondary': 'var(--color-text-secondary)',
         'text-muted': 'var(--color-text-muted)',
+        hover: 'var(--color-hover)',
+        'input-bg': 'var(--color-input-bg)',
         // Keep neo aliases for backward compatibility with internal pages
         neo: {
           canvas: 'var(--color-canvas)',

@@ -41,14 +41,14 @@ export default function Settings({ user }) {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-[#111]">
-      <div className="flex items-center gap-4 pb-6 border-b border-gray-200/60 select-none">
-        <div className="w-12 h-12 bg-[#1A1A1A] flex items-center justify-center rounded-lg text-white">
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-text-primary">
+      <div className="flex items-center gap-4 pb-6 border-b border-DEFAULT select-none">
+        <div className="w-12 h-12 bg-surface-dark flex items-center justify-center rounded-lg text-white">
           <SettingsIcon size={20} />
         </div>
         <div>
           <h1 className="text-2xl sm:text-3xl font-outfit font-black tracking-tight">Settings & Account</h1>
-          <p className="font-inter text-gray-500 mt-1 text-xs sm:text-sm">Manage your workspace preferences</p>
+          <p className="font-inter text-text-muted mt-1 text-xs sm:text-sm">Manage your workspace preferences</p>
         </div>
       </div>
 
@@ -63,8 +63,8 @@ export default function Settings({ user }) {
                 onClick={() => setActiveSection(item.id)}
                 className={`w-full flex items-center gap-3 p-3 rounded-lg border font-outfit font-bold text-xs uppercase tracking-wider transition-all cursor-pointer ${
                   activeSection === item.id
-                    ? 'bg-black text-white border-black shadow-sm'
-                    : 'bg-white border-gray-200 hover:border-black text-gray-550'
+                    ? 'bg-text-primary text-canvas border-text-primary shadow-sm'
+                    : 'bg-card border-DEFAULT hover:border-text-primary text-text-secondary'
                 }`}
               >
                 <Icon size={14} /> {item.label}
@@ -76,9 +76,9 @@ export default function Settings({ user }) {
         {/* Settings Content */}
         <div className="col-span-3 space-y-6">
           {activeSection === 'account' && (
-            <div className="os-card bg-white p-6 space-y-6">
-              <div className="flex items-center justify-between border-b border-gray-100 pb-4 select-none">
-                <h2 className="text-base font-outfit font-bold uppercase text-black">Account Details</h2>
+            <div className="os-card bg-card p-6 space-y-6 border border-DEFAULT">
+              <div className="flex items-center justify-between border-b border-DEFAULT pb-4 select-none">
+                <h2 className="text-base font-outfit font-bold uppercase text-text-primary">Account Details</h2>
                 {saved && (
                   <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
                     <CheckCircle size={10} /> Saved
@@ -87,32 +87,32 @@ export default function Settings({ user }) {
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5 select-none">Email Address</label>
+                  <label className="block text-[10px] font-bold uppercase text-text-muted tracking-wide mb-1.5 select-none">Email Address</label>
                   <input
                     type="text"
                     value={formData.email}
                     disabled
-                    className="os-input bg-gray-50 cursor-not-allowed text-gray-400 font-semibold"
+                    className="os-input bg-input-bg cursor-not-allowed text-text-muted font-semibold"
                   />
-                  <p className="text-[10px] font-semibold text-gray-450 mt-1 select-none">Email cannot be changed directly. Contact support.</p>
+                  <p className="text-[10px] font-semibold text-text-muted mt-1 select-none">Email cannot be changed directly. Contact support.</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5 select-none">Username</label>
+                  <label className="block text-[10px] font-bold uppercase text-text-muted tracking-wide mb-1.5 select-none">Username</label>
                   <input
                     type="text"
                     value={formData.username}
                     disabled={!editing}
                     onChange={e => setFormData(p => ({ ...p, username: e.target.value }))}
-                    className={`os-input ${editing ? 'bg-white' : 'bg-gray-50 cursor-not-allowed text-gray-400 font-semibold'}`}
+                    className={`os-input border border-DEFAULT ${editing ? 'bg-card text-text-primary' : 'bg-input-bg cursor-not-allowed text-text-muted font-semibold'}`}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5 select-none">Account Role</label>
+                  <label className="block text-[10px] font-bold uppercase text-text-muted tracking-wide mb-1.5 select-none">Account Role</label>
                   <input
                     type="text"
                     value={formData.role}
                     disabled
-                    className="os-input bg-gray-50 cursor-not-allowed text-gray-400 font-semibold capitalize"
+                    className="os-input bg-input-bg cursor-not-allowed text-text-muted font-semibold capitalize"
                   />
                 </div>
                 <div className="flex items-center gap-3 pt-4 select-none">
@@ -121,13 +121,13 @@ export default function Settings({ user }) {
                       <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#C8E64A] text-black font-outfit font-bold uppercase text-xs tracking-wider hover:bg-[#B5D235] transition-all rounded-lg cursor-pointer border-0"
+                        className="flex items-center gap-2 px-4 py-2 bg-accent text-black font-outfit font-bold uppercase text-xs tracking-wider hover:opacity-90 transition-all rounded-lg cursor-pointer border-0"
                       >
                         <Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}
                       </button>
                       <button
                         onClick={() => { setEditing(false); setFormData({ username: user?.username || '', email: user?.email || '', role: user?.role || 'user' }); }}
-                        className="px-4 py-2 bg-white border border-gray-250 text-gray-600 font-outfit font-bold uppercase text-xs tracking-wider rounded-lg hover:border-black cursor-pointer"
+                        className="px-4 py-2 bg-card border border-DEFAULT text-text-secondary font-outfit font-bold uppercase text-xs tracking-wider rounded-lg hover:border-text-primary cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -135,7 +135,7 @@ export default function Settings({ user }) {
                   ) : (
                     <button
                       onClick={() => setEditing(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#C8E64A] text-black font-outfit font-bold uppercase text-xs tracking-wider hover:bg-[#B5D235] transition-all rounded-lg cursor-pointer border-0 shadow-sm"
+                      className="flex items-center gap-2 px-4 py-2 bg-accent text-black font-outfit font-bold uppercase text-xs tracking-wider hover:opacity-90 transition-all rounded-lg cursor-pointer border-0 shadow-sm"
                     >
                       <Edit2 size={14} /> Edit Profile
                     </button>
@@ -146,15 +146,15 @@ export default function Settings({ user }) {
           )}
 
           {activeSection === 'security' && (
-            <div className="os-card bg-white p-6 space-y-6">
-              <h2 className="text-base font-outfit font-bold uppercase text-black border-b border-gray-100 pb-4 select-none">Security</h2>
+            <div className="os-card bg-card border border-DEFAULT p-6 space-y-6">
+              <h2 className="text-base font-outfit font-bold uppercase text-text-primary border-b border-DEFAULT pb-4 select-none">Security</h2>
               <div className="space-y-4">
-                <div className="p-4 bg-amber-50 border border-amber-200 text-amber-700 rounded-lg text-left select-none">
+                <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-lg text-left select-none">
                   <p className="text-xs font-bold leading-relaxed">Your account is secured via Supabase Authentication.</p>
-                  <p className="text-[10px] font-semibold text-amber-600/80 mt-1 leading-relaxed">Password resets are handled through secure authentication tokens sent to your email.</p>
+                  <p className="text-[10px] font-semibold opacity-80 mt-1 leading-relaxed">Password resets are handled through secure authentication tokens sent to your email.</p>
                 </div>
                 <div className="select-none">
-                  <button className="px-4 py-2.5 bg-white border border-gray-250 text-gray-700 hover:border-black font-outfit font-bold uppercase text-xs tracking-wider rounded-lg cursor-pointer transition-all">
+                  <button className="px-4 py-2.5 bg-card border border-DEFAULT text-text-primary hover:border-text-primary font-outfit font-bold uppercase text-xs tracking-wider rounded-lg cursor-pointer transition-all">
                     Request Password Reset
                   </button>
                 </div>
@@ -163,20 +163,20 @@ export default function Settings({ user }) {
           )}
 
           {activeSection === 'notifications' && (
-            <div className="os-card bg-white p-6 space-y-5">
-              <h2 className="text-base font-outfit font-bold uppercase text-black border-b border-gray-100 pb-4 select-none">Notifications</h2>
+            <div className="os-card bg-card border border-DEFAULT p-6 space-y-5">
+              <h2 className="text-base font-outfit font-bold uppercase text-text-primary border-b border-DEFAULT pb-4 select-none">Notifications</h2>
               <div className="space-y-3 select-none">
                 {[
                   { label: 'New match found', desc: 'Get notified when Stratify finds a compatible partner or investor' },
                   { label: 'Score changes', desc: 'Alert when your startup validation score updates' },
                   { label: 'New opportunities', desc: 'Weekly digest of new grants and accelerator programs' },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between gap-4 p-4 border border-gray-200 bg-[#FAF9F6] rounded-xl text-left">
+                  <div key={i} className="flex items-center justify-between gap-4 p-4 border border-DEFAULT bg-hover rounded-xl text-left">
                     <div>
-                      <p className="text-xs font-bold uppercase text-[#111]">{item.label}</p>
-                      <p className="text-[10px] font-semibold text-gray-500 mt-1 font-inter">{item.desc}</p>
+                      <p className="text-xs font-bold uppercase text-text-primary">{item.label}</p>
+                      <p className="text-[10px] font-semibold text-text-muted mt-1 font-inter">{item.desc}</p>
                     </div>
-                    <div className="w-8 h-4 bg-[#C8E64A] border border-gray-300 rounded-full flex-shrink-0 cursor-pointer relative">
+                    <div className="w-8 h-4 bg-accent border border-DEFAULT rounded-full flex-shrink-0 cursor-pointer relative">
                       <div className="absolute right-0.5 top-0.5 w-2.5 h-2.5 bg-black rounded-full" />
                     </div>
                   </div>
@@ -186,20 +186,20 @@ export default function Settings({ user }) {
           )}
 
           {(activeSection === 'billing' || activeSection === 'api') && (
-            <div className="os-card bg-white p-12 text-center select-none space-y-4">
-              <div className="bg-[#1A1A1A] p-3.5 text-white rounded-lg inline-block">
+            <div className="os-card bg-card border border-DEFAULT p-12 text-center select-none space-y-4">
+              <div className="bg-surface-dark p-3.5 text-white rounded-lg inline-block border border-DEFAULT">
                 {activeSection === 'billing' ? <Wallet size={24} /> : <Key size={24} />}
               </div>
-              <h3 className="font-outfit font-bold text-lg text-black uppercase">
+              <h3 className="font-outfit font-bold text-lg text-text-primary uppercase">
                 {activeSection === 'billing' ? 'Billing & Subscription' : 'API Keys'}
               </h3>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed font-light font-inter">
+              <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed font-light font-inter">
                 {activeSection === 'billing'
                   ? 'Stratify is currently in early access. Subscription management will be available soon.'
                   : 'API key management for external integrations is coming soon.'}
               </p>
               <div>
-                <span className="inline-block bg-[#C8E64A]/25 border border-[#C8E64A]/30 text-black px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full mt-2">
+                <span className="inline-block bg-accent-muted border border-accent/30 text-text-primary px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full mt-2">
                   Coming Soon
                 </span>
               </div>

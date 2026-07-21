@@ -28,6 +28,37 @@
     --color-success: #22C55E;
     --color-warning: #F59E0B;
     --color-error: #EF4444;
+
+    /* Interactive surface states */
+    --color-hover: #F3F4F6;
+    --color-input-bg: #FFFFFF;
+  }
+
+  /* ── Dark / Night Mode ── */
+  [data-theme="dark"] {
+    --color-canvas: #0F0F10;
+    --color-card: #1A1A1C;
+    --color-text: #E8E8EC;
+    --color-text-secondary: #9CA3AF;
+    --color-text-muted: #6B7280;
+    --color-border: #2A2A2E;
+    --color-border-light: #1F1F22;
+    --color-grid: rgba(255, 255, 255, 0.04);
+    --color-shadow: rgba(0, 0, 0, 0.3);
+
+    --color-accent: #C8E64A;
+    --color-accent-hover: #D4F05A;
+    --color-accent-muted: rgba(200, 230, 74, 0.12);
+
+    --color-surface-dark: #111113;
+    --color-surface-warm: #1E1E20;
+
+    --color-success: #34D399;
+    --color-warning: #FBBF24;
+    --color-error: #F87171;
+
+    --color-hover: #222225;
+    --color-input-bg: #141416;
   }
 
   body {

@@ -21,7 +21,7 @@ export default function BetaBanner() {
   return (
     <div className="w-full bg-[#1A1A1A] text-white py-2 px-4 text-xs font-medium select-none flex items-center justify-between z-55 sticky top-0 border-b border-gray-800">
       <div className="flex-1 flex items-center justify-center gap-2 text-center">
-        <span className="bg-[#C8E64A] text-black text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider scale-90 flex-shrink-0">
+        <span className="bg-accent text-black text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider scale-90 flex-shrink-0">
           Beta OS
         </span>
         <span className="text-gray-300">
@@ -31,7 +31,7 @@ export default function BetaBanner() {
           href="https://www.linkedin.com/in/divyanshu-sinha-46074126b/"
           target="_blank"
           rel="noopener noreferrer" 
-          className="text-[#C8E64A] hover:underline underline-offset-2 font-semibold ml-1 inline-flex items-center gap-0.5"
+          className="text-accent hover:underline underline-offset-2 font-semibold ml-1 inline-flex items-center gap-0.5"
         >
           Report Issues
         </a>

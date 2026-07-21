@@ -34,6 +34,7 @@ const { createMetrics } = require('./lib/metrics');
 const { FileReportStore } = require('./lib/reportStore');
 const { FileSignalStore } = require('./lib/signalStore');
 const { PgStartupStore, FileStartupStore, getMatchedSchemes } = require('./lib/startupStore');
+const { FileWaitlistStore } = require('./lib/waitlistStore');
 const { getWritableDataDir, getWritableDataPath } = require('./lib/runtimePaths');
 const { getSupabaseAdmin } = require('./lib/supabaseServer');
 
@@ -344,6 +345,9 @@ function createApp(options = {}) {
             startupStore = new FileStartupStore(getWritableDataDir());
         }
     }
+
+    const waitlistStore = options.waitlistStore || new FileWaitlistStore();
+
     const auth = createAuthMiddleware({ token: appConfig.apiAuthToken, authService });
     const optionalAuth = createOptionalAuthMiddleware({ token: appConfig.apiAuthToken, authService });
 
@@ -752,6 +756,8 @@ function createApp(options = {}) {
                 totalCachedSignals = Array.isArray(signalsState) ? signalsState.length : 0;
             }
 
+            const waitlistCount = await waitlistStore.count();
+
             res.json({
                 requestId: req.id,
                 stats: {
@@ -760,6 +766,7 @@ function createApp(options = {}) {
                     activeSessions,
                     emailOutboxCount,
                     totalCachedSignals,
+                    waitlistCount,
                     apiMetrics: metrics.snapshot()
                 }
             });
@@ -817,6 +824,48 @@ function createApp(options = {}) {
             const deleted = await reportStore.delete(reportId, { userId: 'api-token' });
             if (!deleted) {
                 throw new HttpError(404, 'REPORT_NOT_FOUND', 'Report not found.');
+            }
+            res.status(204).end();
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    // ── Waitlist API ──────────────────────────────────────────────
+    const waitlistLimiter = buildLimiter(60_000 * 5, 5); // 5 requests per 5 minutes per IP
+
+    app.post('/api/waitlist', waitlistLimiter, async (req, res, next) => {
+        try {
+            const { name, email, plan, message } = req.body || {};
+            if (!email || typeof email !== 'string' || !email.includes('@')) {
+                throw new HttpError(400, 'INVALID_EMAIL', 'A valid email address is required.');
+            }
+            if (!name || typeof name !== 'string' || name.trim().length < 1) {
+                throw new HttpError(400, 'INVALID_NAME', 'Name is required.');
+            }
+            const record = await waitlistStore.add({ name, email, plan, message });
+            logger.info(`Waitlist signup: ${record.email} (${record.plan})`);
+            broadcastEvent('waitlist_signup', { name: record.name, plan: record.plan });
+            res.status(201).json({ ok: true, id: record.id });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.get('/api/admin/waitlist', auth, requireAdmin, async (req, res, next) => {
+        try {
+            const entries = await waitlistStore.readAll();
+            res.json({ requestId: req.id, entries });
+        } catch (error) {
+            next(error);
+        }
+    });
+
+    app.delete('/api/admin/waitlist/:id', auth, requireAdmin, async (req, res, next) => {
+        try {
+            const deleted = await waitlistStore.remove(req.params.id);
+            if (!deleted) {
+                throw new HttpError(404, 'ENTRY_NOT_FOUND', 'Waitlist entry not found.');
             }
             res.status(204).end();
         } catch (error) {
