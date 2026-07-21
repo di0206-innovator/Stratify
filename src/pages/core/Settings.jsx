@@ -121,7 +121,7 @@ export default function Settings({ user }) {
                       <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="flex items-center gap-2 px-4 py-2 bg-accent text-black font-outfit font-bold uppercase text-xs tracking-wider hover:opacity-90 transition-all rounded-lg cursor-pointer border-0"
+                        className="flex items-center gap-2 px-4 py-2 bg-accent text-[#111] font-outfit font-bold uppercase text-xs tracking-wider hover:opacity-90 transition-all rounded-lg cursor-pointer border-0"
                       >
                         <Save size={14} /> {saving ? 'Saving...' : 'Save Changes'}
                       </button>
@@ -135,7 +135,7 @@ export default function Settings({ user }) {
                   ) : (
                     <button
                       onClick={() => setEditing(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-accent text-black font-outfit font-bold uppercase text-xs tracking-wider hover:opacity-90 transition-all rounded-lg cursor-pointer border-0 shadow-sm"
+                      className="flex items-center gap-2 px-4 py-2 bg-accent text-[#111] font-outfit font-bold uppercase text-xs tracking-wider hover:opacity-90 transition-all rounded-lg cursor-pointer border-0 shadow-sm"
                     >
                       <Edit2 size={14} /> Edit Profile
                     </button>

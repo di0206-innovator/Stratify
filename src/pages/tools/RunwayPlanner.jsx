@@ -144,7 +144,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
     if (runwayMonths <= 12) {
       return { label: 'WARNING POSTURE', color: 'bg-amber-50 border-amber-200 text-amber-600', icon: AlertTriangle };
     }
-    return { label: 'HEALTHY RUNWAY', color: 'bg-[#C8E64A]/10 border-[#C8E64A]/30 text-black', icon: ShieldCheck };
+    return { label: 'HEALTHY RUNWAY', color: 'bg-accent/10 border-[#C8E64A]/30 text-black', icon: ShieldCheck };
   };
 
   const getStrategicAdvice = () => {
@@ -152,7 +152,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
       return {
         title: "Default Alive Status Unlocked",
         text: "Your projected revenue growth covers your cash burn before capital depletion. Prioritize organic product-market expansion, improve unit economics, and avoid dilution unless scaling demands it.",
-        color: "border-[#C8E64A]/30 bg-[#C8E64A]/5"
+        color: "border-[#C8E64A]/30 bg-accent/5"
       };
     }
     if (runwayMonths < 6) {
@@ -172,7 +172,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
     return {
       title: "Product-Market Fit & R&D Posture",
       text: "With over 12 months of runway, focus on building defensive product wedges and running validation loops. Do not overspend on paid marketing channels before customer retention/engagement metrics are fully proven.",
-      color: "border-gray-200 bg-gray-50/50"
+      color: "border-light bg-hover/50"
     };
   };
 
@@ -200,14 +200,14 @@ export default function RunwayPlanner({ user, openAuthModal }) {
 
   return (
     <AuthGate user={user} openAuthModal={openAuthModal} message="Sign in to access the Capital OS and simulate your startup runway and burn scenarios.">
-      <div className="max-w-7xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-[#111]">
+      <div className="max-w-7xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-text-primary">
         {/* Welcome Banner */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200/60 select-none">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-light select-none">
           <div>
             <h1 className="text-2xl sm:text-3xl font-outfit font-black tracking-tight">
               Capital OS & Runway Planner
             </h1>
-            <p className="font-inter text-gray-500 mt-1 text-xs sm:text-sm">
+            <p className="font-inter text-text-secondary mt-1 text-xs sm:text-sm">
               Simulate monthly cash burn, plan seed-stage runway, and receive agentic financial warnings.
             </p>
           </div>
@@ -226,8 +226,8 @@ export default function RunwayPlanner({ user, openAuthModal }) {
                 {/* Cash */}
                 <div>
                   <div className="flex justify-between items-center mb-1.5 select-none">
-                    <label className="text-xs font-bold uppercase text-gray-500 tracking-wide">Initial Capital / Cash Balance</label>
-                    <span className="text-xs font-mono font-bold bg-white border border-gray-200 px-2 py-0.5 rounded">
+                    <label className="text-xs font-bold uppercase text-text-secondary tracking-wide">Initial Capital / Cash Balance</label>
+                    <span className="text-xs font-mono font-bold bg-card border border-light px-2 py-0.5 rounded">
                       {formatCurrency(cash)}
                     </span>
                   </div>
@@ -245,7 +245,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
                 {/* Burn */}
                 <div>
                   <div className="flex justify-between items-center mb-1.5 select-none">
-                    <label className="text-xs font-bold uppercase text-gray-500 tracking-wide">Gross Monthly Burn (Costs)</label>
+                    <label className="text-xs font-bold uppercase text-text-secondary tracking-wide">Gross Monthly Burn (Costs)</label>
                     <span className="text-xs font-mono font-bold bg-red-50 border border-red-200 px-2 py-0.5 rounded text-red-500">
                       {formatCurrency(burn)}
                     </span>
@@ -264,7 +264,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
                 {/* Revenue */}
                 <div>
                   <div className="flex justify-between items-center mb-1.5 select-none">
-                    <label className="text-xs font-bold uppercase text-gray-500 tracking-wide">Initial Monthly Revenue</label>
+                    <label className="text-xs font-bold uppercase text-text-secondary tracking-wide">Initial Monthly Revenue</label>
                     <span className="text-xs font-mono font-bold bg-green-50 border border-green-200 px-2 py-0.5 rounded text-green-600">
                       {formatCurrency(revenue)}
                     </span>
@@ -283,8 +283,8 @@ export default function RunwayPlanner({ user, openAuthModal }) {
                 {/* Growth */}
                 <div>
                   <div className="flex justify-between items-center mb-1.5 select-none">
-                    <label className="text-xs font-bold uppercase text-gray-500 tracking-wide">Revenue Monthly Growth Rate</label>
-                    <span className="text-xs font-mono font-bold bg-gray-50 border border-gray-200 px-2 py-0.5 rounded text-black">
+                    <label className="text-xs font-bold uppercase text-text-secondary tracking-wide">Revenue Monthly Growth Rate</label>
+                    <span className="text-xs font-mono font-bold bg-hover border border-light px-2 py-0.5 rounded text-black">
                       {growth}%
                     </span>
                   </div>
@@ -305,7 +305,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
             <BentoCard title="AI Scenario Simulator" badge="NATURAL LANGUAGE" badgeColor="bg-black" className="h-auto">
               <form onSubmit={runSimulation} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-gray-400 tracking-wide mb-1.5">
+                  <label className="block text-[10px] font-bold uppercase text-text-muted tracking-wide mb-1.5">
                     Type a business event to simulate (e.g. raise $500k, hire 3 devs)
                   </label>
                   <input
@@ -320,16 +320,16 @@ export default function RunwayPlanner({ user, openAuthModal }) {
                 <button
                   type="submit"
                   disabled={simulating || !scenarioInput.trim()}
-                  className="w-full py-3 bg-[#C8E64A] text-[#111] font-outfit font-bold text-xs uppercase hover:bg-[#B5D235] transition-all flex items-center justify-center gap-2 cursor-pointer rounded-lg"
+                  className="w-full py-3 bg-accent text-[#111] font-outfit font-bold text-xs uppercase hover:bg-accent-hover transition-all flex items-center justify-center gap-2 cursor-pointer rounded-lg"
                 >
                   {simulating ? <RefreshCw size={12} className="animate-spin" /> : null}
                   <span>SIMULATE DECISION</span>
                 </button>
                 
                 {simulationLog && (
-                  <div className="border border-[#C8E64A]/30 p-3.5 bg-[#FAF9F6] text-left space-y-1.5 select-text rounded-xl">
+                  <div className="border border-[#C8E64A]/30 p-3.5 bg-canvas text-left space-y-1.5 select-text rounded-xl">
                     <span className="text-[9px] font-bold uppercase text-[#EF4444] block tracking-wide">SIMULATION IMPACT LOG</span>
-                    <p className="text-xs text-gray-600 leading-relaxed font-mono whitespace-pre-line">
+                    <p className="text-xs text-text-secondary leading-relaxed font-mono whitespace-pre-line">
                       {simulationLog}
                     </p>
                   </div>
@@ -340,33 +340,33 @@ export default function RunwayPlanner({ user, openAuthModal }) {
             {/* Widget 2: Key Strategic Indicators */}
             <BentoCard title="Key Strategic Runway Indicators" badge="Survival Metrics" badgeColor="bg-black" className="h-auto">
               <div className="grid grid-cols-2 gap-4">
-                <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl flex flex-col justify-between min-h-[100px]">
+                <div className="border border-light p-4 bg-canvas rounded-xl flex flex-col justify-between min-h-[100px]">
                   <span className="text-[9px] font-bold uppercase text-gray-450 tracking-wide">Survival Runway</span>
                   <div className="mt-3">
                     <h3 className="text-3xl font-outfit font-black tracking-tight">
                       {runwayMonths === Infinity ? '∞' : Math.floor(runwayMonths)}
                     </h3>
-                    <span className="text-[10px] font-bold uppercase text-gray-400 block mt-1">Months Left</span>
+                    <span className="text-[10px] font-bold uppercase text-text-muted block mt-1">Months Left</span>
                   </div>
                 </div>
 
-                <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl flex flex-col justify-between min-h-[100px]">
+                <div className="border border-light p-4 bg-canvas rounded-xl flex flex-col justify-between min-h-[100px]">
                   <span className="text-[9px] font-bold uppercase text-gray-450 tracking-wide">Net Monthly Burn</span>
                   <div className="mt-3">
                     <h3 className={`text-2xl font-outfit font-black tracking-tight ${burn - revenue > 0 ? 'text-red-500' : 'text-green-600'}`}>
                       {formatCurrency(Math.max(0, burn - revenue))}
                     </h3>
-                    <span className="text-[10px] font-bold uppercase text-gray-400 block mt-1">Current Net Burn</span>
+                    <span className="text-[10px] font-bold uppercase text-text-muted block mt-1">Current Net Burn</span>
                   </div>
                 </div>
 
-                <div className="border border-gray-200 p-4 bg-[#FAF9F6] col-span-2 rounded-xl flex flex-col justify-between min-h-[80px]">
+                <div className="border border-light p-4 bg-canvas col-span-2 rounded-xl flex flex-col justify-between min-h-[80px]">
                   <span className="text-[9px] font-bold uppercase text-gray-450 tracking-wide">Cash Flow Posture</span>
                   <div className="mt-3">
                     <h4 className="text-sm font-bold uppercase text-black">
                       {defaultAlive ? 'Default Alive (Scale Mode)' : 'Default Dead (Raise/Optimize)'}
                     </h4>
-                    <span className="text-[10px] text-gray-500 font-semibold mt-1 block leading-relaxed">
+                    <span className="text-[10px] text-text-secondary font-semibold mt-1 block leading-relaxed">
                       {defaultAlive 
                         ? 'Revenue growth outpaces burn rate. Business survives without extra capital.' 
                         : 'Capital will eventually deplete. You must raise venture capital or decrease burn.'}
@@ -386,7 +386,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
                   <TrendingUp size={16} />
                   <span>{Advice.title}</span>
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed font-light font-inter">
+                <p className="text-xs sm:text-sm text-text-secondary leading-relaxed font-light font-inter">
                   {Advice.text}
                 </p>
               </div>
@@ -404,30 +404,30 @@ export default function RunwayPlanner({ user, openAuthModal }) {
             {/* Widget 4: Month-by-month cash flow projections */}
             <BentoCard title="Cash Balance Projections" badge="24-Month Forecast" badgeColor="bg-black" className="h-auto">
               {/* Interactive SVG Chart */}
-              <div className="p-4 bg-white border border-gray-150 rounded-xl mb-4">
+              <div className="p-4 bg-card border border-gray-150 rounded-xl mb-4">
                 {/* Dynamic Tooltip */}
-                <div className="border border-gray-200 bg-[#FAF9F6] p-3 rounded-xl mb-4 select-none min-h-[50px] flex items-center justify-center">
+                <div className="border border-light bg-canvas p-3 rounded-xl mb-4 select-none min-h-[50px] flex items-center justify-center">
                   {hoveredMonth !== null && projections[hoveredMonth] ? (
                     <div className="flex w-full justify-between items-center text-xs font-semibold px-2">
                       <div>
-                        <span className="text-[9px] font-bold text-gray-400 uppercase block">Period</span>
+                        <span className="text-[9px] font-bold text-text-muted uppercase block">Period</span>
                         <span className="font-outfit font-bold text-sm uppercase text-black">Month {projections[hoveredMonth].month}</span>
                       </div>
                       <div>
-                        <span className="text-[9px] font-bold text-gray-400 uppercase block">Projected Cash</span>
+                        <span className="text-[9px] font-bold text-text-muted uppercase block">Projected Cash</span>
                         <span className="font-mono font-bold text-sm text-black">
                           {projections[hoveredMonth].cash <= 0 ? 'DEPLETED' : formatCurrency(projections[hoveredMonth].cash)}
                         </span>
                       </div>
                       <div>
-                        <span className="text-[9px] font-bold text-gray-400 uppercase block">Net Flow</span>
+                        <span className="text-[9px] font-bold text-text-muted uppercase block">Net Flow</span>
                         <span className={`font-mono font-bold text-sm ${projections[hoveredMonth].netBurn > 0 ? 'text-red-500' : 'text-green-600'}`}>
                           {projections[hoveredMonth].netBurn > 0 ? '-' : '+'}{formatCurrency(Math.abs(projections[hoveredMonth].netBurn))}
                         </span>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+                    <div className="text-[10px] text-text-muted font-bold uppercase tracking-wider">
                       Hover over forecast bars below to analyze monthly metrics
                     </div>
                   )}
@@ -569,7 +569,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
               </div>
 
               {/* Forecast breakdown table */}
-              <div className="overflow-hidden bg-white border border-gray-200 rounded-xl">
+              <div className="overflow-hidden bg-card border border-light rounded-xl">
                 <div className="overflow-y-auto max-h-[300px] scrollbar-thin">
                   <table className="w-full text-left font-inter border-collapse">
                     <thead>
@@ -585,8 +585,8 @@ export default function RunwayPlanner({ user, openAuthModal }) {
                       {projections.map((p) => (
                         <tr 
                           key={p.month} 
-                          className={`text-xs border-b border-gray-150 font-semibold hover:bg-gray-50/50 ${
-                            p.isDeficit ? 'bg-red-50/50 text-red-600' : 'text-gray-700'
+                          className={`text-xs border-b border-gray-150 font-semibold hover:bg-hover/50 ${
+                            p.isDeficit ? 'bg-red-50/50 text-red-600' : 'text-text-primary'
                           }`}
                         >
                           <td className="p-3 font-mono font-bold">M{p.month}</td>

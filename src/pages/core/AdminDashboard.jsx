@@ -213,7 +213,7 @@ export default function AdminDashboard() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 py-2 text-center text-xs font-outfit font-bold uppercase rounded-lg transition-all cursor-pointer border-0 shadow-sm ${
-                  activeTab === tab.id ? 'bg-accent text-black font-bold' : 'bg-card text-text-secondary hover:bg-hover'
+                  activeTab === tab.id ? 'bg-accent text-[#111] font-bold' : 'bg-card text-text-secondary hover:bg-hover'
                 }`}
               >
                 {tab.label}

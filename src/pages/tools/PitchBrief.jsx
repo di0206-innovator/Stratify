@@ -146,7 +146,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
   if (error && error.type === 'UNAUTHORIZED') {
     return (
       <div className="max-w-2xl mx-auto px-6 py-16 relative z-10">
-        <div className="os-card bg-white p-8 sm:p-12 text-center select-none space-y-6">
+        <div className="os-card bg-card p-8 sm:p-12 text-center select-none space-y-6">
           <div className="inline-flex p-4 bg-red-50 border border-red-200 text-red-650 rounded-full">
             <Lock size={40} />
           </div>
@@ -158,12 +158,12 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
               Whitelist Authorization Required
             </span>
           </div>
-          <p className="text-xs text-gray-500 font-semibold max-w-sm mx-auto leading-relaxed font-inter font-light">
+          <p className="text-xs text-text-secondary font-semibold max-w-sm mx-auto leading-relaxed font-inter font-light">
             {error.message}
           </p>
-          <div className="border border-gray-205 p-4 bg-[#FAF9F6] max-w-sm mx-auto text-left rounded-xl">
-            <span className="text-[9px] font-bold uppercase text-gray-400 block mb-1 tracking-wide">Access Protocol</span>
-            <p className="text-xs text-gray-500 leading-relaxed font-light">
+          <div className="border border-gray-205 p-4 bg-canvas max-w-sm mx-auto text-left rounded-xl">
+            <span className="text-[9px] font-bold uppercase text-text-muted block mb-1 tracking-wide">Access Protocol</span>
+            <p className="text-xs text-text-secondary leading-relaxed font-light">
               Only whitelisted investor emails or domains (e.g. fund-address.com) configured by the founder can unlock these credentials.
             </p>
           </div>
@@ -181,7 +181,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
   if (error) {
     return (
       <div className="max-w-2xl mx-auto px-6 py-16 relative z-10">
-        <div className="os-card bg-white p-8 sm:p-12 text-center select-none space-y-6">
+        <div className="os-card bg-card p-8 sm:p-12 text-center select-none space-y-6">
           <div className="inline-flex p-4 bg-amber-50 border border-amber-200 text-amber-600 rounded-full">
             <ShieldAlert size={40} />
           </div>
@@ -189,7 +189,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
             <h1 className="text-2xl sm:text-3xl font-outfit font-black uppercase tracking-tight text-black">
               Vault Error
             </h1>
-            <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed font-inter font-light mt-2">
+            <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed font-inter font-light mt-2">
               {error.message}
             </p>
           </div>
@@ -206,17 +206,17 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
   // 1. PUBLIC VIEW MODE
   if (mode === 'public') {
     return (
-      <div className="max-w-4xl mx-auto px-6 py-10 relative z-10 space-y-8 text-[#111] animate-fade-in">
+      <div className="max-w-4xl mx-auto px-6 py-10 relative z-10 space-y-8 text-text-primary animate-fade-in">
         {/* Startup Pitch Header */}
         <div className="os-card bg-[#1A1A1A] text-white p-8 select-none relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full transform translate-x-20 -translate-y-20 font-outfit"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-card opacity-5 rounded-full transform translate-x-20 -translate-y-20 font-outfit"></div>
           
           <div className="relative z-10 space-y-2">
             <div className="flex gap-2">
-              <span className="inline-block bg-[#C8E64A]/10 border border-[#C8E64A]/30 text-white px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md">
+              <span className="inline-block bg-accent/10 border border-[#C8E64A]/30 text-white px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md">
                 Grounded Strategic Brief
               </span>
-              <span className="inline-block bg-white/10 border border-white/20 text-white px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md flex items-center gap-1">
+              <span className="inline-block bg-card/10 border border-white/20 text-white px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md flex items-center gap-1">
                 <Globe size={10} className="text-[#C8E64A]" /> {isPublic ? 'PUBLIC DATA ROOM' : 'RESTRICTED VAULT'}
               </span>
             </div>
@@ -233,7 +233,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
               href={deckUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative z-10 inline-flex items-center gap-2 px-5 py-3 bg-[#C8E64A] text-black font-outfit font-bold text-xs uppercase hover:bg-[#B5D235] transition-all cursor-pointer rounded-lg border-0 shadow-sm"
+              className="relative z-10 inline-flex items-center gap-2 px-5 py-3 bg-accent text-[#111] font-outfit font-bold text-xs uppercase hover:bg-accent-hover transition-all cursor-pointer rounded-lg border-0 shadow-sm"
             >
               <ExternalLink size={14} />
               <span>ACCESS PITCH SLIDES</span>
@@ -245,8 +245,8 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-12 md:col-span-6 flex flex-col justify-stretch">
             <BentoCard title="The Problem Statement" badge="PAIN POINT AUDIT" badgeColor="bg-black">
-              <div className="border border-gray-200 p-5 bg-[#FAF9F6] rounded-xl flex-1 text-left">
-                <p className="text-xs text-gray-500 font-light font-inter leading-relaxed whitespace-pre-wrap">
+              <div className="border border-light p-5 bg-canvas rounded-xl flex-1 text-left">
+                <p className="text-xs text-text-secondary font-light font-inter leading-relaxed whitespace-pre-wrap">
                   {problem || 'No problem statement defined.'}
                 </p>
               </div>
@@ -255,8 +255,8 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
 
           <div className="col-span-12 md:col-span-6 flex flex-col justify-stretch">
             <BentoCard title="The Solution Wedge" badge="PRODUCT DEFENSE" badgeColor="bg-black">
-              <div className="border border-gray-200 p-5 bg-[#FAF9F6] rounded-xl flex-1 text-left">
-                <p className="text-xs text-gray-500 font-light font-inter leading-relaxed whitespace-pre-wrap">
+              <div className="border border-light p-5 bg-canvas rounded-xl flex-1 text-left">
+                <p className="text-xs text-text-secondary font-light font-inter leading-relaxed whitespace-pre-wrap">
                   {solution || 'No solution details defined.'}
                 </p>
               </div>
@@ -267,14 +267,14 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
           {showRunway && (
             <div className="col-span-12">
               <BentoCard title="Strategic Runway Posture" badge="VERIFIED LIVE GRAPH" badgeColor="bg-black">
-                <div className="border border-gray-200 p-6 bg-white rounded-xl flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
+                <div className="border border-light p-6 bg-card rounded-xl flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
                   <div className="space-y-1 text-center sm:text-left select-none">
                     <h4 className="font-outfit font-bold text-sm text-black uppercase">Financial Health Verified</h4>
-                    <p className="text-xs text-gray-500 font-semibold leading-relaxed font-light font-inter max-w-lg">
+                    <p className="text-xs text-text-secondary font-semibold leading-relaxed font-light font-inter max-w-lg">
                       This startup has linked their interactive runway tools. The live forecast demonstrates sustainable capitalization loops.
                     </p>
                   </div>
-                  <Link to="/runway" className="os-btn bg-[#C8E64A] hover:bg-[#B5D235] text-black font-outfit font-bold text-xs uppercase px-4 py-2.5 rounded-lg border-0 shadow-sm">
+                  <Link to="/runway" className="os-btn bg-accent hover:bg-accent-hover text-black font-outfit font-bold text-xs uppercase px-4 py-2.5 rounded-lg border-0 shadow-sm">
                     Open Runway Planner
                   </Link>
                 </div>
@@ -288,10 +288,10 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
 
   // 2. BUILDER MODE
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10 relative z-10 space-y-8 text-[#111] animate-fade-in">
+    <div className="max-w-4xl mx-auto px-6 py-10 relative z-10 space-y-8 text-text-primary animate-fade-in">
       {/* Title */}
       <div className="os-card bg-[#1A1A1A] text-white p-8 sm:p-12 mb-8 select-none relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-card opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
         <div>
           <h1 className="text-3xl sm:text-4xl font-outfit font-black tracking-tight text-white uppercase leading-none">
             Pitch Brief & Data Room
@@ -309,7 +309,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
             <form onSubmit={handleSave} className="space-y-4">
               {/* Pitch */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">Elevator Pitch</label>
+                <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">Elevator Pitch</label>
                 <input
                   type="text"
                   value={pitch}
@@ -322,7 +322,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
 
               {/* Problem */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">The Problem</label>
+                <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">The Problem</label>
                 <textarea
                   value={problem}
                   onChange={(e) => setProblem(e.target.value)}
@@ -335,7 +335,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
 
               {/* Solution */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">The Solution</label>
+                <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">The Solution</label>
                 <textarea
                   value={solution}
                   onChange={(e) => setSolution(e.target.value)}
@@ -348,7 +348,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
 
               {/* Pitch Slides Link */}
               <div>
-                <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">Pitch Deck Link (Slideshare, PDF URL)</label>
+                <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">Pitch Deck Link (Slideshare, PDF URL)</label>
                 <input
                   type="url"
                   value={deckUrl}
@@ -360,27 +360,27 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
 
               {/* Toggles */}
               <div className="grid grid-cols-2 gap-4 pt-2">
-                <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl select-none text-left flex flex-col justify-between">
-                  <span className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Runway Visibility</span>
-                  <label className="flex items-center gap-2 cursor-pointer font-semibold text-xs text-gray-700">
+                <div className="border border-light p-4 bg-canvas rounded-xl select-none text-left flex flex-col justify-between">
+                  <span className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Runway Visibility</span>
+                  <label className="flex items-center gap-2 cursor-pointer font-semibold text-xs text-text-primary">
                     <input
                       type="checkbox"
                       checked={showRunway}
                       onChange={(e) => setShowRunway(e.target.checked)}
-                      className="accent-black cursor-pointer w-4 h-4 rounded border-gray-300"
+                      className="accent-black cursor-pointer w-4 h-4 rounded border-DEFAULT"
                     />
                     <span>Show Runway</span>
                   </label>
                 </div>
 
-                <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl select-none text-left flex flex-col justify-between">
-                  <span className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Access Scope</span>
-                  <label className="flex items-center gap-2 cursor-pointer font-semibold text-xs text-gray-700">
+                <div className="border border-light p-4 bg-canvas rounded-xl select-none text-left flex flex-col justify-between">
+                  <span className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Access Scope</span>
+                  <label className="flex items-center gap-2 cursor-pointer font-semibold text-xs text-text-primary">
                     <input
                       type="checkbox"
                       checked={isPublic}
                       onChange={(e) => setIsPublic(e.target.checked)}
-                      className="accent-black cursor-pointer w-4 h-4 rounded border-gray-300"
+                      className="accent-black cursor-pointer w-4 h-4 rounded border-DEFAULT"
                     />
                     <span>Open Publicly</span>
                   </label>
@@ -389,8 +389,8 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
 
               {/* Whitelist Configuration (if not public) */}
               {!isPublic && (
-                <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl text-left animate-slide-up">
-                  <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">
+                <div className="border border-light p-4 bg-canvas rounded-xl text-left animate-slide-up">
+                  <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">
                     Investor Whitelist (Comma-separated emails or domains)
                   </label>
                   <input
@@ -398,9 +398,9 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
                     value={whitelistInput}
                     onChange={(e) => setWhitelistInput(e.target.value)}
                     placeholder="e.g. partner@sequoia.com, tigerglobal.com, angelinvestor@gmail.com"
-                    className="os-input bg-white"
+                    className="os-input bg-card"
                   />
-                  <span className="block text-[9px] font-semibold text-gray-400 mt-1 leading-normal">
+                  <span className="block text-[9px] font-semibold text-text-muted mt-1 leading-normal">
                     Whitelists filter emails or entire email domains automatically.
                   </span>
                 </div>
@@ -410,7 +410,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="w-full py-3 bg-[#C8E64A] text-black font-outfit font-bold text-xs uppercase hover:bg-[#B5D235] transition-all rounded-lg border-0 shadow-sm"
+                  className="w-full py-3 bg-accent text-[#111] font-outfit font-bold text-xs uppercase hover:bg-accent-hover transition-all rounded-lg border-0 shadow-sm"
                 >
                   <span>{saving ? 'COMPILING VAULT...' : 'SAVE & COMPILE BRIEF'}</span>
                 </button>
@@ -425,25 +425,25 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
             {briefId ? (
               <div className="space-y-4 h-full flex flex-col justify-between">
                 <div className="space-y-4 select-none">
-                  <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl text-left">
-                    <span className="text-[9px] font-bold uppercase text-gray-400 block mb-1 tracking-wide">Vault Status</span>
+                  <div className="border border-light p-4 bg-canvas rounded-xl text-left">
+                    <span className="text-[9px] font-bold uppercase text-text-muted block mb-1 tracking-wide">Vault Status</span>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`w-2.5 h-2.5 rounded-full ${isPublic ? 'bg-green-500' : 'bg-red-500'}`} />
-                      <span className="font-outfit font-bold text-[10px] uppercase text-[#111] tracking-wide leading-none">
+                      <span className="font-outfit font-bold text-[10px] uppercase text-text-primary tracking-wide leading-none">
                         {isPublic ? 'PUBLIC ACCESS ACTIVE' : 'RESTRICTED ACCESS ACTIVE'}
                       </span>
                     </div>
                   </div>
 
-                  <div className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl text-left">
-                    <span className="text-[9px] font-bold uppercase text-gray-400 block mb-2 tracking-wide">Direct Data Room Link</span>
-                    <div className="flex items-center gap-2 border border-gray-250 bg-white px-3 py-2 rounded-lg select-all">
+                  <div className="border border-light p-4 bg-canvas rounded-xl text-left">
+                    <span className="text-[9px] font-bold uppercase text-text-muted block mb-2 tracking-wide">Direct Data Room Link</span>
+                    <div className="flex items-center gap-2 border border-gray-250 bg-card px-3 py-2 rounded-lg select-all">
                       <span className="font-mono text-[10px] truncate flex-1 text-black font-semibold">
                         {window.location.origin}/brief/{briefId}
                       </span>
                       <button
                         onClick={copyLink}
-                        className="p-1 hover:bg-gray-50 rounded border border-gray-200 cursor-pointer text-gray-550 transition-colors"
+                        className="p-1 hover:bg-hover rounded border border-light cursor-pointer text-gray-550 transition-colors"
                         title="Copy Link"
                       >
                         {copied ? <Check size={14} className="text-[#C8E64A]" /> : <Copy size={14} />}
@@ -452,10 +452,10 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
                   </div>
                 </div>
 
-                <div className="border border-gray-200 bg-[#FAF9F6] rounded-xl p-6 flex flex-col items-center justify-center text-center py-8">
+                <div className="border border-light bg-canvas rounded-xl p-6 flex flex-col items-center justify-center text-center py-8">
                   <Globe size={32} className="text-black mb-3" />
                   <h4 className="font-outfit font-bold text-xs uppercase tracking-wide">Open Public Preview</h4>
-                  <p className="text-[10px] text-gray-500 font-semibold mb-4 leading-normal max-w-[200px] mx-auto font-inter">
+                  <p className="text-[10px] text-text-secondary font-semibold mb-4 leading-normal max-w-[200px] mx-auto font-inter">
                     Analyze how whitelisted investors see your presentation.
                   </p>
                   <Link
@@ -467,7 +467,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-400 font-outfit font-bold text-xs uppercase select-none border border-dashed border-gray-300 rounded-xl">
+              <div className="text-center py-12 text-text-muted font-outfit font-bold text-xs uppercase select-none border border-dashed border-DEFAULT rounded-xl">
                 Save your first brief to compile the data room distribution links.
               </div>
             )}

@@ -116,7 +116,7 @@ export default function Upgrade() {
               </p>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-black text-sm font-semibold rounded-lg hover:bg-accent-hover transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-[#111] text-sm font-semibold rounded-lg hover:bg-accent-hover transition-colors"
               >
                 <Sparkles size={16} />
                 Continue to Dashboard
@@ -198,7 +198,7 @@ export default function Upgrade() {
                 <button
                   type="submit"
                   disabled={status === 'submitting'}
-                  className="w-full py-3 bg-accent text-black text-sm font-outfit font-bold uppercase tracking-wider rounded-lg hover:bg-accent-hover transition-all disabled:opacity-60 cursor-pointer border-0"
+                  className="w-full py-3 bg-accent text-[#111] text-sm font-outfit font-bold uppercase tracking-wider rounded-lg hover:bg-accent-hover transition-all disabled:opacity-60 cursor-pointer border-0"
                 >
                   {status === 'submitting' ? 'Joining...' : 'Join the Waitlist'}
                 </button>

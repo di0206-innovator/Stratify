@@ -123,7 +123,7 @@ export default function ReportDetail() {
             target={source.url ? "_blank" : undefined}
             rel={source.url ? "noopener noreferrer" : undefined}
             title={`${source.title}: ${source.summary}`}
-            className="inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 text-[9px] font-bold font-mono bg-[#C8E64A] text-black border border-[#B5D235] hover:bg-black hover:text-white transition-colors cursor-pointer rounded align-middle leading-none"
+            className="inline-flex items-center justify-center px-1.5 py-0.5 mx-0.5 text-[9px] font-bold font-mono bg-accent text-[#111] border border-accent-hover hover:bg-black hover:text-white transition-colors cursor-pointer rounded align-middle leading-none"
             onClick={(e) => {
               if (!source.url) {
                 e.preventDefault();
@@ -177,7 +177,7 @@ export default function ReportDetail() {
       // Blockquotes / Warnings
       if (trimmed.startsWith('> ')) {
         return (
-          <blockquote key={index} className="border-l-4 border-gray-300 bg-[#FAF9F6] p-4 rounded-r-lg my-4 leading-relaxed font-light select-text">
+          <blockquote key={index} className="border-l-4 border-DEFAULT bg-canvas p-4 rounded-r-lg my-4 leading-relaxed font-light select-text">
             {renderTextWithCitations(trimmed.substring(2), report.sources)}
           </blockquote>
         );
@@ -186,7 +186,7 @@ export default function ReportDetail() {
       // List items
       if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
         return (
-          <li key={index} className="ml-6 list-disc font-semibold text-sm md:text-base text-gray-700 mb-1.5 leading-relaxed font-light">
+          <li key={index} className="ml-6 list-disc font-semibold text-sm md:text-base text-text-primary mb-1.5 leading-relaxed font-light">
             {renderTextWithCitations(trimmed.substring(2), report.sources)}
           </li>
         );
@@ -194,7 +194,7 @@ export default function ReportDetail() {
 
       // Regular paragraphs
       return (
-        <p key={index} className="text-sm md:text-base font-semibold font-inter text-gray-700 leading-relaxed mb-4 font-light">
+        <p key={index} className="text-sm md:text-base font-semibold font-inter text-text-primary leading-relaxed mb-4 font-light">
           {renderTextWithCitations(trimmed, report.sources)}
         </p>
       );
@@ -215,8 +215,8 @@ export default function ReportDetail() {
       <div className="max-w-xl mx-auto px-6 py-16 text-center space-y-6">
         <div className="bg-red-50 border border-red-200 text-red-600 p-8 rounded-xl text-left">
           <ShieldAlert size={36} className="mb-3 text-red-600" />
-          <h2 className="text-lg font-outfit font-bold uppercase text-[#111]">Brief Unreachable</h2>
-          <p className="text-xs font-semibold text-gray-500 mt-2 leading-relaxed font-inter font-light">{error || 'Brief data failed to load.'}</p>
+          <h2 className="text-lg font-outfit font-bold uppercase text-text-primary">Brief Unreachable</h2>
+          <p className="text-xs font-semibold text-text-secondary mt-2 leading-relaxed font-inter font-light">{error || 'Brief data failed to load.'}</p>
         </div>
         <Link to="/intelligence" className="os-btn inline-flex items-center gap-2 select-none font-semibold">
           <ArrowLeft size={16} />
@@ -235,7 +235,7 @@ export default function ReportDetail() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-[#111]">
+    <div className="max-w-7xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-text-primary">
       {/* Back to Library Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 select-none">
         <Link
@@ -260,13 +260,13 @@ export default function ReportDetail() {
         {/* Left Column: Brief Reader */}
         <div className="col-span-12 lg:col-span-8 flex flex-col space-y-6">
           {/* Tabs header */}
-          <div className="bg-[#FAF9F6] border border-gray-200 rounded-xl p-1 flex gap-2 select-none">
+          <div className="bg-canvas border border-light rounded-xl p-1 flex gap-2 select-none">
             <button
               onClick={() => setActiveTab('interactive')}
               className={`flex-1 py-2 text-center text-xs font-outfit font-bold uppercase rounded-lg transition-all cursor-pointer border-0 shadow-sm ${
                 activeTab === 'interactive' 
-                  ? 'bg-[#C8E64A] text-black font-bold' 
-                  : 'bg-white text-gray-550 hover:bg-gray-50'
+                  ? 'bg-accent text-[#111] font-bold' 
+                  : 'bg-card text-gray-550 hover:bg-hover'
               }`}
             >
               <BookOpen size={14} className="inline mr-1.5" />
@@ -277,7 +277,7 @@ export default function ReportDetail() {
               className={`flex-1 py-2 text-center text-xs font-outfit font-bold uppercase rounded-lg transition-all cursor-pointer border-0 shadow-sm ${
                 activeTab === 'markdown' 
                   ? 'bg-black text-white font-bold' 
-                  : 'bg-white text-gray-550 hover:bg-gray-50'
+                  : 'bg-card text-gray-550 hover:bg-hover'
               }`}
             >
               <FileText size={14} className="inline mr-1.5" />
@@ -286,35 +286,35 @@ export default function ReportDetail() {
           </div>
 
           {/* Reader Panel */}
-          <div className="os-card bg-white min-h-[500px] flex-1 p-6 md:p-8">
+          <div className="os-card bg-card min-h-[500px] flex-1 p-6 md:p-8">
             {activeTab === 'interactive' ? (
               /* INTERACTIVE VIEW */
               <div className="space-y-8">
                 {/* Title */}
-                <div className="border-b border-gray-200/60 pb-4 select-none">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#C8E64A]/25 border border-[#C8E64A]/30 text-black mb-2.5 uppercase">
+                <div className="border-b border-light pb-4 select-none">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold bg-accent/25 border border-[#C8E64A]/30 text-black mb-2.5 uppercase">
                     {report.founderContext?.profile?.startupStage || 'IDEA'} WEDGE
                   </span>
                   <h1 className="text-2xl md:text-3xl font-outfit font-black uppercase leading-tight tracking-tight">
                     {report.title}
                   </h1>
-                  <p className="text-xs text-gray-400 font-bold mt-1.5 uppercase font-mono">
+                  <p className="text-xs text-text-muted font-bold mt-1.5 uppercase font-mono">
                     ANALYZED ON {formattedDate}
                   </p>
                 </div>
 
                 {/* Thesis Section */}
                 <div className="space-y-2">
-                  <h2 className="text-sm font-outfit font-bold uppercase text-gray-400 tracking-wider">Executive Snapshot</h2>
-                  <div className="text-sm md:text-base font-semibold font-inter text-gray-700 leading-relaxed bg-[#FAF9F6] p-5 border border-dashed border-gray-350 rounded-xl font-light">
+                  <h2 className="text-sm font-outfit font-bold uppercase text-text-muted tracking-wider">Executive Snapshot</h2>
+                  <div className="text-sm md:text-base font-semibold font-inter text-text-primary leading-relaxed bg-canvas p-5 border border-dashed border-gray-350 rounded-xl font-light">
                     {renderTextWithCitations(report.sections.executiveSnapshot || report.sections.thesis, report.sources)}
                   </div>
                 </div>
 
                 {/* Opportunity Wedge & Positioning */}
                 <div className="space-y-2">
-                  <h2 className="text-sm font-outfit font-bold uppercase text-gray-400 tracking-wider">Opportunity Wedge & Positioning</h2>
-                  <div className="text-sm md:text-base font-semibold font-inter text-gray-700 leading-relaxed bg-white p-5 border border-gray-200 rounded-xl font-light">
+                  <h2 className="text-sm font-outfit font-bold uppercase text-text-muted tracking-wider">Opportunity Wedge & Positioning</h2>
+                  <div className="text-sm md:text-base font-semibold font-inter text-text-primary leading-relaxed bg-card p-5 border border-light rounded-xl font-light">
                     {renderTextWithCitations(report.sections.opportunityThesis || report.sections.positioning, report.sources)}
                   </div>
                 </div>
@@ -341,7 +341,7 @@ export default function ReportDetail() {
 
                   return (
                     <div key={key} className="space-y-2">
-                      <h2 className="text-sm font-outfit font-bold uppercase text-gray-400 tracking-wider">
+                      <h2 className="text-sm font-outfit font-bold uppercase text-text-muted tracking-wider">
                         {sectionLabels[key] || key.replace(/([A-Z])/g, ' $1').toUpperCase()}
                       </h2>
                       <div className="text-sm md:text-base font-semibold font-inter text-gray-750 leading-relaxed font-light">
@@ -354,10 +354,10 @@ export default function ReportDetail() {
                 {/* Market Signals */}
                 {report.sections.marketSignals && report.sections.marketSignals.length > 0 && (
                   <div className="space-y-3">
-                    <h2 className="text-sm font-outfit font-bold uppercase text-gray-400 tracking-wider">Extracted Market Signals</h2>
+                    <h2 className="text-sm font-outfit font-bold uppercase text-text-muted tracking-wider">Extracted Market Signals</h2>
                     <div className="space-y-3">
                       {report.sections.marketSignals.map((sig, idx) => (
-                        <div key={idx} className="border border-gray-200 p-4 bg-[#FAF9F6] rounded-xl text-xs sm:text-sm font-semibold text-gray-700 flex gap-2">
+                        <div key={idx} className="border border-light p-4 bg-canvas rounded-xl text-xs sm:text-sm font-semibold text-text-primary flex gap-2">
                           <span className="text-black font-black font-mono shrink-0 select-none">[{idx + 1}]</span>
                           <span className="font-inter leading-relaxed font-light">{renderTextWithCitations(sig, report.sources)}</span>
                         </div>
@@ -369,14 +369,14 @@ export default function ReportDetail() {
                 {/* Recommendations */}
                 {report.sections.recommendations && report.sections.recommendations.length > 0 && (
                   <div className="space-y-4">
-                    <h2 className="text-sm font-outfit font-bold uppercase text-gray-400 tracking-wider">Tactical Recommendations</h2>
+                    <h2 className="text-sm font-outfit font-bold uppercase text-text-muted tracking-wider">Tactical Recommendations</h2>
                     <ul className="space-y-3">
                       {report.sections.recommendations.map((rec, idx) => (
                         <li key={idx} className="flex gap-3 items-start">
-                          <div className="bg-[#C8E64A] border border-[#B5D235] text-black px-2 py-0.5 rounded text-[8px] font-bold shrink-0 mt-0.5 select-none font-mono">
+                          <div className="bg-accent border border-accent-hover text-black px-2 py-0.5 rounded text-[8px] font-bold shrink-0 mt-0.5 select-none font-mono">
                             REC {idx + 1}
                           </div>
-                          <span className="text-xs sm:text-sm font-semibold font-inter text-gray-600 leading-relaxed font-light">
+                          <span className="text-xs sm:text-sm font-semibold font-inter text-text-secondary leading-relaxed font-light">
                             {renderTextWithCitations(rec, report.sources)}
                           </span>
                         </li>
@@ -390,10 +390,10 @@ export default function ReportDetail() {
                   {/* Risks */}
                   {report.sections.risks && report.sections.risks.length > 0 && (
                     <div className="space-y-3.5">
-                      <h3 className="font-outfit font-bold text-xs uppercase text-gray-400 tracking-wider border-b border-gray-100 pb-1.5 select-none">Inherent Risks</h3>
+                      <h3 className="font-outfit font-bold text-xs uppercase text-text-muted tracking-wider border-b border-gray-100 pb-1.5 select-none">Inherent Risks</h3>
                       <ul className="space-y-2">
                         {report.sections.risks.map((risk, idx) => (
-                          <li key={idx} className="text-xs font-semibold font-inter text-gray-600 leading-relaxed pl-3 border-l border-red-200 font-light">
+                          <li key={idx} className="text-xs font-semibold font-inter text-text-secondary leading-relaxed pl-3 border-l border-red-200 font-light">
                             {renderTextWithCitations(risk, report.sources)}
                           </li>
                         ))}
@@ -404,10 +404,10 @@ export default function ReportDetail() {
                   {/* Assumptions */}
                   {report.sections.assumptions && report.sections.assumptions.length > 0 && (
                     <div className="space-y-3.5">
-                      <h3 className="font-outfit font-bold text-xs uppercase text-gray-400 tracking-wider border-b border-gray-100 pb-1.5 select-none">Key Assumptions</h3>
+                      <h3 className="font-outfit font-bold text-xs uppercase text-text-muted tracking-wider border-b border-gray-100 pb-1.5 select-none">Key Assumptions</h3>
                       <ul className="space-y-2">
                         {report.sections.assumptions.map((ass, idx) => (
-                          <li key={idx} className="text-xs font-semibold font-inter text-gray-600 leading-relaxed pl-3 border-l border-gray-300 font-light">
+                          <li key={idx} className="text-xs font-semibold font-inter text-text-secondary leading-relaxed pl-3 border-l border-DEFAULT font-light">
                             {renderTextWithCitations(ass, report.sources)}
                           </li>
                         ))}
@@ -418,7 +418,7 @@ export default function ReportDetail() {
               </div>
             ) : (
               /* RAW MARKDOWN VIEW */
-              <div className="markdown-body font-inter leading-relaxed select-text space-y-4 font-light text-gray-700">
+              <div className="markdown-body font-inter leading-relaxed select-text space-y-4 font-light text-text-primary">
                 {renderSimpleMarkdown(report.markdown)}
               </div>
             )}
@@ -436,7 +436,7 @@ export default function ReportDetail() {
                 <div className="space-y-2.5">
                   <h3 className="font-outfit font-bold text-xs uppercase text-black border-b border-gray-250 pb-1.5 flex justify-between items-center select-none tracking-wide">
                     <span>7-Day Sprint</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-gray-200 bg-[#FAF9F6]">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-light bg-canvas">
                       {report.sections.actionPlan.sevenDaySprint?.filter(i => i.completed).length || 0} / {report.sections.actionPlan.sevenDaySprint?.length || 0}
                     </span>
                   </h3>
@@ -445,16 +445,16 @@ export default function ReportDetail() {
                       <div 
                         key={item.id || idx}
                         onClick={() => handleCheckboxToggle('sevenDaySprint', idx, !item.completed)}
-                        className="flex items-start gap-2.5 p-2.5 bg-white border border-gray-200 rounded-lg hover:border-black cursor-pointer select-none transition-colors"
+                        className="flex items-start gap-2.5 p-2.5 bg-card border border-light rounded-lg hover:border-DEFAULT cursor-pointer select-none transition-colors"
                       >
                         <button type="button" className="shrink-0 text-black mt-0.5">
                           {item.completed ? (
-                            <div className="bg-[#C8E64A] rounded flex items-center justify-center p-0.5"><Check size={10} strokeWidth={3} /></div>
+                            <div className="bg-accent rounded flex items-center justify-center p-0.5"><Check size={10} strokeWidth={3} /></div>
                           ) : (
-                            <div className="w-3.5 h-3.5 border border-gray-305 bg-white rounded"></div>
+                            <div className="w-3.5 h-3.5 border border-gray-305 bg-card rounded"></div>
                           )}
                         </button>
-                        <span className={`text-[11px] font-semibold font-inter ${item.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                        <span className={`text-[11px] font-semibold font-inter ${item.completed ? 'line-through text-text-muted' : 'text-text-primary'}`}>
                           {item.text}
                         </span>
                       </div>
@@ -466,7 +466,7 @@ export default function ReportDetail() {
                 <div className="space-y-2.5">
                   <h3 className="font-outfit font-bold text-xs uppercase text-black border-b border-gray-255 pb-1.5 flex justify-between items-center select-none tracking-wide">
                     <span>30-Day Milestones</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-gray-200 bg-[#FAF9F6]">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-light bg-canvas">
                       {report.sections.actionPlan.thirtyDayRoadmap?.filter(i => i.completed).length || 0} / {report.sections.actionPlan.thirtyDayRoadmap?.length || 0}
                     </span>
                   </h3>
@@ -475,16 +475,16 @@ export default function ReportDetail() {
                       <div 
                         key={item.id || idx}
                         onClick={() => handleCheckboxToggle('thirtyDayRoadmap', idx, !item.completed)}
-                        className="flex items-start gap-2.5 p-2.5 bg-white border border-gray-200 rounded-lg hover:border-black cursor-pointer select-none transition-colors"
+                        className="flex items-start gap-2.5 p-2.5 bg-card border border-light rounded-lg hover:border-DEFAULT cursor-pointer select-none transition-colors"
                       >
                         <button type="button" className="shrink-0 text-black mt-0.5">
                           {item.completed ? (
-                            <div className="bg-[#C8E64A] rounded flex items-center justify-center p-0.5"><Check size={10} strokeWidth={3} /></div>
+                            <div className="bg-accent rounded flex items-center justify-center p-0.5"><Check size={10} strokeWidth={3} /></div>
                           ) : (
-                            <div className="w-3.5 h-3.5 border border-gray-305 bg-white rounded"></div>
+                            <div className="w-3.5 h-3.5 border border-gray-305 bg-card rounded"></div>
                           )}
                         </button>
-                        <span className={`text-[11px] font-semibold font-inter ${item.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                        <span className={`text-[11px] font-semibold font-inter ${item.completed ? 'line-through text-text-muted' : 'text-text-primary'}`}>
                           {item.text}
                         </span>
                       </div>
@@ -496,7 +496,7 @@ export default function ReportDetail() {
                 <div className="space-y-2.5">
                   <h3 className="font-outfit font-bold text-xs uppercase text-black border-b border-gray-260 pb-1.5 flex justify-between items-center select-none tracking-wide">
                     <span>Validation Checklist</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-gray-200 bg-[#FAF9F6]">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-light bg-canvas">
                       {report.sections.actionPlan.validationChecklist?.filter(i => i.completed).length || 0} / {report.sections.actionPlan.validationChecklist?.length || 0}
                     </span>
                   </h3>
@@ -505,16 +505,16 @@ export default function ReportDetail() {
                       <div 
                         key={item.id || idx}
                         onClick={() => handleCheckboxToggle('validationChecklist', idx, !item.completed)}
-                        className="flex items-start gap-2.5 p-2.5 bg-white border border-gray-200 rounded-lg hover:border-black cursor-pointer select-none transition-colors"
+                        className="flex items-start gap-2.5 p-2.5 bg-card border border-light rounded-lg hover:border-DEFAULT cursor-pointer select-none transition-colors"
                       >
                         <button type="button" className="shrink-0 text-black mt-0.5">
                           {item.completed ? (
-                            <div className="bg-[#C8E64A] rounded flex items-center justify-center p-0.5"><Check size={10} strokeWidth={3} /></div>
+                            <div className="bg-accent rounded flex items-center justify-center p-0.5"><Check size={10} strokeWidth={3} /></div>
                           ) : (
-                            <div className="w-3.5 h-3.5 border border-gray-305 bg-white rounded"></div>
+                            <div className="w-3.5 h-3.5 border border-gray-305 bg-card rounded"></div>
                           )}
                         </button>
-                        <span className={`text-[11px] font-semibold font-inter ${item.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                        <span className={`text-[11px] font-semibold font-inter ${item.completed ? 'line-through text-text-muted' : 'text-text-primary'}`}>
                           {item.text}
                         </span>
                       </div>
@@ -533,10 +533,10 @@ export default function ReportDetail() {
                   <div 
                     key={index} 
                     id={`source-card-${index}`}
-                    className="border border-gray-200 p-4 bg-[#FAF9F6] hover:bg-white text-xs rounded-xl transition-all duration-150 text-left"
+                    className="border border-light p-4 bg-canvas hover:bg-card text-xs rounded-xl transition-all duration-150 text-left"
                   >
-                    <div className="flex items-center justify-between gap-2 border-b border-gray-200 pb-1.5 mb-2.5">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[8px] bg-white border border-gray-200 font-bold font-mono text-gray-500">
+                    <div className="flex items-center justify-between gap-2 border-b border-light pb-1.5 mb-2.5">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[8px] bg-card border border-light font-bold font-mono text-text-secondary">
                         Source {index + 1}
                       </span>
                       {source.url && (
@@ -554,14 +554,14 @@ export default function ReportDetail() {
                     <h4 className="font-outfit font-bold text-black uppercase text-[10px] break-words line-clamp-2 leading-snug">
                       {source.title}
                     </h4>
-                    <p className="text-gray-500 mt-1 leading-relaxed line-clamp-3 font-light font-inter">
+                    <p className="text-text-secondary mt-1 leading-relaxed line-clamp-3 font-light font-inter">
                       {source.summary || 'Verified web citation grounding claim.'}
                     </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-4 text-center text-gray-400 text-xs italic select-none">
+              <div className="p-4 text-center text-text-muted text-xs italic select-none">
                 No external citation sources reported. Using internal knowledge grounding only.
               </div>
             )}

@@ -34,11 +34,11 @@ export default function StartupGraph({ className = '' }) {
 
   return (
     <div className={`relative ${className}`}>
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-2xl border border-light bg-card p-6 shadow-sm">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-outfit font-semibold tracking-[0.12em] uppercase text-gray-400">
+            <span className="text-[11px] font-outfit font-semibold tracking-[0.12em] uppercase text-text-muted">
               Live · Startup Graph
             </span>
           </div>

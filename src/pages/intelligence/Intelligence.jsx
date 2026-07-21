@@ -192,16 +192,16 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10 space-y-8 text-[#111] animate-fade-in">
+    <div className="max-w-5xl mx-auto px-6 py-10 space-y-8 text-text-primary animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200/60 select-none">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-light select-none">
         <div className="flex items-center gap-3">
           <div className="bg-[#1A1A1A] p-3 text-white rounded-lg">
             <FileText size={24} />
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-outfit font-black tracking-tight">Intelligence & Pitch Briefs</h1>
-            <p className="font-inter text-gray-500 mt-1 text-xs sm:text-sm">
+            <p className="font-inter text-text-secondary mt-1 text-xs sm:text-sm">
               Manage your AI strategic reports and configure your whitelisted investor data room.
             </p>
           </div>
@@ -209,7 +209,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
 
         {user && (
           <div className="flex items-center gap-3 self-start md:self-auto select-none">
-            <span className="text-xs font-semibold border border-gray-200 rounded-lg px-3 py-1.5 bg-white shadow-sm">
+            <span className="text-xs font-semibold border border-light rounded-lg px-3 py-1.5 bg-card shadow-sm">
               {user.username || user.email}
             </span>
             <button
@@ -224,13 +224,13 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
 
       {!user ? (
         /* Interactive Locked Screen */
-        <div className="max-w-md mx-auto os-card bg-white mt-12 p-10 text-center space-y-6 animate-slide-up">
+        <div className="max-w-md mx-auto os-card bg-card mt-12 p-10 text-center space-y-6 animate-slide-up">
           <div className="inline-flex items-center justify-center bg-gray-100 p-4 text-black rounded-full">
             <Lock size={30} strokeWidth={2} />
           </div>
           <div className="space-y-2">
             <h2 className="text-xl font-outfit font-bold tracking-tight text-black">Library Access Locked</h2>
-            <p className="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-text-secondary max-w-sm mx-auto leading-relaxed">
               Please sign in or join the network to view and manage your compiled strategic briefs, roadmaps, and execution plans.
             </p>
           </div>
@@ -250,21 +250,21 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
             const validationScoreVal = latestReport?.rawStrategy?.validationScore ? `${latestReport.rawStrategy.validationScore}%` : myStartup?.validation_score ? `${myStartup.validation_score}%` : null;
 
             return (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#FAF9F6] border border-gray-200 p-4 rounded-xl select-none">
-                <div className="border border-gray-200 p-4 bg-white flex justify-between items-center rounded-xl">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-canvas border border-light p-4 rounded-xl select-none">
+                <div className="border border-light p-4 bg-card flex justify-between items-center rounded-xl">
                   <div>
-                    <span className="block text-[9px] font-bold uppercase tracking-wider text-gray-400">LATEST INTEL SCORE</span>
+                    <span className="block text-[9px] font-bold uppercase tracking-wider text-text-muted">LATEST INTEL SCORE</span>
                     <span className="text-xl font-outfit font-black text-[#EF4444] mt-1 block">{validationScoreVal || 'NOT AUDITED'}</span>
                   </div>
-                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${validationScoreVal ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-400'}`}>
+                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${validationScoreVal ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-text-muted'}`}>
                     {validationScoreVal ? 'Compiled' : 'Pending'}
                   </span>
                 </div>
 
-                <div className="border border-gray-200 p-4 bg-white flex justify-between items-center rounded-xl">
+                <div className="border border-light p-4 bg-card flex justify-between items-center rounded-xl">
                   <div>
-                    <span className="block text-[9px] font-bold uppercase tracking-wider text-gray-400">BRIEF DISCLOSURE STATE</span>
-                    <span className="text-xs font-bold text-[#111] uppercase mt-2 block">
+                    <span className="block text-[9px] font-bold uppercase tracking-wider text-text-muted">BRIEF DISCLOSURE STATE</span>
+                    <span className="text-xs font-bold text-text-primary uppercase mt-2 block">
                       {briefId ? (isPublic ? 'PUBLIC ACCESS' : 'WHITELIST ONLY') : 'NOT INITIALIZED'}
                     </span>
                   </div>
@@ -273,14 +273,14 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                   </span>
                 </div>
 
-                <div className="border border-gray-200 p-4 bg-white flex justify-between items-center rounded-xl">
+                <div className="border border-light p-4 bg-card flex justify-between items-center rounded-xl">
                   <div>
-                    <span className="block text-[9px] font-bold uppercase tracking-wider text-gray-400">WHITELISTED INVESTORS</span>
+                    <span className="block text-[9px] font-bold uppercase tracking-wider text-text-muted">WHITELISTED INVESTORS</span>
                     <span className="text-xl font-outfit font-black text-black mt-1 block">
                       {whitelistInput ? whitelistInput.split(',').map(x => x.trim()).filter(Boolean).length : 0} Members
                     </span>
                   </div>
-                  <span className="text-[9px] bg-[#C8E64A]/25 text-black rounded-full px-2 py-0.5 font-bold uppercase">
+                  <span className="text-[9px] bg-accent/25 text-black rounded-full px-2 py-0.5 font-bold uppercase">
                     Secure
                   </span>
                 </div>
@@ -289,13 +289,13 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
           })()}
 
           {/* Tab Navigation */}
-          <div className="flex border-b border-gray-200 select-none">
+          <div className="flex border-b border-light select-none">
             <button
               onClick={() => setActiveTab('insights')}
               className={`px-5 py-3 font-outfit font-bold text-xs sm:text-sm uppercase tracking-wider cursor-pointer border-b-2 transition-all ${
                 activeTab === 'insights'
                   ? 'border-black text-black'
-                  : 'border-transparent text-gray-400 hover:text-gray-900'
+                  : 'border-transparent text-text-muted hover:text-text-primary'
               }`}
             >
               Strategic Reports
@@ -305,7 +305,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
               className={`px-5 py-3 font-outfit font-bold text-xs sm:text-sm uppercase tracking-wider cursor-pointer border-b-2 transition-all ${
                 activeTab === 'dataroom'
                   ? 'border-black text-black'
-                  : 'border-transparent text-gray-400 hover:text-gray-900'
+                  : 'border-transparent text-text-muted hover:text-text-primary'
               }`}
             >
               Investor Data Room
@@ -317,7 +317,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
             /* Tab 1: Strategic Reports List */
             <div className="space-y-4">
               {loadingReports ? (
-                <div className="os-card p-16 text-center bg-white space-y-4 select-none">
+                <div className="os-card p-16 text-center bg-card space-y-4 select-none">
                   <div className="w-8 h-8 border border-black border-t-transparent rounded-full animate-spin mx-auto"></div>
                   <span className="font-outfit font-bold uppercase text-xs">Retrieving briefs from database...</span>
                 </div>
@@ -330,10 +330,10 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                   </div>
                 </div>
               ) : reports.length === 0 ? (
-                <div className="os-card p-16 text-center bg-white space-y-4 select-none">
+                <div className="os-card p-16 text-center bg-card space-y-4 select-none">
                   <Compass size={36} className="mx-auto text-gray-300" />
                   <span className="font-outfit font-bold uppercase text-xs tracking-wider">No briefs compiled yet</span>
-                  <p className="text-xs text-gray-500 max-w-xs mx-auto leading-relaxed">
+                  <p className="text-xs text-text-secondary max-w-xs mx-auto leading-relaxed">
                     Head over to the OS Dashboard to define your wedge and trigger your first multi-agent strategy simulation.
                   </p>
                   <Link to="/dashboard" className="os-btn-primary inline-flex mt-2">
@@ -353,23 +353,23 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                       <Link
                         key={report.id}
                         to={`/intelligence/${report.id}`}
-                        className="os-card bg-white hover:border-black transition-all flex flex-col justify-between h-64 group relative cursor-pointer"
+                        className="os-card bg-card hover:border-DEFAULT transition-all flex flex-col justify-between h-64 group relative cursor-pointer"
                       >
                         <div>
                           <div className="flex items-center justify-between border-b border-gray-100 pb-2.5 mb-3 select-none">
-                            <span className="text-[10px] font-semibold uppercase text-gray-400 flex items-center gap-1.5">
+                            <span className="text-[10px] font-semibold uppercase text-text-muted flex items-center gap-1.5">
                               <Calendar size={11} />
                               {formattedDate}
                             </span>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold border border-[#C8E64A]/40 bg-[#C8E64A]/10 text-black">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold border border-[#C8E64A]/40 bg-accent/10 text-black">
                               {report.reportType || 'IDEA'}
                             </span>
                           </div>
 
-                          <h3 className="font-outfit font-bold text-base text-[#111] group-hover:underline line-clamp-2 leading-tight">
+                          <h3 className="font-outfit font-bold text-base text-text-primary group-hover:underline line-clamp-2 leading-tight">
                             {report.title}
                           </h3>
-                          <p className="text-xs text-gray-500 line-clamp-3 mt-2.5 leading-relaxed font-inter font-light">
+                          <p className="text-xs text-text-secondary line-clamp-3 mt-2.5 leading-relaxed font-inter font-light">
                             {report.executiveSnapshot || report.thesis || 'Strategic strategy brief generated by AI agent network.'}
                           </p>
                         </div>
@@ -393,7 +393,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
             </div>
           ) : (
             /* Tab 2: Investor Data Room (Brief Builder) */
-            <div className="os-card bg-white p-8">
+            <div className="os-card bg-card p-8">
               {loadingBrief ? (
                 <div className="text-center py-12">
                   <RefreshCw size={24} className="mx-auto animate-spin text-black mb-2" />
@@ -401,7 +401,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                 </div>
               ) : (
                 <form onSubmit={handleSaveBrief} className="space-y-6">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-gray-200">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-light">
                     <div>
                       <h3 className="font-outfit font-bold text-lg text-black uppercase">Configured Data Room</h3>
                       <p className="text-xs text-gray-550 mt-0.5">Enable secure access to your verified scores, pitch decks, and milestones.</p>
@@ -470,7 +470,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                       <label className="block text-xs font-bold uppercase text-gray-550 mb-1 tracking-wide">Access Privacy Controls</label>
                       
                       <div className="flex gap-4">
-                        <label className={`flex-1 p-3.5 flex items-center justify-between cursor-pointer border rounded-xl transition-all ${isPublic ? 'bg-[#C8E64A]/10 border-black' : 'bg-white border-gray-200'}`}>
+                        <label className={`flex-1 p-3.5 flex items-center justify-between cursor-pointer border rounded-xl transition-all ${isPublic ? 'bg-accent/10 border-black' : 'bg-card border-light'}`}>
                           <span className="font-outfit font-bold text-xs uppercase flex items-center gap-1.5">
                             <Globe size={14} /> Public Access
                           </span>
@@ -483,7 +483,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                           />
                         </label>
 
-                        <label className={`flex-1 p-3.5 flex items-center justify-between cursor-pointer border rounded-xl transition-all ${!isPublic ? 'bg-black border-black text-white' : 'bg-white border-gray-200 text-black'}`}>
+                        <label className={`flex-1 p-3.5 flex items-center justify-between cursor-pointer border rounded-xl transition-all ${!isPublic ? 'bg-black border-black text-white' : 'bg-card border-light text-black'}`}>
                           <span className="font-outfit font-bold text-xs uppercase flex items-center gap-1.5">
                             <Lock size={14} /> Private Vault
                           </span>
@@ -508,20 +508,20 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                           placeholder="investor@accel.com, partner@sequoia.com"
                           className="os-input"
                         />
-                        <span className="text-[10px] text-gray-500 font-semibold block mt-2">
+                        <span className="text-[10px] text-text-secondary font-semibold block mt-2">
                           Only VCs or angels logging in with these whitelisted domains/emails will be authorized to access this data room.
                         </span>
                       </div>
                     )}
                   </div>
 
-                  <div className="pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer font-semibold text-xs uppercase text-gray-500">
+                  <div className="pt-6 border-t border-light flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer font-semibold text-xs uppercase text-text-secondary">
                       <input
                         type="checkbox"
                         checked={showRunway}
                         onChange={(e) => setShowRunway(e.target.checked)}
-                        className="accent-black w-4 h-4 border border-gray-200"
+                        className="accent-black w-4 h-4 border border-light"
                       />
                       <span>Expose runway & burn projection to whitelisted investors</span>
                     </label>

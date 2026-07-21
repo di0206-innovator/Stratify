@@ -166,23 +166,23 @@ export default function Feed({ user, founderProfile }) {
   const getPostTypeStyle = (type) => {
     switch (type) {
       case 'milestone':
-        return 'bg-[#C8E64A]/20 border-[#C8E64A]/30 text-black';
+        return 'bg-accent/20 border-[#C8E64A]/30 text-black';
       case 'launch':
-        return 'bg-[#C8E64A]/20 border-[#C8E64A]/30 text-black';
+        return 'bg-accent/20 border-[#C8E64A]/30 text-black';
       case 'update':
-        return 'bg-gray-50 border-gray-200 text-gray-550';
+        return 'bg-hover border-light text-gray-550';
       default:
-        return 'bg-gray-50 border-gray-200 text-gray-500';
+        return 'bg-hover border-light text-text-secondary';
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10 relative z-10 text-[#111]">
+    <div className="max-w-4xl mx-auto px-6 py-10 relative z-10 text-text-primary">
       {/* Page Header */}
       <div className="os-card bg-[#1A1A1A] text-white p-8 sm:p-12 mb-8 select-none relative overflow-hidden flex flex-col items-center text-center">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-card opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
         
-        <div className="inline-flex items-center gap-2 bg-[#C8E64A]/10 border border-[#C8E64A]/30 text-white rounded-md font-bold px-2.5 py-1 text-[10px] uppercase tracking-wider mb-4">
+        <div className="inline-flex items-center gap-2 bg-accent/10 border border-[#C8E64A]/30 text-white rounded-md font-bold px-2.5 py-1 text-[10px] uppercase tracking-wider mb-4">
           <Zap size={14} /> LIVE EXECUTION FEED
         </div>
         <h1 className="text-3xl sm:text-5xl font-outfit font-black tracking-tight text-white uppercase mb-2">
@@ -195,14 +195,14 @@ export default function Feed({ user, founderProfile }) {
 
       {/* Write a Post (Only if user has founder role) */}
       {founderProfile && founderProfile.role === 'founder' && (
-        <form onSubmit={handlePostSubmit} className="os-card bg-white p-6 mb-8 hover:border-gray-200">
+        <form onSubmit={handlePostSubmit} className="os-card bg-card p-6 mb-8 hover:border-light">
           <div className="flex items-center gap-3 mb-4 select-none">
             <div className="w-10 h-10 bg-black text-[#C8E64A] rounded-full flex items-center justify-center font-outfit font-black text-sm">
               {founderProfile.name ? founderProfile.name.slice(0, 2).toUpperCase() : 'ST'}
             </div>
             <div>
-              <span className="font-outfit font-bold text-sm text-[#111]">{founderProfile.name}</span>
-              <span className="block text-[10px] font-semibold text-gray-400 uppercase tracking-wide mt-0.5">Share your latest build progress</span>
+              <span className="font-outfit font-bold text-sm text-text-primary">{founderProfile.name}</span>
+              <span className="block text-[10px] font-semibold text-text-muted uppercase tracking-wide mt-0.5">Share your latest build progress</span>
             </div>
           </div>
 
@@ -218,7 +218,7 @@ export default function Feed({ user, founderProfile }) {
           {/* Proof of Work URL (only for milestones/launches) */}
           {(postType === 'milestone' || postType === 'launch') && (
             <div className="mb-4 animate-slide-up">
-              <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">
+              <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">
                 Proof of Work URL (GitHub repository, Vercel app link, or analytics screenshot URL)
               </label>
               <input
@@ -255,7 +255,7 @@ export default function Feed({ user, founderProfile }) {
                 className={`px-3 py-1.5 border font-outfit font-bold text-xs uppercase tracking-wider cursor-pointer transition-all rounded-lg ${
                   postType === 'post' 
                     ? 'bg-black border-black text-white shadow-sm' 
-                    : 'bg-white border-gray-250 text-gray-550 hover:border-black'
+                    : 'bg-card border-gray-250 text-gray-550 hover:border-DEFAULT'
                 }`}
               >
                 Simple Post
@@ -265,8 +265,8 @@ export default function Feed({ user, founderProfile }) {
                 onClick={() => setPostType('update')}
                 className={`px-3 py-1.5 border font-outfit font-bold text-xs uppercase tracking-wider cursor-pointer transition-all rounded-lg ${
                   postType === 'update' 
-                    ? 'bg-[#C8E64A] border-transparent text-black shadow-sm' 
-                    : 'bg-white border-gray-250 text-gray-550 hover:border-black'
+                    ? 'bg-accent border-transparent text-black shadow-sm' 
+                    : 'bg-card border-gray-250 text-gray-550 hover:border-DEFAULT'
                 }`}
               >
                 Progress Log
@@ -276,8 +276,8 @@ export default function Feed({ user, founderProfile }) {
                 onClick={() => setPostType('milestone')}
                 className={`px-3 py-1.5 border font-outfit font-bold text-xs uppercase tracking-wider cursor-pointer transition-all rounded-lg ${
                   postType === 'milestone' 
-                    ? 'bg-[#C8E64A]/25 border-transparent text-black shadow-sm' 
-                    : 'bg-white border-gray-250 text-gray-550 hover:border-black'
+                    ? 'bg-accent/25 border-transparent text-black shadow-sm' 
+                    : 'bg-card border-gray-250 text-gray-550 hover:border-DEFAULT'
                 }`}
               >
                 ★ Milestone (+15 Score)
@@ -287,8 +287,8 @@ export default function Feed({ user, founderProfile }) {
                 onClick={() => setPostType('launch')}
                 className={`px-3 py-1.5 border font-outfit font-bold text-xs uppercase tracking-wider cursor-pointer transition-all rounded-lg ${
                   postType === 'launch' 
-                    ? 'bg-[#C8E64A] border-transparent text-black shadow-sm' 
-                    : 'bg-white border-gray-250 text-gray-550 hover:border-black'
+                    ? 'bg-accent border-transparent text-black shadow-sm' 
+                    : 'bg-card border-gray-250 text-gray-550 hover:border-DEFAULT'
                 }`}
               >
                 🚀 Product Launch
@@ -298,7 +298,7 @@ export default function Feed({ user, founderProfile }) {
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 bg-[#C8E64A] text-black font-outfit font-bold text-xs uppercase hover:bg-[#B5D235] transition-all flex items-center gap-1.5 cursor-pointer rounded-lg border-0"
+              className="px-6 py-2.5 bg-accent text-[#111] font-outfit font-bold text-xs uppercase hover:bg-accent-hover transition-all flex items-center gap-1.5 cursor-pointer rounded-lg border-0"
             >
               <span>{submitting ? 'SHIPPING...' : 'SHARE PROGRESS'}</span>
               <ArrowRight size={14} />
@@ -314,7 +314,7 @@ export default function Feed({ user, founderProfile }) {
 
           {/* Sync confirmation */}
           {syncedToIntel && (
-            <div className="mt-3 p-3 bg-[#C8E64A]/15 border border-[#C8E64A]/40 rounded-lg flex items-center gap-2 text-xs font-semibold text-black animate-slide-up">
+            <div className="mt-3 p-3 bg-accent/15 border border-[#C8E64A]/40 rounded-lg flex items-center gap-2 text-xs font-semibold text-black animate-slide-up">
               <CheckCircle2 size={14} className="text-green-600 shrink-0" />
               Post published! <strong>Auto-synced to Intel & Memory</strong> — view it in Founder Memory.
             </div>
@@ -328,14 +328,14 @@ export default function Feed({ user, founderProfile }) {
           <div className="w-8 h-8 border border-black border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : posts.length === 0 ? (
-        <div className="os-card bg-white p-16 text-center max-w-xl mx-auto space-y-4">
-          <span className="font-outfit font-bold text-xs text-gray-400 uppercase tracking-wider block mb-2 select-none">No signals recorded yet</span>
-          <p className="font-inter text-gray-500 font-light text-sm">Be the first to post progress or validation updates!</p>
+        <div className="os-card bg-card p-16 text-center max-w-xl mx-auto space-y-4">
+          <span className="font-outfit font-bold text-xs text-text-muted uppercase tracking-wider block mb-2 select-none">No signals recorded yet</span>
+          <p className="font-inter text-text-secondary font-light text-sm">Be the first to post progress or validation updates!</p>
         </div>
       ) : (
         <div className="space-y-6">
           {posts.map((post) => (
-            <div key={post.id} className="os-card bg-white p-6 relative hover:border-black transition-all">
+            <div key={post.id} className="os-card bg-card p-6 relative hover:border-DEFAULT transition-all">
               
               {/* Badge for Milestones/Launches */}
               {post.type !== 'post' && (
@@ -355,14 +355,14 @@ export default function Feed({ user, founderProfile }) {
                   <h4 className="font-outfit font-bold text-sm text-black leading-snug">
                     {post.startupName}
                   </h4>
-                  <span className="block text-[10px] font-bold text-gray-400 uppercase mt-0.5">
+                  <span className="block text-[10px] font-bold text-text-muted uppercase mt-0.5">
                     by {post.authorName} • {new Date(post.createdAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>
 
               {/* Main Content */}
-              <p className="font-inter text-[#111] text-sm sm:text-base leading-relaxed mb-4 font-light">
+              <p className="font-inter text-text-primary text-sm sm:text-base leading-relaxed mb-4 font-light">
                 {post.content}
               </p>
 
@@ -376,7 +376,7 @@ export default function Feed({ user, founderProfile }) {
                     href={post.metadata.powUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] font-semibold uppercase text-gray-450 hover:text-black border-b border-transparent hover:border-black flex items-center gap-1 transition-all"
+                    className="text-[10px] font-semibold uppercase text-gray-450 hover:text-text-primary border-b border-transparent hover:border-DEFAULT flex items-center gap-1 transition-all"
                   >
                     <span>View Proof Source</span>
                     <ExternalLink size={10} />
@@ -385,21 +385,21 @@ export default function Feed({ user, founderProfile }) {
               )}
 
               {/* Interaction Details */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100 text-gray-400 select-none">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100 text-text-muted select-none">
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleClap(post.id)}
-                    className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-text-muted hover:text-rose-500 transition-colors cursor-pointer"
                   >
                     <Heart size={14} className={post.metadata?.claps ? "fill-rose-500 text-rose-500" : "hover:text-rose-500"} />
                     <span>Clap ({post.metadata?.claps || 0})</span>
                   </button>
-                  <button className="flex items-center gap-1 text-[10px] font-bold uppercase hover:text-black transition-colors cursor-pointer">
+                  <button className="flex items-center gap-1 text-[10px] font-bold uppercase hover:text-text-primary transition-colors cursor-pointer">
                     <MessageSquare size={14} />
                     <span>Comment</span>
                   </button>
                 </div>
-                <button className="flex items-center gap-1 text-[10px] font-bold uppercase hover:text-black transition-colors cursor-pointer">
+                <button className="flex items-center gap-1 text-[10px] font-bold uppercase hover:text-text-primary transition-colors cursor-pointer">
                   <Share2 size={14} />
                   <span>Share</span>
                 </button>

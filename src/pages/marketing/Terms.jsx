@@ -4,25 +4,25 @@ import { Link } from 'react-router-dom';
 
 export default function Terms() {
   return (
-    <div className="max-w-4xl mx-auto px-6 py-16 space-y-8 animate-fade-in text-[#111] select-text">
+    <div className="max-w-4xl mx-auto px-6 py-16 space-y-8 animate-fade-in text-text-primary select-text">
       {/* Back Button */}
-      <Link to="/" className="inline-flex items-center gap-1.5 font-outfit font-bold text-xs uppercase text-gray-400 hover:text-black mb-2 transition-colors select-none">
+      <Link to="/" className="inline-flex items-center gap-1.5 font-outfit font-bold text-xs uppercase text-text-muted hover:text-text-primary mb-2 transition-colors select-none">
         <ArrowLeft size={14} /> Back to home
       </Link>
 
-      <div className="flex items-center gap-3 pb-6 border-b border-gray-200/60 select-none">
+      <div className="flex items-center gap-3 pb-6 border-b border-light select-none">
         <div className="bg-[#1A1A1A] p-3 text-white rounded-lg">
           <FileText size={24} />
         </div>
         <div>
           <h1 className="text-3xl font-outfit font-black tracking-tight uppercase">Terms of Service</h1>
-          <p className="font-inter text-gray-500 mt-1 text-sm">
+          <p className="font-inter text-text-secondary mt-1 text-sm">
             Last Updated: July 9, 2026
           </p>
         </div>
       </div>
 
-      <div className="font-inter text-sm text-gray-600 space-y-6 leading-relaxed">
+      <div className="font-inter text-sm text-text-secondary space-y-6 leading-relaxed">
         <p>
           Welcome to Stratify. By accessing or using our platform, ecosystem directory, and strategic analysis services, you agree to comply with and be bound by the following Terms of Service.
         </p>
@@ -55,7 +55,7 @@ export default function Terms() {
           </p>
         </section>
 
-        <p className="pt-6 text-xs text-gray-400 select-none">
+        <p className="pt-6 text-xs text-text-muted select-none">
           If you have questions regarding these terms, contact us at legal@stratify.co.
         </p>
       </div>

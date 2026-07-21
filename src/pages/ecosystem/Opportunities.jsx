@@ -5,11 +5,11 @@ import {
 } from 'lucide-react';
 
 const TYPE_CONFIG = {
-  accelerator: { icon: Rocket, color: 'bg-[#C8E64A]/25 text-black border-[#C8E64A]/40', label: 'Accelerator' },
+  accelerator: { icon: Rocket, color: 'bg-accent/25 text-black border-[#C8E64A]/40', label: 'Accelerator' },
   grant: { icon: Gift, color: 'bg-green-50 text-green-700 border-green-200', label: 'Grant' },
-  program: { icon: Building2, color: 'bg-gray-100 text-gray-700 border-gray-200', label: 'Program' },
-  competition: { icon: Sparkles, color: 'bg-[#C8E64A]/10 text-black border-[#C8E64A]/30', label: 'Competition' },
-  role: { icon: Briefcase, color: 'bg-gray-50 text-gray-500 border-gray-200', label: 'Role' },
+  program: { icon: Building2, color: 'bg-gray-100 text-text-primary border-light', label: 'Program' },
+  competition: { icon: Sparkles, color: 'bg-accent/10 text-black border-[#C8E64A]/30', label: 'Competition' },
+  role: { icon: Briefcase, color: 'bg-hover text-text-secondary border-light', label: 'Role' },
 };
 
 export default function Opportunities({ founderProfile, user, openAuthModal }) {
@@ -114,16 +114,16 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-[#111]">
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-text-primary">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200/60 select-none">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-light select-none">
         <div className="flex items-center gap-3">
           <div className="bg-[#1A1A1A] p-3 text-white rounded-lg">
             <Rocket size={24} />
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-outfit font-black tracking-tight">Opportunities</h1>
-            <p className="font-inter text-gray-500 mt-1 text-xs sm:text-sm">
+            <p className="font-inter text-text-secondary mt-1 text-xs sm:text-sm">
               Grants, accelerators, programs matched to your startup profile.
             </p>
           </div>
@@ -132,17 +132,17 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
           {isInstitution && (
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-1.5 bg-[#C8E64A] text-black border-0 px-3.5 py-1.5 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg shadow-sm hover:bg-[#B5D235] transition-all cursor-pointer"
+              className="flex items-center gap-1.5 bg-accent text-[#111] border-0 px-3.5 py-1.5 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg shadow-sm hover:bg-accent-hover transition-all cursor-pointer"
             >
               <Plus size={14} /> Post Opportunity
             </button>
           )}
-          <span className="bg-gray-100 border border-gray-200 text-gray-700 px-3 py-1.5 font-bold text-xs uppercase rounded-lg shadow-sm select-none">
+          <span className="bg-gray-100 border border-light text-text-primary px-3 py-1.5 font-bold text-xs uppercase rounded-lg shadow-sm select-none">
             {filteredOpportunities.length} found
           </span>
           <button
             onClick={fetchOpportunities}
-            className="os-btn p-2 border-gray-250 rounded-lg hover:border-black"
+            className="os-btn p-2 border-gray-250 rounded-lg hover:border-DEFAULT"
           >
             <RefreshCw size={14} />
           </button>
@@ -150,10 +150,10 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
       </div>
 
       {/* Search & Filters */}
-      <div className="bg-white border border-gray-200 p-4 rounded-xl space-y-4">
+      <div className="bg-card border border-light p-4 rounded-xl space-y-4">
         <div className="flex flex-col md:flex-row gap-3">
           <div className="flex-1 relative">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
             <input
               type="text"
               value={search}
@@ -169,8 +169,8 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                 onClick={() => setTypeFilter(opt.value)}
                 className={`px-3 py-1.5 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg transition-all border cursor-pointer ${
                   typeFilter === opt.value
-                    ? 'bg-[#C8E64A] text-black border-transparent shadow-sm'
-                    : 'bg-white border-gray-250 text-gray-550 hover:border-black'
+                    ? 'bg-accent text-[#111] border-transparent shadow-sm'
+                    : 'bg-card border-gray-250 text-gray-550 hover:border-DEFAULT'
                 }`}
               >
                 {opt.label}
@@ -180,20 +180,20 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
         </div>
 
         {founderProfile && (
-          <div className="flex flex-wrap gap-2 pt-3 border-t border-dashed border-gray-200 select-none">
-            <span className="text-[10px] font-bold text-gray-400 uppercase self-center mr-1">Matched for:</span>
+          <div className="flex flex-wrap gap-2 pt-3 border-t border-dashed border-light select-none">
+            <span className="text-[10px] font-bold text-text-muted uppercase self-center mr-1">Matched for:</span>
             {founderProfile.geography && (
-              <span className="bg-gray-50 border border-gray-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-gray-500 flex items-center gap-1.5">
+              <span className="bg-hover border border-light px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-text-secondary flex items-center gap-1.5">
                 <MapPin size={10} /> {founderProfile.geography}
               </span>
             )}
             {founderProfile.industry && (
-              <span className="bg-gray-50 border border-gray-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-gray-500 flex items-center gap-1.5">
+              <span className="bg-hover border border-light px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-text-secondary flex items-center gap-1.5">
                 <Briefcase size={10} /> {founderProfile.industry}
               </span>
             )}
             {founderProfile.startupStage && (
-              <span className="bg-gray-50 border border-gray-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-gray-500 flex items-center gap-1.5">
+              <span className="bg-hover border border-light px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-text-secondary flex items-center gap-1.5">
                 <Rocket size={10} /> {founderProfile.startupStage}
               </span>
             )}
@@ -208,12 +208,12 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
           <p className="font-outfit font-bold text-xs tracking-wider uppercase mt-4">Scanning global programs...</p>
         </div>
       ) : filteredOpportunities.length === 0 ? (
-        <div className="os-card bg-white p-16 text-center max-w-xl mx-auto space-y-4">
+        <div className="os-card bg-card p-16 text-center max-w-xl mx-auto space-y-4">
           <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
-            <Rocket size={24} className="text-gray-400" />
+            <Rocket size={24} className="text-text-muted" />
           </div>
           <h3 className="font-outfit font-bold text-lg text-black">No Matches Found</h3>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
+          <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
             Try adjusting your filters or search terms. More opportunities are added regularly.
           </p>
         </div>
@@ -225,7 +225,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
             return (
               <div
                 key={opp.id || idx}
-                className="os-card bg-white p-5 hover:border-black transition-all flex flex-col justify-between"
+                className="os-card bg-card p-5 hover:border-DEFAULT transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start gap-3 mb-4">
@@ -234,21 +234,21 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-4">
-                        <h3 className="font-outfit font-bold text-base text-[#111] leading-tight truncate">{opp.title}</h3>
+                        <h3 className="font-outfit font-bold text-base text-text-primary leading-tight truncate">{opp.title}</h3>
                         <span className={`${config.color} border border-transparent px-2.5 py-0.5 text-[9px] font-bold uppercase rounded-md flex-shrink-0`}>
                           {config.label}
                         </span>
                       </div>
                       {opp.organization && (
-                        <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-wider">{opp.organization}</p>
+                        <p className="text-[10px] font-bold text-text-muted mt-1 uppercase tracking-wider">{opp.organization}</p>
                       )}
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-500 mb-4 leading-relaxed font-light font-inter">{opp.description}</p>
+                  <p className="text-xs text-text-secondary mb-4 leading-relaxed font-light font-inter">{opp.description}</p>
 
                   {opp.matchReason && (
-                    <div className="w-full mt-3 mb-4 text-xs font-semibold text-gray-800 bg-[#C8E64A]/10 border border-[#C8E64A]/30 p-2.5 rounded-lg">
+                    <div className="w-full mt-3 mb-4 text-xs font-semibold text-text-primary bg-accent/10 border border-[#C8E64A]/30 p-2.5 rounded-lg">
                       <span className="uppercase text-[9px] font-bold mr-1 bg-black text-white px-1.5 py-0.5 rounded">MATCH</span>
                       {opp.matchReason}
                     </div>
@@ -258,12 +258,12 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                 <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100/50">
                   <div className="flex flex-wrap gap-1.5 select-none">
                     {opp.geography && (
-                      <span className="bg-gray-50 border border-gray-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-gray-500 flex items-center gap-1">
+                      <span className="bg-hover border border-light px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-text-secondary flex items-center gap-1">
                         <Globe size={10} /> {opp.geography}
                       </span>
                     )}
                     {opp.deadline && (
-                      <span className="bg-gray-50 border border-gray-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-gray-500 flex items-center gap-1">
+                      <span className="bg-hover border border-light px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-text-secondary flex items-center gap-1">
                         <Calendar size={10} /> {opp.deadline}
                       </span>
                     )}
@@ -289,15 +289,15 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
       {/* Deploy Ecosystem Opportunity Modal */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
-          <div className="bg-white border border-gray-200 shadow-2xl rounded-2xl w-full max-w-lg overflow-hidden animate-slide-up select-none">
-            <div className="bg-[#FAF9F6] border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div className="bg-card border border-light shadow-2xl rounded-2xl w-full max-w-lg overflow-hidden animate-slide-up select-none">
+            <div className="bg-canvas border-b border-light px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Landmark className="text-gray-500" size={18} />
+                <Landmark className="text-text-secondary" size={18} />
                 <h3 className="font-outfit font-black text-sm uppercase tracking-wide">Post New Ecosystem Opportunity</h3>
               </div>
               <button 
                 onClick={() => setIsCreateModalOpen(false)}
-                className="text-gray-400 hover:text-black transition-colors cursor-pointer"
+                className="text-text-muted hover:text-text-primary transition-colors cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -305,7 +305,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Opportunity Title *</label>
+                <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Opportunity Title *</label>
                 <input 
                   type="text" 
                   required
@@ -318,7 +318,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Type *</label>
+                  <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Type *</label>
                   <select
                     value={newOpp.type}
                     onChange={e => setNewOpp(prev => ({ ...prev, type: e.target.value }))}
@@ -331,7 +331,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Hosting Organization *</label>
+                  <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Hosting Organization *</label>
                   <input 
                     type="text" 
                     required
@@ -344,7 +344,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Description *</label>
+                <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Description *</label>
                 <textarea 
                   required
                   rows={3}
@@ -357,7 +357,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Geography</label>
+                  <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Geography</label>
                   <input 
                     type="text" 
                     placeholder="e.g. India, Global"
@@ -367,7 +367,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Focus Industries</label>
+                  <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Focus Industries</label>
                   <input 
                     type="text" 
                     placeholder="e.g. SaaS, DeepTech"
@@ -377,7 +377,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Target Stages</label>
+                  <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Target Stages</label>
                   <input 
                     type="text" 
                     placeholder="e.g. Seed, Growth"
@@ -390,7 +390,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Application Deadline</label>
+                  <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Application Deadline</label>
                   <input 
                     type="date" 
                     value={newOpp.deadline}
@@ -399,7 +399,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Application Link</label>
+                  <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Application Link</label>
                   <input 
                     type="url" 
                     placeholder="https://..."
@@ -414,14 +414,14 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                 <button 
                   type="button" 
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 bg-white border border-gray-250 text-gray-650 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:border-black cursor-pointer"
+                  className="px-4 py-2 bg-card border border-gray-250 text-gray-650 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:border-DEFAULT cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
                   disabled={posting}
-                  className="px-5 py-2 bg-[#C8E64A] text-black border-0 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-[#B5D235] cursor-pointer shadow-sm disabled:opacity-55"
+                  className="px-5 py-2 bg-accent text-[#111] border-0 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-accent-hover cursor-pointer shadow-sm disabled:opacity-55"
                 >
                   {posting ? 'Deploying...' : 'Deploy Opportunity'}
                 </button>

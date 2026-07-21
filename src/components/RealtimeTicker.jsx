@@ -93,12 +93,12 @@ const RealtimeTicker = memo(function RealtimeTicker() {
       case 'news':
         return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600';
       case 'milestone':
-        return 'bg-[#C8E64A]/20 border-[#C8E64A]/30 text-black';
+        return 'bg-accent/20 border-[#C8E64A]/30 text-black';
       case 'regulation':
       case 'signal':
         return 'bg-rose-500/10 border-rose-500/20 text-rose-600';
       default:
-        return 'bg-gray-500/10 border-gray-500/20 text-gray-700';
+        return 'bg-hover0/10 border-gray-500/20 text-text-primary';
     }
   };
 
@@ -220,7 +220,7 @@ const RealtimeTicker = memo(function RealtimeTicker() {
                   <div
                     key={`${item.id}-${idx}`}
                     className={`ticker-item ${getItemStyle(item.type)} ${
-                      highlightedId === item.id ? 'scale-105 border-white bg-white/20' : ''
+                      highlightedId === item.id ? 'scale-105 border-white bg-card/20' : ''
                     }`}
                   >
                     {renderIcon(item.type)}

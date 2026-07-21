@@ -298,7 +298,7 @@ function AppContent({
    <span className="font-outfit font-black text-[9px] text-text-primary tracking-wider uppercase">Beta OS</span>
  </div>
 
- <div className="min-h-screen bg-canvas flex flex-col w-full text-gray-900 font-inter">
+ <div className="min-h-screen bg-canvas flex flex-col w-full text-text-primary font-inter">
  <div className="flex-1 flex flex-col">
   {location.pathname !== '/' && (
     <>

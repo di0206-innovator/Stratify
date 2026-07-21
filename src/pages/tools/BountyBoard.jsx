@@ -150,12 +150,12 @@ export default function BountyBoard({ founderProfile, user }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 animate-fade-in text-[#111]">
+    <div className="max-w-6xl mx-auto px-6 py-10 animate-fade-in text-text-primary">
       {/* Header Banner */}
       <div className="os-card bg-[#1A1A1A] text-white p-8 sm:p-12 mb-8 relative overflow-hidden select-none text-left">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-card opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
         <div className="relative z-10 space-y-2.5">
-          <span className="inline-block bg-[#C8E64A]/10 border border-[#C8E64A]/30 text-white px-2.5 py-1 font-outfit font-bold text-[10px] uppercase tracking-wider rounded-md">
+          <span className="inline-block bg-accent/10 border border-[#C8E64A]/30 text-white px-2.5 py-1 font-outfit font-bold text-[10px] uppercase tracking-wider rounded-md">
             Consensus Execution Engine
           </span>
           <h1 className="text-3xl sm:text-5xl font-outfit font-black tracking-tight text-white uppercase">
@@ -177,22 +177,22 @@ export default function BountyBoard({ founderProfile, user }) {
                 <div className="w-8 h-8 border border-black border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : bounties.length === 0 ? (
-              <div className="border border-dashed border-gray-300 p-12 text-center text-gray-500 font-outfit font-bold text-xs uppercase rounded-xl">
+              <div className="border border-dashed border-DEFAULT p-12 text-center text-text-secondary font-outfit font-bold text-xs uppercase rounded-xl">
                 No active sprint bounties at the moment.
               </div>
             ) : (
               <div className="space-y-4">
                 {bounties.map((bounty) => (
-                  <div key={bounty.id} className="os-card bg-white text-left space-y-3 hover:border-black transition-all">
+                  <div key={bounty.id} className="os-card bg-card text-left space-y-3 hover:border-DEFAULT transition-all">
                     <div className="flex justify-between items-start flex-wrap gap-2">
                       <div>
-                        <span className="inline-block bg-gray-50 border border-gray-200 text-[9px] font-bold uppercase rounded-md px-2 py-0.5 mb-1.5 text-gray-500">
+                        <span className="inline-block bg-hover border border-light text-[9px] font-bold uppercase rounded-md px-2 py-0.5 mb-1.5 text-text-secondary">
                           By {bounty.startupName}
                         </span>
-                        <h4 className="font-outfit font-bold text-base text-[#111] leading-tight">{bounty.title}</h4>
+                        <h4 className="font-outfit font-bold text-base text-text-primary leading-tight">{bounty.title}</h4>
                       </div>
                       <div className="flex gap-2">
-                        <span className="bg-[#C8E64A]/20 border border-[#C8E64A]/30 text-black px-2.5 py-0.5 text-[9px] font-bold uppercase rounded-full">
+                        <span className="bg-accent/20 border border-[#C8E64A]/30 text-black px-2.5 py-0.5 text-[9px] font-bold uppercase rounded-full">
                           {bounty.reward}
                         </span>
                         <span className="bg-[#1A1A1A] text-white px-2.5 py-0.5 text-[9px] font-semibold uppercase rounded-full">
@@ -201,7 +201,7 @@ export default function BountyBoard({ founderProfile, user }) {
                       </div>
                     </div>
 
-                    <p className="text-xs text-gray-500 leading-relaxed font-light font-inter">
+                    <p className="text-xs text-text-secondary leading-relaxed font-light font-inter">
                       {bounty.description}
                     </p>
 
@@ -228,9 +228,9 @@ export default function BountyBoard({ founderProfile, user }) {
                       ) : (
                         <div className="space-y-1 text-right w-full sm:w-auto">
                           {bounty.submissions?.map((sub, idx) => (
-                            <div key={idx} className="flex items-center justify-end gap-1.5 text-[9px] font-bold text-gray-400">
+                            <div key={idx} className="flex items-center justify-end gap-1.5 text-[9px] font-bold text-text-muted">
                               <span>Solved by {sub.builderName}</span>
-                              <a href={sub.prLink} target="_blank" rel="noopener noreferrer" className="underline text-black flex items-center gap-0.5 font-bold uppercase hover:text-gray-600 transition-colors">
+                              <a href={sub.prLink} target="_blank" rel="noopener noreferrer" className="underline text-black flex items-center gap-0.5 font-bold uppercase hover:text-text-secondary transition-colors">
                                 <span>PR link</span>
                                 <ExternalLink size={10} />
                               </a>
@@ -254,7 +254,7 @@ export default function BountyBoard({ founderProfile, user }) {
             <BentoCard title="Launch a Micro Bounty" badge="FOUNDER UTILITY" badgeColor="bg-black">
               <form onSubmit={handleCreateBounty} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">Bounty Task Title</label>
+                  <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">Bounty Task Title</label>
                   <input
                     type="text"
                     required
@@ -265,7 +265,7 @@ export default function BountyBoard({ founderProfile, user }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">Task Requirements</label>
+                  <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">Task Requirements</label>
                   <textarea
                     required
                     value={newDescription}
@@ -278,7 +278,7 @@ export default function BountyBoard({ founderProfile, user }) {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">Score Reward</label>
+                    <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">Score Reward</label>
                     <input
                       type="number"
                       required
@@ -288,7 +288,7 @@ export default function BountyBoard({ founderProfile, user }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">Financial Reward</label>
+                    <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">Financial Reward</label>
                     <input
                       type="text"
                       required
@@ -303,7 +303,7 @@ export default function BountyBoard({ founderProfile, user }) {
                 <button
                   type="submit"
                   disabled={posting}
-                  className="w-full py-3 bg-[#C8E64A] text-black font-outfit font-bold text-xs uppercase hover:bg-[#B5D235] transition-all cursor-pointer text-center rounded-lg border-0"
+                  className="w-full py-3 bg-accent text-[#111] font-outfit font-bold text-xs uppercase hover:bg-accent-hover transition-all cursor-pointer text-center rounded-lg border-0"
                 >
                   {posting ? 'LAUNCHING...' : 'PUBLISH BOUNTY'}
                 </button>
@@ -315,16 +315,16 @@ export default function BountyBoard({ founderProfile, user }) {
           {selectedBounty && (
             <BentoCard title="Claim & Submit Proof" badge="BUILDER VERIFICATION" badgeColor="bg-black">
               <form onSubmit={handleSubmitBounty} className="space-y-4">
-                <div className="border border-gray-200 p-4 bg-[#FAF9F6] text-left rounded-xl select-none">
-                  <span className="text-[9px] font-bold uppercase text-gray-400 block tracking-wide">Claiming Bounty</span>
+                <div className="border border-light p-4 bg-canvas text-left rounded-xl select-none">
+                  <span className="text-[9px] font-bold uppercase text-text-muted block tracking-wide">Claiming Bounty</span>
                   <h4 className="font-outfit font-bold text-xs uppercase text-black mt-1">{selectedBounty.title}</h4>
-                  <span className="text-[9px] bg-[#C8E64A]/25 border border-[#C8E64A]/30 text-black px-2 py-0.5 mt-2 rounded-full inline-block font-bold">
+                  <span className="text-[9px] bg-accent/25 border border-[#C8E64A]/30 text-black px-2 py-0.5 mt-2 rounded-full inline-block font-bold">
                     {selectedBounty.reward} Value
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-gray-500 tracking-wide mb-1.5">Proof of Work URL (PR or Live Deployment)</label>
+                  <label className="block text-[10px] font-bold uppercase text-text-secondary tracking-wide mb-1.5">Proof of Work URL (PR or Live Deployment)</label>
                   <input
                     type="url"
                     required
@@ -352,7 +352,7 @@ export default function BountyBoard({ founderProfile, user }) {
                   <button
                     type="submit"
                     disabled={verifying || submitting}
-                    className="flex-1 py-3 bg-[#C8E64A] text-black font-outfit font-bold text-xs uppercase hover:bg-[#B5D235] transition-all cursor-pointer text-center rounded-lg"
+                    className="flex-1 py-3 bg-accent text-[#111] font-outfit font-bold text-xs uppercase hover:bg-accent-hover transition-all cursor-pointer text-center rounded-lg"
                   >
                     {verifying ? 'AUDITING...' : 'VERIFY & SUBMIT'}
                   </button>
@@ -369,10 +369,10 @@ export default function BountyBoard({ founderProfile, user }) {
           )}
 
           {/* Builder Guide Info */}
-          <div className="os-card bg-[#FAF9F6] p-5 select-none text-center border border-gray-200 rounded-xl">
+          <div className="os-card bg-canvas p-5 select-none text-center border border-light rounded-xl">
             <Cpu size={24} className="mx-auto mb-2 text-black" />
             <h4 className="font-outfit font-bold text-xs uppercase tracking-wide">Builder Reputation Engine</h4>
-            <p className="text-[10px] font-semibold text-gray-500 mt-1 leading-relaxed">
+            <p className="text-[10px] font-semibold text-text-secondary mt-1 leading-relaxed">
               Students and builders claiming bounties earn Score points directly added to their profile status, forming a verified ledger of technical capabilities.
             </p>
           </div>

@@ -148,11 +148,11 @@ export default function EquityPlanner() {
   const unvestedPercent = 100 - vestedPercent;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 pb-8 animate-fade-in text-[#111]">
+    <div className="max-w-6xl mx-auto px-6 py-10 pb-8 animate-fade-in text-text-primary">
       <div className="os-card bg-[#1A1A1A] text-white p-8 sm:p-12 mb-8 relative overflow-hidden select-none">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-card opacity-5 rounded-full transform translate-x-20 -translate-y-20"></div>
         <div className="relative z-10 space-y-2.5 text-left">
-          <span className="inline-block bg-[#C8E64A]/10 border border-[#C8E64A]/30 text-white px-2.5 py-1 font-outfit font-bold text-[10px] uppercase tracking-wider rounded-md">
+          <span className="inline-block bg-accent/10 border border-[#C8E64A]/30 text-white px-2.5 py-1 font-outfit font-bold text-[10px] uppercase tracking-wider rounded-md">
             Ecosystem Agreements Suite
           </span>
           <h1 className="text-3xl sm:text-5xl font-outfit font-black tracking-tight text-white uppercase">
@@ -171,96 +171,96 @@ export default function EquityPlanner() {
             <form onSubmit={calculateSplit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Founder 1 */}
-                <div className="p-5 bg-[#FAF9F6] border border-gray-200 rounded-xl text-left space-y-4">
-                  <div className="flex justify-between items-center border-b border-gray-200 pb-2.5">
+                <div className="p-5 bg-canvas border border-light rounded-xl text-left space-y-4">
+                  <div className="flex justify-between items-center border-b border-light pb-2.5">
                     <input
                       type="text"
                       value={f1Name}
                       onChange={(e) => setF1Name(e.target.value)}
-                      className="font-outfit font-bold text-xs uppercase bg-transparent focus:outline-none border-b border-[#111] text-[#111] w-2/3"
+                      className="font-outfit font-bold text-xs uppercase bg-transparent focus:outline-none border-b border-[#111] text-text-primary w-2/3"
                     />
                     <span className="text-[10px] bg-black text-white px-2 py-0.5 rounded font-bold uppercase">F1</span>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-4 text-xs">
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Ideation / IP contribution</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Ideation / IP contribution</label>
                       <input type="range" min="0" max="10" value={f1Ip} onChange={(e) => setF1Ip(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Execution / Dev work</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Execution / Dev work</label>
                       <input type="range" min="0" max="10" value={f1Code} onChange={(e) => setF1Code(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Pre-seed Capital Invested</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Pre-seed Capital Invested</label>
                       <input type="range" min="0" max="10" value={f1Capital} onChange={(e) => setF1Capital(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Hours Committed</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Hours Committed</label>
                       <input type="range" min="0" max="10" value={f1Hours} onChange={(e) => setF1Hours(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                   </div>
                 </div>
 
                 {/* Founder 2 */}
-                <div className="p-5 bg-[#FAF9F6] border border-gray-200 rounded-xl text-left space-y-4">
-                  <div className="flex justify-between items-center border-b border-gray-200 pb-2.5">
+                <div className="p-5 bg-canvas border border-light rounded-xl text-left space-y-4">
+                  <div className="flex justify-between items-center border-b border-light pb-2.5">
                     <input
                       type="text"
                       value={f2Name}
                       onChange={(e) => setF2Name(e.target.value)}
-                      className="font-outfit font-bold text-xs uppercase bg-transparent focus:outline-none border-b border-[#111] text-[#111] w-2/3"
+                      className="font-outfit font-bold text-xs uppercase bg-transparent focus:outline-none border-b border-[#111] text-text-primary w-2/3"
                     />
-                    <span className="text-[10px] bg-gray-200 text-gray-800 px-2 py-0.5 rounded font-bold uppercase">F2</span>
+                    <span className="text-[10px] bg-gray-200 text-text-primary px-2 py-0.5 rounded font-bold uppercase">F2</span>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-4 text-xs">
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Ideation / IP contribution</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Ideation / IP contribution</label>
                       <input type="range" min="0" max="10" value={f2Ip} onChange={(e) => setF2Ip(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Execution / Dev work</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Execution / Dev work</label>
                       <input type="range" min="0" max="10" value={f2Code} onChange={(e) => setF2Code(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Pre-seed Capital Invested</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Pre-seed Capital Invested</label>
                       <input type="range" min="0" max="10" value={f2Capital} onChange={(e) => setF2Capital(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Hours Committed</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Hours Committed</label>
                       <input type="range" min="0" max="10" value={f2Hours} onChange={(e) => setF2Hours(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                   </div>
                 </div>
 
                 {/* Founder 3 */}
-                <div className="p-5 bg-[#FAF9F6] border border-gray-200 rounded-xl text-left space-y-4">
-                  <div className="flex justify-between items-center border-b border-gray-200 pb-2.5">
+                <div className="p-5 bg-canvas border border-light rounded-xl text-left space-y-4">
+                  <div className="flex justify-between items-center border-b border-light pb-2.5">
                     <input
                       type="text"
                       value={f3Name}
                       onChange={(e) => setF3Name(e.target.value)}
-                      className="font-outfit font-bold text-xs uppercase bg-transparent focus:outline-none border-b border-[#111] text-[#111] w-2/3"
+                      className="font-outfit font-bold text-xs uppercase bg-transparent focus:outline-none border-b border-[#111] text-text-primary w-2/3"
                     />
-                    <span className="text-[10px] bg-gray-100 text-gray-400 px-2 py-0.5 rounded font-bold uppercase">F3</span>
+                    <span className="text-[10px] bg-gray-100 text-text-muted px-2 py-0.5 rounded font-bold uppercase">F3</span>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-4 text-xs">
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Ideation / IP contribution</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Ideation / IP contribution</label>
                       <input type="range" min="0" max="10" value={f3Ip} onChange={(e) => setF3Ip(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Execution / Dev work</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Execution / Dev work</label>
                       <input type="range" min="0" max="10" value={f3Code} onChange={(e) => setF3Code(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Pre-seed Capital Invested</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Pre-seed Capital Invested</label>
                       <input type="range" min="0" max="10" value={f3Capital} onChange={(e) => setF3Capital(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                     <div>
-                      <label className="block text-[9px] font-bold uppercase text-gray-400 mb-1.5 tracking-wide">Hours Committed</label>
+                      <label className="block text-[9px] font-bold uppercase text-text-muted mb-1.5 tracking-wide">Hours Committed</label>
                       <input type="range" min="0" max="10" value={f3Hours} onChange={(e) => setF3Hours(Number(e.target.value))} className="w-full accent-black cursor-pointer" />
                     </div>
                   </div>
@@ -269,7 +269,7 @@ export default function EquityPlanner() {
 
               <button
                 type="submit"
-                className="w-full py-3 bg-[#C8E64A] text-black font-outfit font-bold text-xs uppercase rounded-lg hover:bg-[#B5D235] transition-all cursor-pointer tracking-wider"
+                className="w-full py-3 bg-accent text-[#111] font-outfit font-bold text-xs uppercase rounded-lg hover:bg-accent-hover transition-all cursor-pointer tracking-wider"
               >
                 CALCULATE BALANCED SPLIT
               </button>
@@ -286,11 +286,11 @@ export default function EquityPlanner() {
                 {/* Horizontal Segmented Bar */}
                 <div className="h-8 flex overflow-hidden rounded-lg">
                   <div style={{ width: `${shares.f1}%` }} className="bg-black h-full transition-all border-r border-[#FAF9F6]/20" title={`${f1Name}: ${shares.f1}%`} />
-                  <div style={{ width: `${shares.f2}%` }} className="bg-gray-500 h-full transition-all border-r border-[#FAF9F6]/20" title={`${f2Name}: ${shares.f2}%`} />
+                  <div style={{ width: `${shares.f2}%` }} className="bg-hover0 h-full transition-all border-r border-[#FAF9F6]/20" title={`${f2Name}: ${shares.f2}%`} />
                   <div style={{ width: `${shares.f3}%` }} className="bg-gray-200 h-full transition-all" title={`${f3Name}: ${shares.f3}%`} />
                 </div>
 
-                <div className="space-y-2 text-xs font-bold text-gray-700 mt-4">
+                <div className="space-y-2 text-xs font-bold text-text-primary mt-4">
                   <div className="flex justify-between items-center border-b border-gray-100 pb-2">
                     <span className="flex items-center gap-1.5 uppercase font-black text-black">
                       <span className="w-2.5 h-2.5 bg-black inline-block rounded-sm"></span>
@@ -300,7 +300,7 @@ export default function EquityPlanner() {
                   </div>
                   <div className="flex justify-between items-center border-b border-gray-100 pb-2">
                     <span className="flex items-center gap-1.5 uppercase font-black text-black">
-                      <span className="w-2.5 h-2.5 bg-gray-500 inline-block rounded-sm"></span>
+                      <span className="w-2.5 h-2.5 bg-hover0 inline-block rounded-sm"></span>
                       {f2Name}
                     </span>
                     <span className="font-mono text-black">{shares.f2}%</span>
@@ -332,14 +332,14 @@ export default function EquityPlanner() {
                     });
                     setToast({ message: 'Cap table successfully saved to Stratify workspace registry!', type: 'success' });
                   }}
-                  className="w-full os-btn bg-[#FAF9F6] hover:border-black text-xs font-semibold py-2.5 flex items-center justify-center gap-1.5 mt-2"
+                  className="w-full os-btn bg-canvas hover:border-DEFAULT text-xs font-semibold py-2.5 flex items-center justify-center gap-1.5 mt-2"
                 >
                   <CheckCircle size={14} />
                   <span>Save Cap Table to Registry</span>
                 </button>
               </div>
             ) : (
-              <div className="text-center py-12 text-gray-400 font-outfit font-bold text-xs uppercase tracking-wider">
+              <div className="text-center py-12 text-text-muted font-outfit font-bold text-xs uppercase tracking-wider">
                 Slide contribution factors and click Calculate to view equity splits
               </div>
             )}
@@ -350,8 +350,8 @@ export default function EquityPlanner() {
             <div className="space-y-4 text-left">
               <div>
                 <div className="flex justify-between items-center mb-1.5">
-                  <label className="text-[10px] font-bold uppercase text-gray-400 tracking-wide">Time Elapsed</label>
-                  <span className="text-[10px] font-bold font-mono border border-gray-200 bg-white px-2 py-0.5 rounded">
+                  <label className="text-[10px] font-bold uppercase text-text-muted tracking-wide">Time Elapsed</label>
+                  <span className="text-[10px] font-bold font-mono border border-light bg-card px-2 py-0.5 rounded">
                     {vestingMonths} Months
                   </span>
                 </div>
@@ -369,19 +369,19 @@ export default function EquityPlanner() {
               </div>
 
               {/* Status details */}
-              <div className="p-4 bg-[#FAF9F6] border border-gray-200 rounded-xl space-y-3">
+              <div className="p-4 bg-canvas border border-light rounded-xl space-y-3">
                 <div className="flex justify-between text-xs font-semibold">
                   <span>Vesting Cliff:</span>
-                  <span className="uppercase text-[9px] px-2 py-0.5 rounded font-bold bg-white border border-gray-200">
+                  <span className="uppercase text-[9px] px-2 py-0.5 rounded font-bold bg-card border border-light">
                     {vestingMonths >= 12 ? 'Passed' : 'Not Met'}
                   </span>
                 </div>
 
-                <div className="h-5 border border-gray-200 rounded-full flex overflow-hidden bg-gray-100">
-                  <div style={{ width: `${vestedPercent}%` }} className="bg-[#C8E64A] h-full transition-all" />
+                <div className="h-5 border border-light rounded-full flex overflow-hidden bg-gray-100">
+                  <div style={{ width: `${vestedPercent}%` }} className="bg-accent h-full transition-all" />
                 </div>
 
-                <div className="flex justify-between text-[11px] font-bold text-gray-500 pt-1">
+                <div className="flex justify-between text-[11px] font-bold text-text-secondary pt-1">
                   <span>Vested: {vestedPercent.toFixed(1)}%</span>
                   <span>Unvested: {unvestedPercent.toFixed(1)}%</span>
                 </div>
@@ -391,9 +391,9 @@ export default function EquityPlanner() {
 
           {/* Legal Brief Output */}
           {briefGenerated && shares && (
-            <div className="os-card p-4 bg-[#FAF9F6] border border-[#C8E64A]/30 text-left space-y-2 relative select-text">
+            <div className="os-card p-4 bg-canvas border border-[#C8E64A]/30 text-left space-y-2 relative select-text">
               <span className="text-[9px] font-bold uppercase text-[#EF4444] block tracking-wide font-outfit">AGREEMENT BRIEF DRAFT</span>
-              <p className="text-[11px] font-semibold text-gray-600 leading-relaxed font-mono whitespace-pre-line text-black">
+              <p className="text-[11px] font-semibold text-text-secondary leading-relaxed font-mono whitespace-pre-line text-black">
                 {`FOUNDER ACCELERATED VESTING BRIEF
 ---------------------------------------
 Startup Cap Table Division:

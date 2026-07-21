@@ -119,7 +119,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
             <div className="flex flex-wrap items-center gap-4 mb-14">
               <button
                 onClick={handleCTA}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-text-primary text-sm font-semibold rounded-lg hover:opacity-90 transition-colors shadow-sm"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-[#111] text-sm font-semibold rounded-lg hover:opacity-90 transition-colors shadow-sm"
               >
                 <ArrowRight size={16} />
                 {user ? 'Enter Dashboard' : 'Start building'}
@@ -136,15 +136,15 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
             <div className="flex flex-wrap items-center gap-8 md:gap-14">
               <div>
                 <span className="block font-outfit font-black text-2xl text-text-primary">2,400+</span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400 mt-0.5 block">startups mapped</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted mt-0.5 block">startups mapped</span>
               </div>
               <div>
                 <span className="block font-outfit font-black text-2xl text-text-primary">$1.8B</span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400 mt-0.5 block">capital tracked</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted mt-0.5 block">capital tracked</span>
               </div>
               <div>
                 <span className="block font-outfit font-black text-2xl text-text-primary">31</span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-400 mt-0.5 block">ecosystems</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted mt-0.5 block">ecosystems</span>
               </div>
             </div>
           </div>
@@ -163,10 +163,10 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
       <section className="border-y border-DEFAULT bg-canvas py-8">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center gap-6 md:gap-16">
-            <span className="text-[10px] font-outfit font-semibold uppercase tracking-[0.2em] text-gray-400 whitespace-nowrap">
+            <span className="text-[10px] font-outfit font-semibold uppercase tracking-[0.2em] text-text-muted whitespace-nowrap">
               Trusted across the ecosystem
             </span>
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 text-gray-400">
+            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 text-text-muted">
               {['Northwind', 'Meridian', 'Karnataka SIC', 'Verdant', 'Orbit Labs', 'Lumen'].map((name) => (
                 <span key={name} className="font-outfit font-bold text-sm tracking-tight hover:text-text-primary transition-colors cursor-default">
                   {name}
@@ -304,7 +304,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
               className={`${mod.bg} rounded-2xl border border-DEFAULT p-7 hover:shadow-md hover:border-DEFAULT transition-all duration-200 animate-fade-in-up`}
               style={{ animationDelay: `${i * 0.06}s` }}
             >
-              <mod.icon size={20} className="text-gray-400 mb-5" strokeWidth={1.5} />
+              <mod.icon size={20} className="text-text-muted mb-5" strokeWidth={1.5} />
               <h3 className="font-outfit font-bold text-base text-text-primary mb-2">{mod.title}</h3>
               <p className="text-sm text-text-muted leading-relaxed">{mod.desc}</p>
             </div>
@@ -360,7 +360,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
             {/* Left: Quote */}
             <div className="animate-fade-in-up">
-              <p className="text-[10px] font-outfit font-semibold uppercase tracking-[0.2em] text-gray-400 mb-8">Field note</p>
+              <p className="text-[10px] font-outfit font-semibold uppercase tracking-[0.2em] text-text-muted mb-8">Field note</p>
               <blockquote className="font-outfit font-bold text-xl md:text-2xl leading-snug text-white/95 mb-10">
                 "Stratify replaced four tools and a dozen spreadsheets. For the first time, our board deck, runway, and product signals all tell the same story — because they're the same data."
               </blockquote>
@@ -370,7 +370,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Priya Nair</p>
-                  <p className="text-xs text-gray-400">CEO, Atlas Freight</p>
+                  <p className="text-xs text-text-muted">CEO, Atlas Freight</p>
                 </div>
               </div>
             </div>
@@ -413,20 +413,20 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
           <div className="bg-card rounded-2xl border border-DEFAULT p-8 flex flex-col justify-between hover:shadow-lg transition-all animate-fade-in-up">
             <div>
               <div className="flex items-center justify-between mb-6">
-                <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[10px] font-bold uppercase rounded font-outfit">Founder OS</span>
+                <span className="px-2.5 py-1 bg-gray-100 text-text-primary text-[10px] font-bold uppercase rounded font-outfit">Founder OS</span>
               </div>
               <div className="mb-6">
                 <span className="text-4xl font-outfit font-black text-text-primary">$49</span>
-                <span className="text-gray-400 text-sm font-semibold"> / mo</span>
+                <span className="text-text-muted text-sm font-semibold"> / mo</span>
               </div>
               <p className="text-xs text-text-muted leading-relaxed mb-6 font-inter font-light">
                 Perfect for early-stage and scaling founders seeking unified runway, cap table, and memory loops.
               </p>
               <div className="border-t border-DEFAULT pt-6">
-                <span className="block text-[10px] font-black text-gray-400 uppercase tracking-wider mb-4">Key Capabilities</span>
+                <span className="block text-[10px] font-black text-text-muted uppercase tracking-wider mb-4">Key Capabilities</span>
                 <ul className="space-y-3.5">
                   {['Unified Startup Graph', 'Cap Table Scenarios', 'Runway & Burn Modeling', 'AI Journey Generation'].map((feat) => (
-                    <li key={feat} className="flex items-center gap-2.5 text-xs text-gray-700 font-semibold">
+                    <li key={feat} className="flex items-center gap-2.5 text-xs text-text-primary font-semibold">
                       <Check size={14} className="text-accent shrink-0" />
                       {feat}
                     </li>
@@ -436,7 +436,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
             </div>
             <button 
               onClick={() => navigate('/upgrade')}
-              className="w-full mt-8 py-2.5 bg-card border border-gray-250 hover:border-black text-text-primary text-xs font-outfit font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer"
+              className="w-full mt-8 py-2.5 bg-card border border-gray-250 hover:border-DEFAULT text-text-primary text-xs font-outfit font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer"
             >
               Select Plan
             </button>
@@ -453,9 +453,9 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
               </div>
               <div className="mb-6">
                 <span className="text-4xl font-outfit font-black text-white">$299</span>
-                <span className="text-gray-400 text-sm font-semibold"> / mo</span>
+                <span className="text-text-muted text-sm font-semibold"> / mo</span>
               </div>
-              <p className="text-xs text-gray-400 leading-relaxed mb-6 font-inter font-light">
+              <p className="text-xs text-text-muted leading-relaxed mb-6 font-inter font-light">
                 Engineered for VCs, angels, and syndicate leads looking to source pipeline and automate diligence briefs.
               </p>
               <div className="border-t border-white/10 pt-6">
@@ -482,20 +482,20 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
           <div className="bg-card rounded-2xl border border-DEFAULT p-8 flex flex-col justify-between hover:shadow-lg transition-all animate-fade-in-up">
             <div>
               <div className="flex items-center justify-between mb-6">
-                <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-[10px] font-bold uppercase rounded font-outfit">Institution OS</span>
+                <span className="px-2.5 py-1 bg-gray-100 text-text-primary text-[10px] font-bold uppercase rounded font-outfit">Institution OS</span>
               </div>
               <div className="mb-6">
                 <span className="text-4xl font-outfit font-black text-text-primary">$999</span>
-                <span className="text-gray-400 text-sm font-semibold"> / mo</span>
+                <span className="text-text-muted text-sm font-semibold"> / mo</span>
               </div>
               <p className="text-xs text-text-muted leading-relaxed mb-6 font-inter font-light">
                 Designed for government grants, academic institutions, and regional ecosystem builders.
               </p>
               <div className="border-t border-DEFAULT pt-6">
-                <span className="block text-[10px] font-black text-gray-400 uppercase tracking-wider mb-4">Institutional Features</span>
+                <span className="block text-[10px] font-black text-text-muted uppercase tracking-wider mb-4">Institutional Features</span>
                 <ul className="space-y-3.5">
                   {['Regional Health Telemetry', 'Program & Grant Deployment', 'Public Impact Analysis', 'API Integration & Directory Exports'].map((feat) => (
-                    <li key={feat} className="flex items-center gap-2.5 text-xs text-gray-700 font-semibold">
+                    <li key={feat} className="flex items-center gap-2.5 text-xs text-text-primary font-semibold">
                       <Check size={14} className="text-accent shrink-0" />
                       {feat}
                     </li>
@@ -505,7 +505,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
             </div>
             <button 
               onClick={() => navigate('/upgrade')}
-              className="w-full mt-8 py-2.5 bg-card border border-gray-250 hover:border-black text-text-primary text-xs font-outfit font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer"
+              className="w-full mt-8 py-2.5 bg-card border border-gray-250 hover:border-DEFAULT text-text-primary text-xs font-outfit font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer"
             >
               Select Plan
             </button>
@@ -528,7 +528,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
           </p>
           <button
             onClick={handleCTA}
-            className="inline-flex items-center gap-2 px-7 py-3.5 bg-accent text-text-primary text-sm font-semibold rounded-lg hover:opacity-90 transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 px-7 py-3.5 bg-accent text-[#111] text-sm font-semibold rounded-lg hover:opacity-90 transition-colors shadow-sm"
           >
             <ArrowRight size={16} />
             {user ? 'Go to Dashboard' : 'Create your workspace'}

@@ -139,7 +139,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           <span className="font-outfit font-black text-base tracking-tight uppercase">
             Stratify
           </span>
-          <span className="bg-[#C8E64A] text-black text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider scale-90 flex-shrink-0">
+          <span className="bg-accent text-[#111] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider scale-90 flex-shrink-0">
             Beta
           </span>
         </Link>
@@ -170,7 +170,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 className={`px-3 py-2 text-left md:text-center text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                   isActive
                     ? 'text-black border-black font-black'
-                    : 'text-gray-500 hover:text-black border-transparent'
+                    : 'text-text-secondary hover:text-text-primary border-transparent'
                 }`}
               >
                 {item.label}
@@ -186,7 +186,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                   executionItems.some(item => location.pathname === item.path)
                     ? 'text-black border-black font-black'
-                    : 'text-gray-500 hover:text-black border-transparent'
+                    : 'text-text-secondary hover:text-text-primary border-transparent'
                 }`}
               >
                 Execution
@@ -203,13 +203,13 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 className={`p-2 -ml-1 text-xs font-semibold transition-colors flex items-center cursor-pointer ${
                   executionItems.some(item => location.pathname === item.path)
                     ? 'text-black'
-                    : 'text-gray-500 hover:text-black'
+                    : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
                 <span className="text-[9px]">▼</span>
               </button>
               {activeDropdown === 'execution' && (
-                <div className="absolute left-0 top-full mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md" role="menu">
+                <div className="absolute left-0 top-full mt-1 w-48 bg-card border border-light shadow-lg z-[100] py-1 rounded-md" role="menu">
                   {executionItems.map((item) => {
                     const isActive = location.pathname === item.path;
                     return (
@@ -217,8 +217,8 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                         key={item.path}
                         to={item.path}
                         onClick={() => setActiveDropdown(null)}
-                        className={`block px-4 py-2 text-xs font-semibold uppercase hover:bg-gray-50 transition-colors ${
-                          isActive ? 'text-black font-black bg-gray-50' : 'text-gray-600'
+                        className={`block px-4 py-2 text-xs font-semibold uppercase hover:bg-hover transition-colors ${
+                          isActive ? 'text-black font-black bg-hover' : 'text-text-secondary'
                         }`}
                       >
                         {item.label}
@@ -237,7 +237,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                 intelItems.some(item => location.pathname === item.path)
                   ? 'text-black border-black font-black'
-                  : 'text-gray-500 hover:text-black border-transparent'
+                  : 'text-text-secondary hover:text-text-primary border-transparent'
               }`}
             >
               Intel & Memory
@@ -254,13 +254,13 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               className={`p-2 -ml-1 text-xs font-semibold transition-colors flex items-center cursor-pointer ${
                 intelItems.some(item => location.pathname === item.path)
                   ? 'text-black'
-                  : 'text-gray-500 hover:text-black'
+                  : 'text-text-secondary hover:text-text-primary'
               }`}
             >
               <span className="text-[9px]">▼</span>
             </button>
             {activeDropdown === 'intel' && (
-              <div className="absolute left-0 top-full mt-1 w-48 bg-white border border-gray-200 shadow-lg z-[100] py-1 rounded-md" role="menu">
+              <div className="absolute left-0 top-full mt-1 w-48 bg-card border border-light shadow-lg z-[100] py-1 rounded-md" role="menu">
                 {intelItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   return (
@@ -268,8 +268,8 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                       key={item.path}
                       to={item.path}
                       onClick={() => setActiveDropdown(null)}
-                      className={`block px-4 py-2 text-xs font-semibold uppercase hover:bg-gray-50 transition-colors ${
-                        isActive ? 'text-black font-black bg-gray-50' : 'text-gray-600'
+                      className={`block px-4 py-2 text-xs font-semibold uppercase hover:bg-hover transition-colors ${
+                        isActive ? 'text-black font-black bg-hover' : 'text-text-secondary'
                       }`}
                     >
                       {item.label}

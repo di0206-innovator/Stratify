@@ -109,18 +109,18 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
       case 'NEGATIVE':
         return 'bg-red-50 text-red-700 border-red-200';
       default:
-        return 'bg-gray-50 text-gray-500 border-gray-200';
+        return 'bg-hover text-text-secondary border-light';
     }
   };
 
   const getImpactStyles = (impact) => {
     switch (impact?.toUpperCase()) {
       case 'HIGH':
-        return 'bg-[#C8E64A]/10 text-[#111] border-[#C8E64A]/30';
+        return 'bg-accent/10 text-text-primary border-[#C8E64A]/30';
       case 'MEDIUM':
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-gray-100 text-text-primary border-light';
       default:
-        return 'bg-gray-50 text-gray-400 border-gray-100';
+        return 'bg-hover text-text-muted border-gray-100';
     }
   };
 
@@ -128,14 +128,14 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
     <AuthGate user={user} openAuthModal={openAuthModal} message="Sign in to sweep live market signals and track competitor activity for your startup.">
       <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 animate-fade-in">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200/60 select-none">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-light select-none">
           <div className="flex items-center gap-3">
             <div className="bg-[#1A1A1A] p-3 text-white rounded-lg">
               <Radio size={24} className={loading ? 'animate-pulse' : ''} />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-outfit font-black tracking-tight">Signals Hub</h1>
-              <p className="font-inter text-gray-500 mt-1 text-xs sm:text-sm">
+              <p className="font-inter text-text-secondary mt-1 text-xs sm:text-sm">
                 Active sector sweeps and real-time competitor feeds.
               </p>
             </div>
@@ -154,20 +154,20 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
         </div>
 
         {!founderProfile ? (
-          <div className="os-card p-12 text-center bg-white space-y-4 max-w-xl mx-auto select-none">
+          <div className="os-card p-12 text-center bg-card space-y-4 max-w-xl mx-auto select-none">
             <AlertCircle size={40} className="mx-auto text-gray-300" />
             <h2 className="text-xl font-outfit font-bold tracking-tight">No Active Profile</h2>
-            <p className="text-sm text-gray-500 leading-relaxed">
+            <p className="text-sm text-text-secondary leading-relaxed">
               Set up your industry and geography in Onboarding to start monitoring sector signals.
             </p>
           </div>
         ) : (
           <div className="grid grid-cols-12 gap-6">
             {/* Filter Bar (Col span: 12) */}
-            <div className="col-span-12 os-card bg-[#FAF9F6] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 select-none">
+            <div className="col-span-12 os-card bg-canvas flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 select-none">
               {/* Search Input */}
               <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-3 text-gray-400" size={16} />
+                <Search className="absolute left-3.5 top-3 text-text-muted" size={16} />
                 <input
                   type="text"
                   placeholder="Search signals..."
@@ -181,7 +181,7 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
               <div className="flex flex-wrap items-center gap-3">
                 {/* Sentiment filter */}
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase text-gray-400">Sentiment</span>
+                  <span className="text-[10px] font-bold uppercase text-text-muted">Sentiment</span>
                   <select
                     value={sentimentFilter}
                     onChange={(e) => setSentimentFilter(e.target.value)}
@@ -196,7 +196,7 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
 
                 {/* Impact filter */}
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase text-gray-400">Impact</span>
+                  <span className="text-[10px] font-bold uppercase text-text-muted">Impact</span>
                   <select
                     value={impactFilter}
                     onChange={(e) => setImpactFilter(e.target.value)}
@@ -212,7 +212,7 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
             </div>
 
             {/* Feeds Source Indicator */}
-            <div className="col-span-12 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-gray-400 px-2 select-none">
+            <div className="col-span-12 flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-text-muted px-2 select-none">
               <span>MODE: {mode === 'live' ? '⚡ LIVE REAL-TIME WEB' : '📁 SIMULATED HISTORICAL FEED'}</span>
               <span>SHOWING {filteredSignals.length} OF {signals.length} SIGNALS</span>
             </div>
@@ -220,7 +220,7 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
             {/* Signals Stream (Col span: 12) */}
             <div className="col-span-12 space-y-4">
               {loading && signals.length === 0 ? (
-                <div className="os-card p-16 text-center bg-white space-y-4 select-none">
+                <div className="os-card p-16 text-center bg-card space-y-4 select-none">
                   <RefreshCw size={36} className="mx-auto animate-spin text-black" />
                   <span className="font-outfit font-bold uppercase text-xs">Sweeping internet news for {founderProfile.industry}...</span>
                 </div>
@@ -233,7 +233,7 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
                   </div>
                 </div>
               ) : filteredSignals.length === 0 ? (
-                <div className="os-card p-16 text-center bg-white space-y-4 select-none">
+                <div className="os-card p-16 text-center bg-card space-y-4 select-none">
                   <Compass size={36} className="mx-auto text-gray-300" />
                   <span className="font-outfit font-bold uppercase text-xs tracking-wider">No signals found matching filters</span>
                 </div>
@@ -242,11 +242,11 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
                   {filteredSignals.map((sig, index) => (
                     <div
                       key={index}
-                      className="os-card bg-white flex flex-col md:flex-row md:items-start gap-5 p-5 relative group"
+                      className="os-card bg-card flex flex-col md:flex-row md:items-start gap-5 p-5 relative group"
                     >
                       {/* Left: Signal metadata */}
                       <div className="md:w-36 shrink-0 space-y-2 select-none">
-                        <span className="inline-flex items-center px-2 py-1 rounded text-[9px] font-bold border border-gray-200 w-full text-center tracking-wider block justify-center bg-gray-50 text-gray-500 overflow-hidden truncate">
+                        <span className="inline-flex items-center px-2 py-1 rounded text-[9px] font-bold border border-light w-full text-center tracking-wider block justify-center bg-hover text-text-secondary overflow-hidden truncate">
                           {sig.type || 'SIGNAL'}
                         </span>
                         
@@ -265,7 +265,7 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
                         <h3 className="font-outfit font-bold text-base md:text-lg text-black uppercase tracking-tight leading-tight group-hover:underline">
                           {sig.title}
                         </h3>
-                        <p className="text-xs md:text-sm font-semibold font-inter text-gray-700 leading-relaxed font-light">
+                        <p className="text-xs md:text-sm font-semibold font-inter text-text-primary leading-relaxed font-light">
                           {sig.description}
                         </p>
 
@@ -277,13 +277,13 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
                                 href={sig.source.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase text-gray-450 hover:text-black transition-colors"
+                                className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase text-gray-450 hover:text-text-primary transition-colors"
                               >
                                 <span>Grounding Source: {sig.source.title}</span>
                                 <ExternalLink size={10} />
                               </a>
                             ) : (
-                              <span className="text-[10px] font-semibold uppercase text-gray-400">
+                              <span className="text-[10px] font-semibold uppercase text-text-muted">
                                 Grounding Source: {sig.source.title}
                               </span>
                             )}

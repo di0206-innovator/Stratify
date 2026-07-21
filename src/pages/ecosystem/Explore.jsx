@@ -105,7 +105,7 @@ export default function Explore({ user, founderProfile }) {
           href={startup.externalUrl}
           target="_blank"
           rel="noreferrer"
-          className="os-card bg-white hover:border-black transition-all flex flex-col justify-between group"
+          className="os-card bg-card hover:border-DEFAULT transition-all flex flex-col justify-between group"
         >
           {children}
         </a>
@@ -115,7 +115,7 @@ export default function Explore({ user, founderProfile }) {
     return (
       <Link
         to={`/startups/${startup.id}`}
-        className="os-card bg-white hover:border-black transition-all flex flex-col justify-between group"
+        className="os-card bg-card hover:border-DEFAULT transition-all flex flex-col justify-between group"
       >
         {children}
       </Link>
@@ -123,16 +123,16 @@ export default function Explore({ user, founderProfile }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-[#111]">
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-text-primary">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200/60 select-none">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-light select-none">
         <div className="flex items-center gap-3">
           <div className="bg-[#1A1A1A] p-3 text-white rounded-lg">
             <Globe size={24} />
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-outfit font-black tracking-tight">Explore Ecosystem</h1>
-            <p className="font-inter text-gray-500 mt-1 text-xs sm:text-sm">
+            <p className="font-inter text-text-secondary mt-1 text-xs sm:text-sm">
               Discover startups, founders, investors, and ecosystem partners.
             </p>
           </div>
@@ -142,7 +142,7 @@ export default function Explore({ user, founderProfile }) {
           <button
             onClick={() => setActiveTab('startups')}
             className={`flex-1 md:flex-none px-6 py-2 font-outfit font-bold text-xs uppercase tracking-wider transition-all rounded-lg cursor-pointer ${
-              activeTab === 'startups' ? 'bg-[#C8E64A] text-black shadow-sm' : 'text-gray-500 hover:text-black'
+              activeTab === 'startups' ? 'bg-accent text-[#111] shadow-sm' : 'text-text-secondary hover:text-text-primary'
             }`}
           >
             Startups
@@ -150,7 +150,7 @@ export default function Explore({ user, founderProfile }) {
           <button
             onClick={() => setActiveTab('people')}
             className={`flex-1 md:flex-none px-6 py-2 font-outfit font-bold text-xs uppercase tracking-wider transition-all rounded-lg cursor-pointer ${
-              activeTab === 'people' ? 'bg-[#C8E64A] text-black shadow-sm' : 'text-gray-500 hover:text-black'
+              activeTab === 'people' ? 'bg-accent text-[#111] shadow-sm' : 'text-text-secondary hover:text-text-primary'
             }`}
           >
             People
@@ -159,9 +159,9 @@ export default function Explore({ user, founderProfile }) {
       </div>
 
       {/* Filters & Search */}
-      <div className="bg-white border border-gray-200 p-4 rounded-xl flex flex-col md:flex-row gap-3">
+      <div className="bg-card border border-light p-4 rounded-xl flex flex-col md:flex-row gap-3">
         <div className="flex-1 relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
           <input
             type="text"
             value={search}
@@ -206,17 +206,17 @@ export default function Explore({ user, founderProfile }) {
       )}
 
       {activeTab === 'startups' && (
-        <div className="rounded-xl border border-gray-200 bg-[#FAF9F6] px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="rounded-xl border border-light bg-canvas px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-gray-500">Startup Search</p>
-            <p className="text-sm text-gray-700">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-text-secondary">Startup Search</p>
+            <p className="text-sm text-text-primary">
               {search.trim()
                 ? `Searching the startup graph${searchMeta?.localMatches ? '' : ' and the live web'} for "${search.trim()}".`
                 : 'Use this like startup-specific search: company names, sectors, products, founders, investors, or markets.'}
             </p>
           </div>
           {searchMeta?.mode === 'startup_search' && (
-            <span className="shrink-0 rounded-full border border-[#C8E64A]/40 bg-[#C8E64A]/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#111]">
+            <span className="shrink-0 rounded-full border border-[#C8E64A]/40 bg-accent/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-text-primary">
               Real-time startup search
             </span>
           )}
@@ -238,42 +238,42 @@ export default function Explore({ user, founderProfile }) {
             >
               <div>
                 <div className="flex items-start justify-between mb-3 border-b border-gray-100 pb-2">
-                  <h3 className="font-outfit font-bold text-base text-[#111] truncate pr-2 group-hover:underline">{startup.name || 'Unnamed Startup'}</h3>
+                  <h3 className="font-outfit font-bold text-base text-text-primary truncate pr-2 group-hover:underline">{startup.name || 'Unnamed Startup'}</h3>
                   {startup.score > 0 && (
-                    <span className="bg-[#C8E64A]/20 border border-[#C8E64A]/30 px-2.5 py-0.5 text-[9px] font-bold uppercase rounded-full flex items-center gap-1 shrink-0">
+                    <span className="bg-accent/20 border border-[#C8E64A]/30 px-2.5 py-0.5 text-[9px] font-bold uppercase rounded-full flex items-center gap-1 shrink-0">
                       <TrendingUp size={10} /> {startup.score}
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed font-light">
+                <p className="text-xs text-text-secondary mb-4 line-clamp-2 leading-relaxed font-light">
                   {startup.pitch || startup.problem || 'No description provided.'}
                 </p>
               </div>
               <div className="flex flex-wrap gap-1.5 mt-auto pt-3 border-t border-gray-100/50">
                 {startup.stage && (
-                  <span className="bg-gray-50 border border-gray-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-gray-500 flex items-center gap-1">
+                  <span className="bg-hover border border-light px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-text-secondary flex items-center gap-1">
                     <Rocket size={10} /> {startup.stage}
                   </span>
                 )}
                 {startup.industry && (
-                  <span className="bg-gray-50 border border-gray-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-gray-500 flex items-center gap-1">
+                  <span className="bg-hover border border-light px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-text-secondary flex items-center gap-1">
                     <Briefcase size={10} /> {startup.industry}
                   </span>
                 )}
                 {startup.matchReason && (
-                  <div className="w-full mt-3 text-xs font-semibold text-gray-800 bg-[#C8E64A]/10 border border-[#C8E64A]/30 p-2.5 rounded-lg">
+                  <div className="w-full mt-3 text-xs font-semibold text-text-primary bg-accent/10 border border-[#C8E64A]/30 p-2.5 rounded-lg">
                     <span className="uppercase text-[9px] font-bold mr-1 bg-black text-white px-1.5 py-0.5 rounded">MATCH</span>
                     {startup.matchReason}
                   </div>
                 )}
                 {startup.sourceType === 'web_search' && (
-                  <div className="w-full mt-3 text-xs font-semibold text-gray-800 bg-sky-50 border border-sky-200 p-2.5 rounded-lg">
+                  <div className="w-full mt-3 text-xs font-semibold text-text-primary bg-sky-50 border border-sky-200 p-2.5 rounded-lg">
                     <span className="uppercase text-[9px] font-bold mr-1 bg-sky-600 text-white px-1.5 py-0.5 rounded">WEB</span>
                     Live startup search result
                   </div>
                 )}
                 {search.trim() && startup.searchScore > 0 && (
-                  <div className="w-full mt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-gray-400">
+                  <div className="w-full mt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-text-muted">
                     Search relevance {startup.searchScore}
                   </div>
                 )}
@@ -281,10 +281,10 @@ export default function Explore({ user, founderProfile }) {
             </StartupCardWrapper>
           ))}
           {startups.length === 0 && (
-            <div className="col-span-full border border-dashed border-gray-300 p-16 text-center bg-white rounded-2xl select-none">
-              <span className="block text-[9px] font-bold uppercase text-gray-400 mb-2 tracking-wider">ECOSYSTEM EXPLORER</span>
+            <div className="col-span-full border border-dashed border-DEFAULT p-16 text-center bg-card rounded-2xl select-none">
+              <span className="block text-[9px] font-bold uppercase text-text-muted mb-2 tracking-wider">ECOSYSTEM EXPLORER</span>
               <h4 className="font-outfit font-bold text-lg text-black mb-1">No Startups Found</h4>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
+              <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
                 Try another keyword, or broaden the stage filter to search across more of the mapped ecosystem.
               </p>
             </div>
@@ -295,31 +295,31 @@ export default function Explore({ user, founderProfile }) {
           {filteredPeople.map(person => (
             <div 
               key={person.id}
-              className="os-card bg-white flex items-center gap-4 p-5 hover:border-black transition-all"
+              className="os-card bg-card flex items-center gap-4 p-5 hover:border-DEFAULT transition-all"
             >
               <div className="w-12 h-12 bg-black text-[#C8E64A] rounded-full flex items-center justify-center font-outfit font-black text-lg shrink-0">
                 {(person.name || 'A')[0].toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="font-outfit font-bold text-base text-[#111] truncate leading-snug">{person.name || 'Anonymous User'}</h3>
-                <span className="bg-gray-50 border border-gray-200 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-gray-500 inline-block mt-1">
+                <h3 className="font-outfit font-bold text-base text-text-primary truncate leading-snug">{person.name || 'Anonymous User'}</h3>
+                <span className="bg-hover border border-light px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-text-secondary inline-block mt-1">
                   {person.role || 'Member'}
                 </span>
               </div>
               <button 
                 onClick={() => handleConnect(person.id)}
                 disabled={person.requested || matchingId === person.id}
-                className="ml-auto os-btn bg-[#FAF9F6] border-gray-200 hover:border-black text-xs font-semibold py-1.5"
+                className="ml-auto os-btn bg-canvas border-light hover:border-DEFAULT text-xs font-semibold py-1.5"
               >
                 {person.requested ? 'Sent' : (matchingId === person.id ? '...' : 'Connect')}
               </button>
             </div>
           ))}
           {filteredPeople.length === 0 && (
-            <div className="col-span-full border border-dashed border-gray-300 p-16 text-center bg-white rounded-2xl select-none">
-              <span className="block text-[9px] font-bold uppercase text-gray-400 mb-2 tracking-wider">ECOSYSTEM REGISTRY</span>
+            <div className="col-span-full border border-dashed border-DEFAULT p-16 text-center bg-card rounded-2xl select-none">
+              <span className="block text-[9px] font-bold uppercase text-text-muted mb-2 tracking-wider">ECOSYSTEM REGISTRY</span>
               <h4 className="font-outfit font-bold text-lg text-black mb-1">No Members Found</h4>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
+              <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
                 Try searching for other keywords, or build consensus by initiating outbound partnership invites.
               </p>
             </div>

@@ -21,7 +21,7 @@ export default function BetaBanner() {
   return (
     <div className="w-full bg-[#1A1A1A] text-white py-2 px-4 text-xs font-medium select-none flex items-center justify-between z-55 sticky top-0 border-b border-gray-800">
       <div className="flex-1 flex items-center justify-center gap-2 text-center">
-        <span className="bg-accent text-black text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider scale-90 flex-shrink-0">
+        <span className="bg-accent text-[#111] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider scale-90 flex-shrink-0">
           Beta OS
         </span>
         <span className="text-gray-300">
@@ -38,7 +38,7 @@ export default function BetaBanner() {
       </div>
       <button 
         onClick={handleDismiss} 
-        className="text-gray-400 hover:text-white transition-colors cursor-pointer p-0.5 rounded hover:bg-gray-800 flex-shrink-0"
+        className="text-text-muted hover:text-white transition-colors cursor-pointer p-0.5 rounded hover:bg-gray-800 flex-shrink-0"
         aria-label="Dismiss banner"
       >
         <X size={14} />

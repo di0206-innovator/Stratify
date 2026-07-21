@@ -74,18 +74,18 @@ export default function InstitutionDashboard({ founderProfile, user }) {
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-10 space-y-8 animate-fade-in relative">
       {/* Header Area */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-gray-200/60">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-light">
         <div>
           <div className="flex items-center gap-3 mb-2.5">
-            <span className="px-2.5 py-1 bg-[#C8E64A]/15 border border-[#C8E64A]/30 text-[#111] text-[10px] font-bold uppercase rounded tracking-wider font-outfit">
+            <span className="px-2.5 py-1 bg-accent/15 border border-[#C8E64A]/30 text-text-primary text-[10px] font-bold uppercase rounded tracking-wider font-outfit">
               Institution OS
             </span>
-            <span className="text-xs font-semibold text-gray-400">Ecosystem Health: Nominal</span>
+            <span className="text-xs font-semibold text-text-muted">Ecosystem Health: Nominal</span>
           </div>
-          <h1 className="text-3xl font-outfit font-black tracking-tight text-[#111]">
+          <h1 className="text-3xl font-outfit font-black tracking-tight text-text-primary">
             {founderProfile.name}
           </h1>
-          <p className="text-gray-500 mt-2 max-w-xl text-sm leading-relaxed">
+          <p className="text-text-secondary mt-2 max-w-xl text-sm leading-relaxed">
             Monitor regional startup health, distribute grants, and track ecosystem signals for {founderProfile.geography || 'your mandate region'}.
           </p>
         </div>
@@ -104,30 +104,30 @@ export default function InstitutionDashboard({ founderProfile, user }) {
 
       {/* Stats Metric Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 select-none">
-        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+        <div className="os-card bg-card p-6 flex items-center justify-between shadow-sm">
           <div>
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Mandate Region Score</p>
-            <h3 className="text-3xl font-outfit font-black text-[#111]">84% <span className="text-xs text-gray-400 font-light">Average</span></h3>
+            <p className="text-[10px] font-black uppercase text-text-muted tracking-wider mb-1">Mandate Region Score</p>
+            <h3 className="text-3xl font-outfit font-black text-text-primary">84% <span className="text-xs text-text-muted font-light">Average</span></h3>
           </div>
-          <div className="w-10 h-10 rounded-full bg-[#C8E64A]/10 border border-[#C8E64A]/30 flex items-center justify-center text-[#111]">
+          <div className="w-10 h-10 rounded-full bg-accent/10 border border-[#C8E64A]/30 flex items-center justify-center text-text-primary">
             <Activity size={18} />
           </div>
         </div>
 
-        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+        <div className="os-card bg-card p-6 flex items-center justify-between shadow-sm">
           <div>
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Deployed Programs</p>
-            <h3 className="text-3xl font-outfit font-black text-[#111]">{govSchemes.length} <span className="text-xs text-gray-400 font-light">Active</span></h3>
+            <p className="text-[10px] font-black uppercase text-text-muted tracking-wider mb-1">Deployed Programs</p>
+            <h3 className="text-3xl font-outfit font-black text-text-primary">{govSchemes.length} <span className="text-xs text-text-muted font-light">Active</span></h3>
           </div>
           <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
             <Building size={18} />
           </div>
         </div>
 
-        <div className="os-card bg-white p-6 flex items-center justify-between shadow-sm">
+        <div className="os-card bg-card p-6 flex items-center justify-between shadow-sm">
           <div>
-            <p className="text-[10px] font-black uppercase text-gray-400 tracking-wider mb-1">Ecosystem Grants Deployed</p>
-            <h3 className="text-3xl font-outfit font-black text-[#111]">$4.5M <span className="text-xs text-gray-400 font-light">Allocated</span></h3>
+            <p className="text-[10px] font-black uppercase text-text-muted tracking-wider mb-1">Ecosystem Grants Deployed</p>
+            <h3 className="text-3xl font-outfit font-black text-text-primary">$4.5M <span className="text-xs text-text-muted font-light">Allocated</span></h3>
           </div>
           <div className="w-10 h-10 rounded-full bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-600">
             <FileText size={18} />
@@ -146,18 +146,18 @@ export default function InstitutionDashboard({ founderProfile, user }) {
             </div>
             <div className="relative z-10">
               <h3 className="font-outfit font-bold text-lg mb-1.5 text-white">Compliance & Audit</h3>
-              <p className="text-gray-400 text-xs mb-6 max-w-[200px] leading-relaxed">
+              <p className="text-text-muted text-xs mb-6 max-w-[200px] leading-relaxed">
                 Run automated eligibility checks on regional startups.
               </p>
-              <Link to="/intelligence" className="inline-flex items-center gap-2 px-4 py-2 bg-[#C8E64A] text-[#111] font-semibold text-xs rounded hover:bg-[#B5D235] transition-colors shadow-sm">
+              <Link to="/intelligence" className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-[#111] font-semibold text-xs rounded hover:bg-accent-hover transition-colors shadow-sm">
                 Run Audit <ArrowRight size={14} />
               </Link>
             </div>
           </div>
 
           <div className="os-card p-0 overflow-hidden flex flex-col">
-            <div className="bg-[#FAF9F6] px-4 py-3.5 border-b border-gray-200/60 flex items-center gap-2">
-              <Building size={16} className="text-gray-400" />
+            <div className="bg-canvas px-4 py-3.5 border-b border-light flex items-center gap-2">
+              <Building size={16} className="text-text-muted" />
               <h3 className="font-outfit font-bold text-sm">Institution Modules</h3>
             </div>
             <div className="divide-y divide-gray-200/60">
@@ -171,10 +171,10 @@ export default function InstitutionDashboard({ founderProfile, user }) {
         {/* Right Column: Active Grants & Programs */}
         <div className="lg:col-span-2 space-y-6">
           <div className="os-card min-h-[400px] flex flex-col">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-3 border-b border-gray-200/60">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-3 border-b border-light">
               <div className="flex items-center gap-2">
-                <FileText size={16} className="text-gray-400" />
-                <h3 className="font-outfit font-bold text-base text-[#111]">Active Programs & Grants ({filteredSchemes.length})</h3>
+                <FileText size={16} className="text-text-muted" />
+                <h3 className="font-outfit font-bold text-base text-text-primary">Active Programs & Grants ({filteredSchemes.length})</h3>
               </div>
               <div className="flex items-center gap-3">
                 <input 
@@ -186,7 +186,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
                 />
                 <button 
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="text-xs text-gray-500 hover:text-gray-900 font-semibold hover:underline whitespace-nowrap"
+                  className="text-xs text-text-secondary hover:text-text-primary font-semibold hover:underline whitespace-nowrap"
                 >
                   + New Program
                 </button>
@@ -200,16 +200,16 @@ export default function InstitutionDashboard({ founderProfile, user }) {
             ) : filteredSchemes.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredSchemes.map(scheme => (
-                  <div key={scheme.id} className="border border-gray-250 rounded-lg p-5 hover:border-black transition-colors cursor-pointer bg-white flex flex-col justify-between group shadow-sm">
+                  <div key={scheme.id} className="border border-gray-250 rounded-lg p-5 hover:border-DEFAULT transition-colors cursor-pointer bg-card flex flex-col justify-between group shadow-sm">
                     <div>
-                      <h4 className="font-outfit font-bold text-sm mb-2 text-[#111] group-hover:text-black leading-snug">{scheme.name || scheme.title}</h4>
-                      <p className="text-xs text-gray-500 line-clamp-3 mb-4 leading-relaxed font-light">{scheme.description}</p>
+                      <h4 className="font-outfit font-bold text-sm mb-2 text-text-primary group-hover:text-text-primary leading-snug">{scheme.name || scheme.title}</h4>
+                      <p className="text-xs text-text-secondary line-clamp-3 mb-4 leading-relaxed font-light">{scheme.description}</p>
                     </div>
                     <div className="flex flex-wrap gap-1.5 pt-3 border-t border-gray-100">
-                      <span className="px-2.5 py-0.5 bg-[#C8E64A]/25 border border-[#C8E64A]/40 text-black text-[9px] font-black uppercase rounded-md">
+                      <span className="px-2.5 py-0.5 bg-accent/25 border border-[#C8E64A]/40 text-black text-[9px] font-black uppercase rounded-md">
                         {scheme.incentive || scheme.budget}
                       </span>
-                      <span className="px-2 py-0.5 bg-gray-50 border border-gray-200 text-gray-500 text-[9px] font-bold uppercase rounded-md flex items-center gap-1">
+                      <span className="px-2 py-0.5 bg-hover border border-light text-text-secondary text-[9px] font-bold uppercase rounded-md flex items-center gap-1">
                         <MapPin size={8} /> {scheme.geography}
                       </span>
                     </div>
@@ -219,10 +219,10 @@ export default function InstitutionDashboard({ founderProfile, user }) {
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                  <Building size={20} className="text-gray-400" />
+                  <Building size={20} className="text-text-muted" />
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-1">No Active Grants</h4>
-                <p className="text-xs text-gray-500 max-w-sm mb-5 leading-relaxed">
+                <h4 className="font-semibold text-text-primary mb-1">No Active Grants</h4>
+                <p className="text-xs text-text-secondary max-w-sm mb-5 leading-relaxed">
                   Deploy programs or adjust your search filter to find regional programs.
                 </p>
                 <button onClick={() => setIsCreateModalOpen(true)} className="os-btn">
@@ -237,15 +237,15 @@ export default function InstitutionDashboard({ founderProfile, user }) {
       {/* Deploy Program Modal */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4">
-          <div className="bg-white border border-gray-200 shadow-2xl rounded-2xl w-full max-w-lg overflow-hidden animate-slide-up">
-            <div className="bg-[#FAF9F6] border-b border-gray-200 px-6 py-4 flex items-center justify-between select-none">
+          <div className="bg-card border border-light shadow-2xl rounded-2xl w-full max-w-lg overflow-hidden animate-slide-up">
+            <div className="bg-canvas border-b border-light px-6 py-4 flex items-center justify-between select-none">
               <div className="flex items-center gap-2">
-                <Landmark className="text-gray-500" size={18} />
+                <Landmark className="text-text-secondary" size={18} />
                 <h3 className="font-outfit font-black text-sm uppercase tracking-wide">Deploy New Grant Program</h3>
               </div>
               <button 
                 onClick={() => setIsCreateModalOpen(false)}
-                className="text-gray-400 hover:text-black transition-colors cursor-pointer"
+                className="text-text-muted hover:text-text-primary transition-colors cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -253,7 +253,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
             
             <form onSubmit={handleCreateProgram} className="p-6 space-y-4">
               <div>
-                <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Program Name *</label>
+                <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Program Name *</label>
                 <input 
                   type="text" 
                   required
@@ -265,7 +265,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Description & Scope *</label>
+                <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Description & Scope *</label>
                 <textarea 
                   required
                   rows={3}
@@ -278,7 +278,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Incentive / Budget *</label>
+                  <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Incentive / Budget *</label>
                   <input 
                     type="text" 
                     required
@@ -289,7 +289,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">Geography Mandate</label>
+                  <label className="block text-[10px] font-black uppercase text-text-secondary tracking-wider mb-1.5">Geography Mandate</label>
                   <input 
                     type="text" 
                     placeholder="e.g. India, EU, Global"
@@ -304,13 +304,13 @@ export default function InstitutionDashboard({ founderProfile, user }) {
                 <button 
                   type="button" 
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 bg-white border border-gray-250 text-gray-650 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:border-black cursor-pointer"
+                  className="px-4 py-2 bg-card border border-gray-250 text-gray-650 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:border-DEFAULT cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
-                  className="px-5 py-2 bg-[#C8E64A] text-black border-0 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-[#B5D235] cursor-pointer shadow-sm"
+                  className="px-5 py-2 bg-accent text-[#111] border-0 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg hover:bg-accent-hover cursor-pointer shadow-sm"
                 >
                   Deploy Program
                 </button>
@@ -325,13 +325,13 @@ export default function InstitutionDashboard({ founderProfile, user }) {
 
 function ModuleLink({ to, icon: Icon, title, desc }) {
   return (
-    <Link to={to} className="group flex items-start gap-4 p-4 hover:bg-gray-100/50 transition-colors">
-      <div className="p-2 bg-white border border-gray-200 rounded-lg text-gray-400 group-hover:text-black group-hover:border-black transition-colors">
+    <Link to={to} className="group flex items-start gap-4 p-4 hover:bg-hover transition-colors">
+      <div className="p-2 bg-card border border-light rounded-lg text-text-muted group-hover:text-text-primary group-hover:border-DEFAULT transition-colors">
         <Icon size={16} />
       </div>
       <div className="flex-1">
-        <h4 className="font-semibold text-sm text-gray-900 mb-0.5 group-hover:text-black transition-colors">{title}</h4>
-        <p className="text-xs text-gray-500">{desc}</p>
+        <h4 className="font-semibold text-sm text-text-primary mb-0.5 group-hover:text-text-primary transition-colors">{title}</h4>
+        <p className="text-xs text-text-secondary">{desc}</p>
       </div>
     </Link>
   );
