@@ -130,6 +130,12 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
 
   return (
     <header className="w-full bg-canvas border-b border-DEFAULT sticky top-12 z-50">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:p-3 focus:bg-accent focus:text-black focus:font-bold focus:rounded-md"
+      >
+        Skip to main content
+      </a>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-16 py-3 flex flex-wrap items-center justify-between gap-4">
         {/* Brand */}
         <Link to="/dashboard" className="flex items-center gap-2.5 flex-shrink-0 cursor-pointer">

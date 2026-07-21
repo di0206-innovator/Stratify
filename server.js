@@ -1795,7 +1795,8 @@ Return EXACTLY a valid JSON object matching the following structure and no other
     });
 
     // Runway AI Scenario Simulator (optionalAuth — simulation is a stateless calculation, no user data exposed)
-    app.post('/api/runway/simulate', optionalAuth, async (req, res, next) => {
+    const runwayLimiter = buildLimiter(60_000, 15);
+    app.post('/api/runway/simulate', runwayLimiter, optionalAuth, async (req, res, next) => {
         try {
             const { scenarioText } = req.body || {};
             const cash = Number(req.body?.cash || 0);
