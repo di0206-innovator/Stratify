@@ -5,6 +5,8 @@ if (dns.setDefaultResultOrder) {
 
 require('dotenv').config();
 
+const Sentry = require('@sentry/node');
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -261,8 +263,24 @@ async function searchStartupCompaniesOnWeb(query, { limit = 8, fetchImpl = fetch
 }
 
 function createApp(options = {}) {
-    const app = express();
     const appConfig = options.config || config;
+
+    if (process.env.SENTRY_DSN || appConfig.sentryDsn) {
+        Sentry.init({
+            dsn: process.env.SENTRY_DSN || appConfig.sentryDsn,
+            environment: appConfig.nodeEnv || 'development',
+            tracesSampleRate: 1.0
+        });
+    }
+
+    const app = express();
+
+    if (process.env.SENTRY_DSN || appConfig.sentryDsn) {
+        if (Sentry.Handlers && Sentry.Handlers.requestHandler) {
+            app.use(Sentry.Handlers.requestHandler());
+            app.use(Sentry.Handlers.tracingHandler());
+        }
+    }
     if (appConfig.nodeEnv === 'test') {
         process.env.NODE_ENV = 'test';
     }
@@ -304,14 +322,16 @@ function createApp(options = {}) {
         });
     }
 
-    const authStore = options.authStore || new FileAuthStore({
-        filePath: appConfig.authStorePath || getWritableDataPath('auth.json')
-    });
+    let authStore = options.authStore;
 
     if (USE_PG && !options.authService) {
         authService = new PgAuthService({ config: appConfig, logger, redis });
+        authStore = authStore || authService;
         logger.info('Using PostgreSQL auth service');
     } else {
+        authStore = authStore || new FileAuthStore({
+            filePath: appConfig.authStorePath || getWritableDataPath('auth.json')
+        });
         authService = options.authService || new AuthService({ store: authStore, config: appConfig, logger });
         logger.info('Using file-based auth service');
     }
@@ -415,6 +435,11 @@ function createApp(options = {}) {
     }));
 
     app.use(express.json({ limit: appConfig.jsonBodyLimit }));
+
+    // Global API Rate Limiting (200 requests per minute per IP)
+    const globalApiLimiter = buildLimiter(60_000, 200);
+    app.use('/api', globalApiLimiter);
+
     app.use(express.static(path.join(__dirname, 'dist'), {
         extensions: ['html'],
         maxAge: appConfig.nodeEnv === 'production' ? '1h' : 0,
@@ -1893,11 +1918,21 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
     // Get specific brief (with whitelist validation)
     app.get('/api/briefs/:id', optionalAuth, async (req, res, next) => {
         try {
-            const briefs = await readBriefs();
-            const brief = briefs.find(b => b.id === req.params.id);
-            if (!brief) {
+            const rawBrief = await startupStore.getBrief(req.params.id);
+            if (!rawBrief) {
                 throw new HttpError(404, 'NOT_FOUND', 'Strategic brief not found.');
             }
+
+            let parsed = {};
+            try { parsed = JSON.parse(rawBrief.content); } catch (e) {}
+
+            const brief = {
+                id: rawBrief.id,
+                startupId: rawBrief.startupId || rawBrief.startup_id,
+                title: rawBrief.title,
+                ...parsed,
+                createdAt: rawBrief.createdAt || rawBrief.created_at
+            };
 
             // Authorization check
             if (!brief.isPublic) {
@@ -2305,6 +2340,14 @@ Respond ONLY with a valid JSON object matching this schema (do not wrap in markd
     app.use((req, res, next) => {
         next(new HttpError(404, 'ROUTE_NOT_FOUND', 'Route not found.'));
     });
+
+    if (process.env.SENTRY_DSN || appConfig.sentryDsn) {
+        if (Sentry.Handlers && Sentry.Handlers.errorHandler) {
+            app.use(Sentry.Handlers.errorHandler());
+        } else if (Sentry.setupExpressErrorHandler) {
+            Sentry.setupExpressErrorHandler(app);
+        }
+    }
 
     app.use((err, req, res, next) => {
         if (err && err.type === 'entity.too.large') {

@@ -199,6 +199,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 }}
                 aria-expanded={activeDropdown === 'execution'}
                 aria-haspopup="menu"
+                aria-label="Toggle execution dropdown"
                 className={`p-2 -ml-1 text-xs font-semibold transition-colors flex items-center cursor-pointer ${
                   executionItems.some(item => location.pathname === item.path)
                     ? 'text-black'
@@ -249,6 +250,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               }}
               aria-expanded={activeDropdown === 'intel'}
               aria-haspopup="menu"
+              aria-label="Toggle intel and memory dropdown"
               className={`p-2 -ml-1 text-xs font-semibold transition-colors flex items-center cursor-pointer ${
                 intelItems.some(item => location.pathname === item.path)
                   ? 'text-black'
@@ -292,6 +294,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 }}
                 aria-expanded={isProfileDropdownOpen}
                 aria-haspopup="menu"
+                aria-label="Toggle profile menu"
                 className="flex items-center gap-2 p-1 rounded-full border border-gray-200 hover:border-black bg-white transition-all cursor-pointer shadow-sm select-none"
               >
                 <div className="w-8 h-8 rounded-full bg-[#1A1A1A] text-[#C8E64A] flex items-center justify-center font-outfit font-black text-xs uppercase shadow-sm">

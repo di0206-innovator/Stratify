@@ -53,3 +53,47 @@ test('LockManager allows parallel acquisitions on different keys', async () => {
     assert.equal(order.indexOf('start-2') > -1, true);
     assert.equal(order.indexOf('end-2') < order.indexOf('end-1'), true);
 });
+
+test('LockManager serializes multi-process access using atomic lockfiles', async () => {
+    const lock = new LockManager();
+    const fs = require('fs/promises');
+    const path = require('path');
+    
+    const key = path.join(__dirname, 'test-process-lock-file.json');
+    const lockFilePath = `${key}.lock`;
+    
+    // Ensure clean start (no stale lockfile)
+    try {
+        await fs.unlink(lockFilePath);
+    } catch (err) {}
+
+    // 1. Manually create the lock file to simulate another process holding the lock
+    await fs.writeFile(lockFilePath, 'held-by-external-process');
+
+    const start = Date.now();
+    let lockAcquired = false;
+
+    // 2. Try to acquire the lock in a promise (it should block and wait)
+    const acquirePromise = lock.acquire(key).then((release) => {
+        lockAcquired = true;
+        return release;
+    });
+
+    // Let the acquire attempt run and get blocked
+    await new Promise(r => setTimeout(r, 150));
+    assert.equal(lockAcquired, false, 'Lock acquisition should be blocked by existing lockfile');
+
+    // 3. Delete the lockfile manually to simulate the other process releasing it
+    await fs.unlink(lockFilePath);
+
+    // 4. The acquire promise should resolve now
+    const release = await acquirePromise;
+    assert.equal(lockAcquired, true, 'Lock should be successfully acquired once lockfile is deleted');
+
+    // Clean up
+    await release();
+    
+    // Check that lockfile was unlinked by release
+    const exists = await fs.access(lockFilePath).then(() => true).catch(() => false);
+    assert.equal(exists, false, 'Lockfile should be unlinked upon release');
+});

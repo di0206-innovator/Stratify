@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Zap, ShieldAlert, Award, Play } from 'lucide-react';
 import useRealtime from '../lib/useRealtime';
 
@@ -8,7 +8,7 @@ const FALLBACK_TICKER_ITEMS = [
   { id: 'fallback-3', text: 'New founder posts, discoveries, and programs stream into this wire in real time.', type: 'milestone' }
 ];
 
-export default function RealtimeTicker() {
+const RealtimeTicker = memo(function RealtimeTicker() {
   const [tickerItems, setTickerItems] = useState(FALLBACK_TICKER_ITEMS);
 
   const [highlightedId, setHighlightedId] = useState(null);
@@ -234,4 +234,6 @@ export default function RealtimeTicker() {
       </div>
     </>
   );
-}
+});
+
+export default RealtimeTicker;
