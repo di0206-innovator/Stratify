@@ -88,12 +88,12 @@ const RealtimeTicker = memo(function RealtimeTicker() {
   const getItemStyle = (type) => {
     switch (type) {
       case 'bounty':
-        return 'bg-amber-500/10 border-amber-500/20 text-amber-600';
+        return 'bg-amber-500/100/10 border-amber-500/20 text-amber-500';
       case 'funding':
       case 'news':
         return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600';
       case 'milestone':
-        return 'bg-accent/20 border-[#C8E64A]/30 text-black';
+        return 'bg-accent/20 border-[#C8E64A]/30 text-text-primary';
       case 'regulation':
       case 'signal':
         return 'bg-rose-500/10 border-rose-500/20 text-rose-600';
@@ -110,7 +110,7 @@ const RealtimeTicker = memo(function RealtimeTicker() {
       case 'signal':
         return <ShieldAlert size={10} className="fill-rose-500 text-rose-500 shrink-0" />;
       case 'milestone':
-        return <Award size={10} className="fill-[#C8E64A] text-black shrink-0" />;
+        return <Award size={10} className="fill-[#C8E64A] text-text-primary shrink-0" />;
       default:
         return <Play size={8} className="fill-current shrink-0" />;
     }

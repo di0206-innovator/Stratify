@@ -28,14 +28,14 @@ export default function Privacy() {
         </p>
 
         <section className="space-y-3">
-          <h2 className="font-outfit font-bold text-black text-lg uppercase select-none">1. Information We Collect</h2>
+          <h2 className="font-outfit font-bold text-text-primary text-lg uppercase select-none">1. Information We Collect</h2>
           <p>
             We collect information that you explicitly provide when registering an account, onboarding a startup, logging decisions in the Founder Memory strategically, or generating business intelligence reports. This includes founder profiles, target customer definitions, financial projections, team constraints, and PR links.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-outfit font-bold text-black text-lg uppercase select-none">2. How We Use Data</h2>
+          <h2 className="font-outfit font-bold text-text-primary text-lg uppercase select-none">2. How We Use Data</h2>
           <p>
             Your startup intelligence data is used to:
           </p>
@@ -48,14 +48,14 @@ export default function Privacy() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-outfit font-bold text-black text-lg uppercase select-none">3. Security and Grounding Moat</h2>
+          <h2 className="font-outfit font-bold text-text-primary text-lg uppercase select-none">3. Security and Grounding Moat</h2>
           <p>
             Security is built into our core graph architecture. We leverage Postgres parameterized transactions, encrypted session controls, and role-based permissions (Admins, Founders, Investors) to guarantee zero leakage. Whitelisted data rooms ensure your runway and burn estimates are only shared with authorized entities you approve.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-outfit font-bold text-black text-lg uppercase select-none">4. Data Subject Rights</h2>
+          <h2 className="font-outfit font-bold text-text-primary text-lg uppercase select-none">4. Data Subject Rights</h2>
           <p>
             You retain absolute ownership of all logged data rooms, milestones, and strategic briefs. You may delete, edit, or clear your startup profile registry at any time directly through your OS settings dashboard.
           </p>

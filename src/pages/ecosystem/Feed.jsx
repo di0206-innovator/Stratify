@@ -166,11 +166,11 @@ export default function Feed({ user, founderProfile }) {
   const getPostTypeStyle = (type) => {
     switch (type) {
       case 'milestone':
-        return 'bg-accent/20 border-[#C8E64A]/30 text-black';
+        return 'bg-accent/20 border-[#C8E64A]/30 text-text-primary';
       case 'launch':
-        return 'bg-accent/20 border-[#C8E64A]/30 text-black';
+        return 'bg-accent/20 border-[#C8E64A]/30 text-text-primary';
       case 'update':
-        return 'bg-hover border-light text-gray-550';
+        return 'bg-hover border-light text-text-secondary';
       default:
         return 'bg-hover border-light text-text-secondary';
     }
@@ -234,7 +234,7 @@ export default function Feed({ user, founderProfile }) {
                 <div className="border border-gray-800 p-3.5 bg-black text-green-400 font-mono text-[10px] select-text space-y-1 rounded-xl text-left mb-3">
                   <div className="flex items-center justify-between border-b border-green-950 pb-1 mb-2">
                     <span className="text-[9px] uppercase tracking-wider font-bold">Verification Agent Console</span>
-                    {verifying && <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>}
+                    {verifying && <span className="w-2 h-2 bg-green-500/100 rounded-full animate-ping"></span>}
                   </div>
                   {verificationLogs.map((log, idx) => (
                     <div key={idx} className="leading-relaxed">
@@ -255,7 +255,7 @@ export default function Feed({ user, founderProfile }) {
                 className={`px-3 py-1.5 border font-outfit font-bold text-xs uppercase tracking-wider cursor-pointer transition-all rounded-lg ${
                   postType === 'post' 
                     ? 'bg-black border-black text-white shadow-sm' 
-                    : 'bg-card border-gray-250 text-gray-550 hover:border-DEFAULT'
+                    : 'bg-card border-gray-250 text-text-secondary hover:border-DEFAULT'
                 }`}
               >
                 Simple Post
@@ -265,8 +265,8 @@ export default function Feed({ user, founderProfile }) {
                 onClick={() => setPostType('update')}
                 className={`px-3 py-1.5 border font-outfit font-bold text-xs uppercase tracking-wider cursor-pointer transition-all rounded-lg ${
                   postType === 'update' 
-                    ? 'bg-accent border-transparent text-black shadow-sm' 
-                    : 'bg-card border-gray-250 text-gray-550 hover:border-DEFAULT'
+                    ? 'bg-accent border-transparent text-text-primary shadow-sm' 
+                    : 'bg-card border-gray-250 text-text-secondary hover:border-DEFAULT'
                 }`}
               >
                 Progress Log
@@ -276,8 +276,8 @@ export default function Feed({ user, founderProfile }) {
                 onClick={() => setPostType('milestone')}
                 className={`px-3 py-1.5 border font-outfit font-bold text-xs uppercase tracking-wider cursor-pointer transition-all rounded-lg ${
                   postType === 'milestone' 
-                    ? 'bg-accent/25 border-transparent text-black shadow-sm' 
-                    : 'bg-card border-gray-250 text-gray-550 hover:border-DEFAULT'
+                    ? 'bg-accent/25 border-transparent text-text-primary shadow-sm' 
+                    : 'bg-card border-gray-250 text-text-secondary hover:border-DEFAULT'
                 }`}
               >
                 ★ Milestone (+15 Score)
@@ -287,8 +287,8 @@ export default function Feed({ user, founderProfile }) {
                 onClick={() => setPostType('launch')}
                 className={`px-3 py-1.5 border font-outfit font-bold text-xs uppercase tracking-wider cursor-pointer transition-all rounded-lg ${
                   postType === 'launch' 
-                    ? 'bg-accent border-transparent text-black shadow-sm' 
-                    : 'bg-card border-gray-250 text-gray-550 hover:border-DEFAULT'
+                    ? 'bg-accent border-transparent text-text-primary shadow-sm' 
+                    : 'bg-card border-gray-250 text-text-secondary hover:border-DEFAULT'
                 }`}
               >
                 🚀 Product Launch
@@ -307,15 +307,15 @@ export default function Feed({ user, founderProfile }) {
 
           {/* Error display */}
           {postError && (
-            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-xs font-semibold text-red-600">
+            <div className="mt-3 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-xs font-semibold text-red-500">
               {postError}
             </div>
           )}
 
           {/* Sync confirmation */}
           {syncedToIntel && (
-            <div className="mt-3 p-3 bg-accent/15 border border-[#C8E64A]/40 rounded-lg flex items-center gap-2 text-xs font-semibold text-black animate-slide-up">
-              <CheckCircle2 size={14} className="text-green-600 shrink-0" />
+            <div className="mt-3 p-3 bg-accent/15 border border-[#C8E64A]/40 rounded-lg flex items-center gap-2 text-xs font-semibold text-text-primary animate-slide-up">
+              <CheckCircle2 size={14} className="text-green-500 shrink-0" />
               Post published! <strong>Auto-synced to Intel & Memory</strong> — view it in Founder Memory.
             </div>
           )}
@@ -352,7 +352,7 @@ export default function Feed({ user, founderProfile }) {
                   {post.startupName ? post.startupName.slice(0, 2).toUpperCase() : 'FD'}
                 </div>
                 <div>
-                  <h4 className="font-outfit font-bold text-sm text-black leading-snug">
+                  <h4 className="font-outfit font-bold text-sm text-text-primary leading-snug">
                     {post.startupName}
                   </h4>
                   <span className="block text-[10px] font-bold text-text-muted uppercase mt-0.5">
@@ -369,14 +369,14 @@ export default function Feed({ user, founderProfile }) {
               {/* Proof of Work Link */}
               {post.metadata?.powUrl && (
                 <div className="mb-4 flex items-center gap-2 select-none">
-                  <span className="bg-green-50 border border-green-200 text-green-700 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md flex items-center gap-1">
+                  <span className="bg-green-500/10 border border-green-500/30 text-green-500 px-2 py-0.5 text-[9px] font-bold uppercase rounded-md flex items-center gap-1">
                     <CheckCircle2 size={10} /> POW VERIFIED
                   </span>
                   <a
                     href={post.metadata.powUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[10px] font-semibold uppercase text-gray-450 hover:text-text-primary border-b border-transparent hover:border-DEFAULT flex items-center gap-1 transition-all"
+                    className="text-[10px] font-semibold uppercase text-text-muted hover:text-text-primary border-b border-transparent hover:border-DEFAULT flex items-center gap-1 transition-all"
                   >
                     <span>View Proof Source</span>
                     <ExternalLink size={10} />
@@ -385,7 +385,7 @@ export default function Feed({ user, founderProfile }) {
               )}
 
               {/* Interaction Details */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100 text-text-muted select-none">
+              <div className="flex items-center justify-between pt-4 border-t border-light text-text-muted select-none">
                 <div className="flex items-center gap-4">
                   <button
                     onClick={() => handleClap(post.id)}

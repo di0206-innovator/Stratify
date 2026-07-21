@@ -8,14 +8,14 @@ import {
 import AuthGate from '../../components/AuthGate';
 
 const EVENT_CONFIG = {
-  milestone: { icon: Award, color: 'bg-accent/20 text-black border-[#C8E64A]/40', label: 'Milestone' },
-  launch: { icon: Zap, color: 'bg-accent/20 text-black border-[#C8E64A]/40', label: 'Launch' },
-  decision: { icon: Target, color: 'bg-gray-100 text-text-primary border-gray-250', label: 'Decision' },
+  milestone: { icon: Award, color: 'bg-accent/20 text-text-primary border-[#C8E64A]/40', label: 'Milestone' },
+  launch: { icon: Zap, color: 'bg-accent/20 text-text-primary border-[#C8E64A]/40', label: 'Launch' },
+  decision: { icon: Target, color: 'bg-hover text-text-primary border-gray-250', label: 'Decision' },
   post: { icon: MessageSquare, color: 'bg-hover text-text-secondary border-light', label: 'Update' },
-  score_change: { icon: TrendingUp, color: 'bg-accent/25 text-black border-[#C8E64A]/45', label: 'Score' },
+  score_change: { icon: TrendingUp, color: 'bg-accent/25 text-text-primary border-[#C8E64A]/45', label: 'Score' },
   profile_update: { icon: GitCommit, color: 'bg-hover text-text-secondary border-light', label: 'Profile' },
   report_generated: { icon: FileText, color: 'bg-black text-white border-black', label: 'Report' },
-  startup_created: { icon: Sparkles, color: 'bg-accent/20 text-black border-[#C8E64A]/40', label: 'Created' },
+  startup_created: { icon: Sparkles, color: 'bg-accent/20 text-text-primary border-[#C8E64A]/40', label: 'Created' },
 };
 
 export default function Timeline({ founderProfile, user, openAuthModal }) {
@@ -108,7 +108,7 @@ export default function Timeline({ founderProfile, user, openAuthModal }) {
                     <button
                       key={opt.value}
                       onClick={() => { setFilter(opt.value); setShowFilterMenu(false); }}
-                      className={`block w-full text-left px-4 py-2 text-xs font-semibold uppercase hover:bg-hover transition-colors ${filter === opt.value ? 'bg-accent/20 font-bold text-black' : 'text-text-secondary'}`}
+                      className={`block w-full text-left px-4 py-2 text-xs font-semibold uppercase hover:bg-hover transition-colors ${filter === opt.value ? 'bg-accent/20 font-bold text-text-primary' : 'text-text-secondary'}`}
                     >
                       {opt.label}
                     </button>
@@ -133,10 +133,10 @@ export default function Timeline({ founderProfile, user, openAuthModal }) {
           </div>
         ) : events.length === 0 ? (
           <div className="os-card bg-card p-16 text-center space-y-4 max-w-xl mx-auto">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 bg-hover rounded-full flex items-center justify-center mx-auto">
               <Clock size={24} className="text-text-muted" />
             </div>
-            <h3 className="font-outfit font-bold text-lg text-black">
+            <h3 className="font-outfit font-bold text-lg text-text-primary">
               {isEcosystem ? 'No Ecosystem Activity' : 'No Events Yet'}
             </h3>
             <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
@@ -148,7 +148,7 @@ export default function Timeline({ founderProfile, user, openAuthModal }) {
         ) : (
           <div className="relative">
             {/* Vertical line */}
-            <div className="absolute left-6 top-2 bottom-0 w-[1.5px] bg-gray-200 hidden md:block" />
+            <div className="absolute left-6 top-2 bottom-0 w-[1.5px] bg-hover hidden md:block" />
 
             <div className="space-y-8">
               {Object.entries(groupedEvents).map(([date, dayEvents]) => (
@@ -182,14 +182,14 @@ export default function Timeline({ founderProfile, user, openAuthModal }) {
                                 </span>
                               </div>
                               {event.description && (
-                                <p className="text-xs font-semibold font-inter text-gray-550 mt-1 leading-relaxed font-light">{event.description}</p>
+                                <p className="text-xs font-semibold font-inter text-text-secondary mt-1 leading-relaxed font-light">{event.description}</p>
                               )}
                               <div className="flex items-center gap-2 mt-3 select-none">
                                 <span className={`${config.color} border px-2 py-0.5 text-[9px] font-bold uppercase rounded-md`}>
                                   {config.label}
                                 </span>
                                 {event.metadata?.delta && (
-                                  <span className="bg-accent/25 border border-[#C8E64A]/30 px-2 py-0.5 text-[9px] font-bold text-black rounded-md">
+                                  <span className="bg-accent/25 border border-[#C8E64A]/30 px-2 py-0.5 text-[9px] font-bold text-text-primary rounded-md">
                                     +{event.metadata.delta} PTS
                                   </span>
                                 )}

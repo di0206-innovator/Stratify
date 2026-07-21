@@ -211,7 +211,7 @@ export default function EquityPlanner() {
                       onChange={(e) => setF2Name(e.target.value)}
                       className="font-outfit font-bold text-xs uppercase bg-transparent focus:outline-none border-b border-[#111] text-text-primary w-2/3"
                     />
-                    <span className="text-[10px] bg-gray-200 text-text-primary px-2 py-0.5 rounded font-bold uppercase">F2</span>
+                    <span className="text-[10px] bg-hover text-text-primary px-2 py-0.5 rounded font-bold uppercase">F2</span>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-4 text-xs">
@@ -243,7 +243,7 @@ export default function EquityPlanner() {
                       onChange={(e) => setF3Name(e.target.value)}
                       className="font-outfit font-bold text-xs uppercase bg-transparent focus:outline-none border-b border-[#111] text-text-primary w-2/3"
                     />
-                    <span className="text-[10px] bg-gray-100 text-text-muted px-2 py-0.5 rounded font-bold uppercase">F3</span>
+                    <span className="text-[10px] bg-hover text-text-muted px-2 py-0.5 rounded font-bold uppercase">F3</span>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-4 text-xs">
@@ -287,30 +287,30 @@ export default function EquityPlanner() {
                 <div className="h-8 flex overflow-hidden rounded-lg">
                   <div style={{ width: `${shares.f1}%` }} className="bg-black h-full transition-all border-r border-[#FAF9F6]/20" title={`${f1Name}: ${shares.f1}%`} />
                   <div style={{ width: `${shares.f2}%` }} className="bg-hover0 h-full transition-all border-r border-[#FAF9F6]/20" title={`${f2Name}: ${shares.f2}%`} />
-                  <div style={{ width: `${shares.f3}%` }} className="bg-gray-200 h-full transition-all" title={`${f3Name}: ${shares.f3}%`} />
+                  <div style={{ width: `${shares.f3}%` }} className="bg-hover h-full transition-all" title={`${f3Name}: ${shares.f3}%`} />
                 </div>
 
                 <div className="space-y-2 text-xs font-bold text-text-primary mt-4">
-                  <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                    <span className="flex items-center gap-1.5 uppercase font-black text-black">
+                  <div className="flex justify-between items-center border-b border-light pb-2">
+                    <span className="flex items-center gap-1.5 uppercase font-black text-text-primary">
                       <span className="w-2.5 h-2.5 bg-black inline-block rounded-sm"></span>
                       {f1Name}
                     </span>
-                    <span className="font-mono text-black">{shares.f1}%</span>
+                    <span className="font-mono text-text-primary">{shares.f1}%</span>
                   </div>
-                  <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                    <span className="flex items-center gap-1.5 uppercase font-black text-black">
+                  <div className="flex justify-between items-center border-b border-light pb-2">
+                    <span className="flex items-center gap-1.5 uppercase font-black text-text-primary">
                       <span className="w-2.5 h-2.5 bg-hover0 inline-block rounded-sm"></span>
                       {f2Name}
                     </span>
-                    <span className="font-mono text-black">{shares.f2}%</span>
+                    <span className="font-mono text-text-primary">{shares.f2}%</span>
                   </div>
                   <div className="flex justify-between items-center pb-1">
-                    <span className="flex items-center gap-1.5 uppercase font-black text-black">
-                      <span className="w-2.5 h-2.5 bg-gray-200 inline-block rounded-sm"></span>
+                    <span className="flex items-center gap-1.5 uppercase font-black text-text-primary">
+                      <span className="w-2.5 h-2.5 bg-hover inline-block rounded-sm"></span>
                       {f3Name}
                     </span>
-                    <span className="font-mono text-black">{shares.f3}%</span>
+                    <span className="font-mono text-text-primary">{shares.f3}%</span>
                   </div>
                 </div>
 
@@ -377,7 +377,7 @@ export default function EquityPlanner() {
                   </span>
                 </div>
 
-                <div className="h-5 border border-light rounded-full flex overflow-hidden bg-gray-100">
+                <div className="h-5 border border-light rounded-full flex overflow-hidden bg-hover">
                   <div style={{ width: `${vestedPercent}%` }} className="bg-accent h-full transition-all" />
                 </div>
 
@@ -393,7 +393,7 @@ export default function EquityPlanner() {
           {briefGenerated && shares && (
             <div className="os-card p-4 bg-canvas border border-[#C8E64A]/30 text-left space-y-2 relative select-text">
               <span className="text-[9px] font-bold uppercase text-[#EF4444] block tracking-wide font-outfit">AGREEMENT BRIEF DRAFT</span>
-              <p className="text-[11px] font-semibold text-text-secondary leading-relaxed font-mono whitespace-pre-line text-black">
+              <p className="text-[11px] font-semibold text-text-secondary leading-relaxed font-mono whitespace-pre-line text-text-primary">
                 {`FOUNDER ACCELERATED VESTING BRIEF
 ---------------------------------------
 Startup Cap Table Division:

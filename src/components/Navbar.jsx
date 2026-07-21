@@ -169,7 +169,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 to={item.path}
                 className={`px-3 py-2 text-left md:text-center text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                   isActive
-                    ? 'text-black border-black font-black'
+                    ? 'text-text-primary border-black font-black'
                     : 'text-text-secondary hover:text-text-primary border-transparent'
                 }`}
               >
@@ -185,7 +185,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 to="/runway"
                 className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                   executionItems.some(item => location.pathname === item.path)
-                    ? 'text-black border-black font-black'
+                    ? 'text-text-primary border-black font-black'
                     : 'text-text-secondary hover:text-text-primary border-transparent'
                 }`}
               >
@@ -202,7 +202,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                 aria-label="Toggle execution dropdown"
                 className={`p-2 -ml-1 text-xs font-semibold transition-colors flex items-center cursor-pointer ${
                   executionItems.some(item => location.pathname === item.path)
-                    ? 'text-black'
+                    ? 'text-text-primary'
                     : 'text-text-secondary hover:text-text-primary'
                 }`}
               >
@@ -218,7 +218,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                         to={item.path}
                         onClick={() => setActiveDropdown(null)}
                         className={`block px-4 py-2 text-xs font-semibold uppercase hover:bg-hover transition-colors ${
-                          isActive ? 'text-black font-black bg-hover' : 'text-text-secondary'
+                          isActive ? 'text-text-primary font-black bg-hover' : 'text-text-secondary'
                         }`}
                       >
                         {item.label}
@@ -236,7 +236,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               to="/intelligence"
               className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                 intelItems.some(item => location.pathname === item.path)
-                  ? 'text-black border-black font-black'
+                  ? 'text-text-primary border-black font-black'
                   : 'text-text-secondary hover:text-text-primary border-transparent'
               }`}
             >
@@ -253,7 +253,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               aria-label="Toggle intel and memory dropdown"
               className={`p-2 -ml-1 text-xs font-semibold transition-colors flex items-center cursor-pointer ${
                 intelItems.some(item => location.pathname === item.path)
-                  ? 'text-black'
+                  ? 'text-text-primary'
                   : 'text-text-secondary hover:text-text-primary'
               }`}
             >
@@ -269,7 +269,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                       to={item.path}
                       onClick={() => setActiveDropdown(null)}
                       className={`block px-4 py-2 text-xs font-semibold uppercase hover:bg-hover transition-colors ${
-                        isActive ? 'text-black font-black bg-hover' : 'text-text-secondary'
+                        isActive ? 'text-text-primary font-black bg-hover' : 'text-text-secondary'
                       }`}
                     >
                       {item.label}
@@ -317,7 +317,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               {isProfileDropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 w-64 bg-card border border-DEFAULT shadow-xl rounded-xl z-[120] py-2 animate-slide-up" onClick={(e) => e.stopPropagation()}>
                   {/* Profile Header */}
-                  <div className="px-4 py-3 border-b border-gray-150">
+                  <div className="px-4 py-3 border-b border-light">
                     <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider">Signed in as</p>
                     <p className="text-xs font-bold text-text-primary truncate mt-0.5">{user.email}</p>
                     {founderProfile ? (
@@ -359,7 +359,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                     </Link>
                   </div>
 
-                  <div className="border-t border-gray-150 my-1"></div>
+                  <div className="border-t border-light my-1"></div>
 
                   {/* Logout */}
                   <div className="px-2 py-1">
@@ -368,7 +368,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                         setIsProfileDropdownOpen(false);
                         handleLogout();
                       }}
-                      className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-bold text-red-500 hover:bg-red-500/10 transition-colors"
                     >
                       Sign Out
                     </button>

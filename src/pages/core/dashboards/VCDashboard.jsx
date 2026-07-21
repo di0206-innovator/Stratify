@@ -115,7 +115,7 @@ export default function VCDashboard({ founderProfile, user }) {
             <p className="text-[10px] font-black uppercase text-text-muted tracking-wider mb-1">Matching Pipeline</p>
             <h3 className="text-3xl font-outfit font-black text-text-primary">{filteredStartups.length} <span className="text-xs text-text-muted font-light">Deals</span></h3>
           </div>
-          <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+          <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-500">
             <Users size={18} />
           </div>
         </div>
@@ -199,14 +199,14 @@ export default function VCDashboard({ founderProfile, user }) {
                       <h4 className="font-outfit font-bold text-sm mb-1.5 text-text-primary group-hover:text-text-primary leading-snug">{startup.name}</h4>
                       <p className="text-xs text-text-secondary line-clamp-3 mb-4 leading-relaxed font-light font-inter">{startup.pitch}</p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-1.5 pt-3 border-t border-gray-100 select-none">
-                      <span className="px-2 py-0.5 bg-accent/20 border border-[#C8E64A]/30 text-black text-[9px] font-black uppercase rounded-md">
+                    <div className="flex flex-wrap items-center gap-1.5 pt-3 border-t border-light select-none">
+                      <span className="px-2 py-0.5 bg-accent/20 border border-[#C8E64A]/30 text-text-primary text-[9px] font-black uppercase rounded-md">
                         {startup.stage}
                       </span>
                       <span className="px-2 py-0.5 bg-hover border border-light text-text-secondary text-[9px] font-bold uppercase rounded-md">
                         {startup.industry}
                       </span>
-                      <span className="ml-auto px-2 py-0.5 bg-green-55/20 border border-green-255/35 text-green-700 text-[9px] font-bold uppercase rounded-md">
+                      <span className="ml-auto px-2 py-0.5 bg-green-55/20 border border-green-255/35 text-green-500 text-[9px] font-bold uppercase rounded-md">
                         {getMatchScore(startup)}% Match
                       </span>
                     </div>
@@ -215,7 +215,7 @@ export default function VCDashboard({ founderProfile, user }) {
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-hover rounded-full flex items-center justify-center mb-4">
                   <Users size={20} className="text-text-muted" />
                 </div>
                 <h4 className="font-semibold text-text-primary mb-1">No Matching Deals</h4>

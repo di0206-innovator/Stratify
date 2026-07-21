@@ -136,7 +136,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
   if (loading) {
     return (
       <div className="max-w-xl mx-auto py-24 text-center">
-        <RefreshCw size={36} className="mx-auto animate-spin text-black" />
+        <RefreshCw size={36} className="mx-auto animate-spin text-text-primary" />
         <span className="font-outfit font-bold text-xs uppercase tracking-wider mt-4 block">Accessing Strategic Vault...</span>
       </div>
     );
@@ -147,14 +147,14 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
     return (
       <div className="max-w-2xl mx-auto px-6 py-16 relative z-10">
         <div className="os-card bg-card p-8 sm:p-12 text-center select-none space-y-6">
-          <div className="inline-flex p-4 bg-red-50 border border-red-200 text-red-650 rounded-full">
+          <div className="inline-flex p-4 bg-red-500/10 border border-red-500/30 text-red-650 rounded-full">
             <Lock size={40} />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-outfit font-black uppercase tracking-tight text-black">
+            <h1 className="text-2xl sm:text-3xl font-outfit font-black uppercase tracking-tight text-text-primary">
               Restricted Data Room
             </h1>
-            <span className="inline-block bg-red-50 border border-red-200 text-red-600 px-2.5 py-1 rounded-md font-bold text-[9px] uppercase tracking-wider mt-2">
+            <span className="inline-block bg-red-500/10 border border-red-500/30 text-red-500 px-2.5 py-1 rounded-md font-bold text-[9px] uppercase tracking-wider mt-2">
               Whitelist Authorization Required
             </span>
           </div>
@@ -182,11 +182,11 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
     return (
       <div className="max-w-2xl mx-auto px-6 py-16 relative z-10">
         <div className="os-card bg-card p-8 sm:p-12 text-center select-none space-y-6">
-          <div className="inline-flex p-4 bg-amber-50 border border-amber-200 text-amber-600 rounded-full">
+          <div className="inline-flex p-4 bg-amber-500/10 border border-amber-500/30 text-amber-500 rounded-full">
             <ShieldAlert size={40} />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-outfit font-black uppercase tracking-tight text-black">
+            <h1 className="text-2xl sm:text-3xl font-outfit font-black uppercase tracking-tight text-text-primary">
               Vault Error
             </h1>
             <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed font-inter font-light mt-2">
@@ -269,12 +269,12 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
               <BentoCard title="Strategic Runway Posture" badge="VERIFIED LIVE GRAPH" badgeColor="bg-black">
                 <div className="border border-light p-6 bg-card rounded-xl flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
                   <div className="space-y-1 text-center sm:text-left select-none">
-                    <h4 className="font-outfit font-bold text-sm text-black uppercase">Financial Health Verified</h4>
+                    <h4 className="font-outfit font-bold text-sm text-text-primary uppercase">Financial Health Verified</h4>
                     <p className="text-xs text-text-secondary font-semibold leading-relaxed font-light font-inter max-w-lg">
                       This startup has linked their interactive runway tools. The live forecast demonstrates sustainable capitalization loops.
                     </p>
                   </div>
-                  <Link to="/runway" className="os-btn bg-accent hover:bg-accent-hover text-black font-outfit font-bold text-xs uppercase px-4 py-2.5 rounded-lg border-0 shadow-sm">
+                  <Link to="/runway" className="os-btn bg-accent hover:bg-accent-hover text-[#111] font-outfit font-bold text-xs uppercase px-4 py-2.5 rounded-lg border-0 shadow-sm">
                     Open Runway Planner
                   </Link>
                 </div>
@@ -428,7 +428,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
                   <div className="border border-light p-4 bg-canvas rounded-xl text-left">
                     <span className="text-[9px] font-bold uppercase text-text-muted block mb-1 tracking-wide">Vault Status</span>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className={`w-2.5 h-2.5 rounded-full ${isPublic ? 'bg-green-500' : 'bg-red-500'}`} />
+                      <span className={`w-2.5 h-2.5 rounded-full ${isPublic ? 'bg-green-500/100' : 'bg-red-500/100'}`} />
                       <span className="font-outfit font-bold text-[10px] uppercase text-text-primary tracking-wide leading-none">
                         {isPublic ? 'PUBLIC ACCESS ACTIVE' : 'RESTRICTED ACCESS ACTIVE'}
                       </span>
@@ -438,12 +438,12 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
                   <div className="border border-light p-4 bg-canvas rounded-xl text-left">
                     <span className="text-[9px] font-bold uppercase text-text-muted block mb-2 tracking-wide">Direct Data Room Link</span>
                     <div className="flex items-center gap-2 border border-gray-250 bg-card px-3 py-2 rounded-lg select-all">
-                      <span className="font-mono text-[10px] truncate flex-1 text-black font-semibold">
+                      <span className="font-mono text-[10px] truncate flex-1 text-text-primary font-semibold">
                         {window.location.origin}/brief/{briefId}
                       </span>
                       <button
                         onClick={copyLink}
-                        className="p-1 hover:bg-hover rounded border border-light cursor-pointer text-gray-550 transition-colors"
+                        className="p-1 hover:bg-hover rounded border border-light cursor-pointer text-text-secondary transition-colors"
                         title="Copy Link"
                       >
                         {copied ? <Check size={14} className="text-[#C8E64A]" /> : <Copy size={14} />}
@@ -453,7 +453,7 @@ export default function PitchBrief({ mode = 'builder', founderProfile }) {
                 </div>
 
                 <div className="border border-light bg-canvas rounded-xl p-6 flex flex-col items-center justify-center text-center py-8">
-                  <Globe size={32} className="text-black mb-3" />
+                  <Globe size={32} className="text-text-primary mb-3" />
                   <h4 className="font-outfit font-bold text-xs uppercase tracking-wide">Open Public Preview</h4>
                   <p className="text-[10px] text-text-secondary font-semibold mb-4 leading-normal max-w-[200px] mx-auto font-inter">
                     Analyze how whitelisted investors see your presentation.

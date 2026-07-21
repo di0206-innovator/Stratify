@@ -105,9 +105,9 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
   const getSentimentStyles = (sentiment) => {
     switch (sentiment?.toUpperCase()) {
       case 'POSITIVE':
-        return 'bg-green-50 text-green-700 border-green-200';
+        return 'bg-green-500/10 text-green-500 border-green-500/30';
       case 'NEGATIVE':
-        return 'bg-red-50 text-red-700 border-red-200';
+        return 'bg-red-500/10 text-red-500 border-red-500/30';
       default:
         return 'bg-hover text-text-secondary border-light';
     }
@@ -118,9 +118,9 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
       case 'HIGH':
         return 'bg-accent/10 text-text-primary border-[#C8E64A]/30';
       case 'MEDIUM':
-        return 'bg-gray-100 text-text-primary border-light';
+        return 'bg-hover text-text-primary border-light';
       default:
-        return 'bg-hover text-text-muted border-gray-100';
+        return 'bg-hover text-text-muted border-light';
     }
   };
 
@@ -221,11 +221,11 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
             <div className="col-span-12 space-y-4">
               {loading && signals.length === 0 ? (
                 <div className="os-card p-16 text-center bg-card space-y-4 select-none">
-                  <RefreshCw size={36} className="mx-auto animate-spin text-black" />
+                  <RefreshCw size={36} className="mx-auto animate-spin text-text-primary" />
                   <span className="font-outfit font-bold uppercase text-xs">Sweeping internet news for {founderProfile.industry}...</span>
                 </div>
               ) : error ? (
-                <div className="os-card p-6 bg-red-50 border border-red-200 text-[#EF4444] flex items-start gap-3 rounded-xl">
+                <div className="os-card p-6 bg-red-500/10 border border-red-500/30 text-[#EF4444] flex items-start gap-3 rounded-xl">
                   <AlertCircle size={20} className="shrink-0" />
                   <div>
                     <span className="uppercase text-xs font-bold block mb-1">Network Error</span>
@@ -262,7 +262,7 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
 
                       {/* Right: Content */}
                       <div className="flex-1 space-y-2">
-                        <h3 className="font-outfit font-bold text-base md:text-lg text-black uppercase tracking-tight leading-tight group-hover:underline">
+                        <h3 className="font-outfit font-bold text-base md:text-lg text-text-primary uppercase tracking-tight leading-tight group-hover:underline">
                           {sig.title}
                         </h3>
                         <p className="text-xs md:text-sm font-semibold font-inter text-text-primary leading-relaxed font-light">
@@ -277,7 +277,7 @@ export default function Signals({ founderProfile, user, openAuthModal }) {
                                 href={sig.source.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase text-gray-450 hover:text-text-primary transition-colors"
+                                className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase text-text-muted hover:text-text-primary transition-colors"
                               >
                                 <span>Grounding Source: {sig.source.title}</span>
                                 <ExternalLink size={10} />

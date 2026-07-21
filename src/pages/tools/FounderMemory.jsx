@@ -114,7 +114,7 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
 
         {/* Feed Sync Banner */}
         <div className="flex items-center gap-2 bg-accent/10 border border-[#C8E64A]/30 rounded-xl px-4 py-3 text-xs font-semibold select-none">
-          <Zap size={14} className="text-black shrink-0" />
+          <Zap size={14} className="text-text-primary shrink-0" />
           <span className="text-text-primary">
             <strong>Auto-synced:</strong> Posts you share on the Feed are automatically logged here as memory entries.
           </span>
@@ -186,10 +186,10 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
           </div>
         ) : decisions.length === 0 ? (
           <div className="os-card bg-card p-16 text-center max-w-xl mx-auto space-y-4">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 bg-hover rounded-full flex items-center justify-center mx-auto">
               <BrainCircuit size={24} className="text-text-muted" />
             </div>
-            <h3 className="font-outfit font-bold text-lg text-black">Empty Memory</h3>
+            <h3 className="font-outfit font-bold text-lg text-text-primary">Empty Memory</h3>
             <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
               Log your strategic decisions, product pivots, and experiments — or post a milestone on the <strong>Feed</strong> and it will auto-appear here.
             </p>
@@ -214,18 +214,18 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
                         </span>
                       )}
                       {d.status === 'validated' && (
-                        <span className="bg-green-50 border border-green-200 text-green-700 rounded-md font-bold text-[9px] px-2 py-0.5 uppercase tracking-wide flex items-center gap-1">
+                        <span className="bg-green-500/10 border border-green-500/30 text-green-500 rounded-md font-bold text-[9px] px-2 py-0.5 uppercase tracking-wide flex items-center gap-1">
                           <CheckCircle size={10} /> Validated
                         </span>
                       )}
                       {d.status === 'invalidated' && (
-                        <span className="bg-red-50 border border-red-200 text-red-600 rounded-md font-bold text-[9px] px-2 py-0.5 uppercase tracking-wide flex items-center gap-1">
+                        <span className="bg-red-500/10 border border-red-500/30 text-red-500 rounded-md font-bold text-[9px] px-2 py-0.5 uppercase tracking-wide flex items-center gap-1">
                           <XCircle size={10} /> Invalidated
                         </span>
                       )}
                       {/* Show badge if synced from feed */}
                       {(d.title?.startsWith('🏆') || d.title?.startsWith('🚀') || d.title?.startsWith('📝') || d.title?.startsWith('💬')) && (
-                        <span className="bg-accent/20 border border-[#C8E64A]/40 text-black rounded-md font-bold text-[9px] px-2 py-0.5 uppercase tracking-wide flex items-center gap-1">
+                        <span className="bg-accent/20 border border-[#C8E64A]/40 text-text-primary rounded-md font-bold text-[9px] px-2 py-0.5 uppercase tracking-wide flex items-center gap-1">
                           <Zap size={9} /> Feed Sync
                         </span>
                       )}

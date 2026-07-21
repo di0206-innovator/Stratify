@@ -138,7 +138,7 @@ export default function Explore({ user, founderProfile }) {
           </div>
         </div>
         
-        <div className="flex bg-gray-200/50 p-1.5 w-full md:w-auto rounded-xl">
+        <div className="flex bg-hover p-1.5 w-full md:w-auto rounded-xl">
           <button
             onClick={() => setActiveTab('startups')}
             className={`flex-1 md:flex-none px-6 py-2 font-outfit font-bold text-xs uppercase tracking-wider transition-all rounded-lg cursor-pointer ${
@@ -200,7 +200,7 @@ export default function Explore({ user, founderProfile }) {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-500">
           {error}
         </div>
       )}
@@ -237,7 +237,7 @@ export default function Explore({ user, founderProfile }) {
               startup={startup}
             >
               <div>
-                <div className="flex items-start justify-between mb-3 border-b border-gray-100 pb-2">
+                <div className="flex items-start justify-between mb-3 border-b border-light pb-2">
                   <h3 className="font-outfit font-bold text-base text-text-primary truncate pr-2 group-hover:underline">{startup.name || 'Unnamed Startup'}</h3>
                   {startup.score > 0 && (
                     <span className="bg-accent/20 border border-[#C8E64A]/30 px-2.5 py-0.5 text-[9px] font-bold uppercase rounded-full flex items-center gap-1 shrink-0">
@@ -249,7 +249,7 @@ export default function Explore({ user, founderProfile }) {
                   {startup.pitch || startup.problem || 'No description provided.'}
                 </p>
               </div>
-              <div className="flex flex-wrap gap-1.5 mt-auto pt-3 border-t border-gray-100/50">
+              <div className="flex flex-wrap gap-1.5 mt-auto pt-3 border-t border-light">
                 {startup.stage && (
                   <span className="bg-hover border border-light px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-text-secondary flex items-center gap-1">
                     <Rocket size={10} /> {startup.stage}
@@ -267,7 +267,7 @@ export default function Explore({ user, founderProfile }) {
                   </div>
                 )}
                 {startup.sourceType === 'web_search' && (
-                  <div className="w-full mt-3 text-xs font-semibold text-text-primary bg-sky-50 border border-sky-200 p-2.5 rounded-lg">
+                  <div className="w-full mt-3 text-xs font-semibold text-text-primary bg-sky-500/10 border border-sky-500/30 p-2.5 rounded-lg">
                     <span className="uppercase text-[9px] font-bold mr-1 bg-sky-600 text-white px-1.5 py-0.5 rounded">WEB</span>
                     Live startup search result
                   </div>
@@ -283,7 +283,7 @@ export default function Explore({ user, founderProfile }) {
           {startups.length === 0 && (
             <div className="col-span-full border border-dashed border-DEFAULT p-16 text-center bg-card rounded-2xl select-none">
               <span className="block text-[9px] font-bold uppercase text-text-muted mb-2 tracking-wider">ECOSYSTEM EXPLORER</span>
-              <h4 className="font-outfit font-bold text-lg text-black mb-1">No Startups Found</h4>
+              <h4 className="font-outfit font-bold text-lg text-text-primary mb-1">No Startups Found</h4>
               <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
                 Try another keyword, or broaden the stage filter to search across more of the mapped ecosystem.
               </p>
@@ -318,7 +318,7 @@ export default function Explore({ user, founderProfile }) {
           {filteredPeople.length === 0 && (
             <div className="col-span-full border border-dashed border-DEFAULT p-16 text-center bg-card rounded-2xl select-none">
               <span className="block text-[9px] font-bold uppercase text-text-muted mb-2 tracking-wider">ECOSYSTEM REGISTRY</span>
-              <h4 className="font-outfit font-bold text-lg text-black mb-1">No Members Found</h4>
+              <h4 className="font-outfit font-bold text-lg text-text-primary mb-1">No Members Found</h4>
               <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
                 Try searching for other keywords, or build consensus by initiating outbound partnership invites.
               </p>

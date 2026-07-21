@@ -50,7 +50,7 @@ export default function Upgrade() {
   };
 
   return (
-    <div className="min-h-screen bg-canvas text-text-primary font-inter selection:bg-accent selection:text-black">
+    <div className="min-h-screen bg-canvas text-text-primary font-inter selection:bg-accent selection:text-text-primary">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 md:py-24">
 
         {/* Back Link */}
@@ -106,8 +106,8 @@ export default function Upgrade() {
         <div className="max-w-lg mx-auto">
           {status === 'success' ? (
             <div className="bg-card border border-DEFAULT rounded-2xl p-10 text-center animate-fade-in-up">
-              <div className="w-16 h-16 bg-green-50 border border-green-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Check size={28} className="text-green-600" />
+              <div className="w-16 h-16 bg-green-500/10 border border-green-500/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Check size={28} className="text-green-500" />
               </div>
               <h2 className="font-outfit font-black text-2xl mb-3">You're on the list!</h2>
               <p className="text-sm text-text-secondary leading-relaxed mb-8">
@@ -190,7 +190,7 @@ export default function Upgrade() {
                 </div>
 
                 {status === 'error' && (
-                  <div className="text-xs text-red-600 font-semibold bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                  <div className="text-xs text-red-500 font-semibold bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3">
                     {errorMsg}
                   </div>
                 )}

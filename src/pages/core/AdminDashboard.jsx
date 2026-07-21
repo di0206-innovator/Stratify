@@ -126,7 +126,7 @@ export default function AdminDashboard() {
         <button
           onClick={fetchAdminData}
           disabled={loading}
-          className="bg-accent hover:bg-accent-hover text-black font-outfit font-bold text-xs uppercase py-2.5 px-4 rounded-lg border-0 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+          className="bg-accent hover:bg-accent-hover text-[#111] font-outfit font-bold text-xs uppercase py-2.5 px-4 rounded-lg border-0 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
         >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
           <span>Reload</span>
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
           <span className="font-outfit font-bold text-xs uppercase tracking-wider block">Accessing System Core...</span>
         </div>
       ) : error ? (
-        <div className="border border-red-200 p-6 bg-red-50 text-red-700 flex items-start gap-3 rounded-xl">
+        <div className="border border-red-500/30 p-6 bg-red-500/10 text-red-500 flex items-start gap-3 rounded-xl">
           <AlertCircle size={24} className="shrink-0" />
           <div>
             <span className="uppercase text-sm font-bold block mb-1">System Audit Failure</span>
@@ -250,9 +250,9 @@ export default function AdminDashboard() {
                         </td>
                         <td className="py-4 px-4">
                           {u.emailVerified ? (
-                            <span className="bg-green-50 border border-green-200 text-green-700 font-bold text-[9px] px-2.5 py-0.5 rounded-full uppercase">Verified</span>
+                            <span className="bg-green-500/10 border border-green-500/30 text-green-500 font-bold text-[9px] px-2.5 py-0.5 rounded-full uppercase">Verified</span>
                           ) : (
-                            <span className="bg-red-50 border border-red-200 text-red-600 font-bold text-[9px] px-2.5 py-0.5 rounded-full uppercase">Pending</span>
+                            <span className="bg-red-500/10 border border-red-500/30 text-red-500 font-bold text-[9px] px-2.5 py-0.5 rounded-full uppercase">Pending</span>
                           )}
                         </td>
                         <td className="py-4 px-4 font-mono text-text-muted text-[11px]">
@@ -262,7 +262,7 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => handleDeleteUser(u.id, u.email)}
                             disabled={actionLoading}
-                            className="bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 rounded-lg p-2 cursor-pointer disabled:opacity-50 inline-flex items-center gap-1.5 font-bold uppercase text-[10px] transition-colors"
+                            className="bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-100 rounded-lg p-2 cursor-pointer disabled:opacity-50 inline-flex items-center gap-1.5 font-bold uppercase text-[10px] transition-colors"
                           >
                             <Trash2 size={12} />
                             <span>Remove</span>
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
                           <button
                             onClick={() => handleDeleteReport(r.id)}
                             disabled={actionLoading}
-                            className="bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 rounded-lg p-2 cursor-pointer disabled:opacity-50 inline-flex items-center gap-1.5 font-bold uppercase text-[10px] transition-colors"
+                            className="bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-100 rounded-lg p-2 cursor-pointer disabled:opacity-50 inline-flex items-center gap-1.5 font-bold uppercase text-[10px] transition-colors"
                           >
                             <Trash2 size={12} />
                             <span>Delete</span>
@@ -367,7 +367,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={() => handleDeleteWaitlistEntry(entry.id)}
                               disabled={actionLoading}
-                              className="bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 rounded-lg p-2 cursor-pointer disabled:opacity-50 inline-flex items-center gap-1.5 font-bold uppercase text-[10px] transition-colors"
+                              className="bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-100 rounded-lg p-2 cursor-pointer disabled:opacity-50 inline-flex items-center gap-1.5 font-bold uppercase text-[10px] transition-colors"
                             >
                               <Trash2 size={12} />
                               <span>Remove</span>

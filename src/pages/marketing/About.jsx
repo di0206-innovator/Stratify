@@ -24,7 +24,7 @@ export default function About() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-text-secondary leading-relaxed font-inter">
         <div className="space-y-4">
-          <h2 className="font-outfit font-bold text-black text-lg uppercase flex items-center gap-2 select-none">
+          <h2 className="font-outfit font-bold text-text-primary text-lg uppercase flex items-center gap-2 select-none">
             <Target size={18} className="text-[#C8E64A]" /> Our Mission
           </h2>
           <p>
@@ -35,7 +35,7 @@ export default function About() {
           </p>
         </div>
         <div className="space-y-4">
-          <h2 className="font-outfit font-bold text-black text-lg uppercase flex items-center gap-2 select-none">
+          <h2 className="font-outfit font-bold text-text-primary text-lg uppercase flex items-center gap-2 select-none">
             <Shield size={18} className="text-[#C8E64A]" /> Context-Aware Moat
           </h2>
           <p>
@@ -49,7 +49,7 @@ export default function About() {
 
       {/* Leadership Profile */}
       <div className="bg-canvas border border-light p-8 rounded-2xl space-y-6">
-        <h2 className="font-outfit font-black text-black text-xl uppercase tracking-tight select-none">Founding Team</h2>
+        <h2 className="font-outfit font-black text-text-primary text-xl uppercase tracking-tight select-none">Founding Team</h2>
         
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-t border-light pt-6">
           <div className="flex items-center gap-4">
@@ -57,7 +57,7 @@ export default function About() {
               DS
             </div>
             <div>
-              <h3 className="font-outfit font-black text-lg text-black leading-tight uppercase">Divyanshu Sinha</h3>
+              <h3 className="font-outfit font-black text-lg text-text-primary leading-tight uppercase">Divyanshu Sinha</h3>
               <p className="text-xs text-text-secondary font-semibold uppercase tracking-wider mt-0.5 select-none">Founder & CEO</p>
             </div>
           </div>

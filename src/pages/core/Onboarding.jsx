@@ -38,7 +38,7 @@ const ROLES = [
     label: 'Startup Founder',
     desc: 'Build your startup, validate hypotheses, manage runway, and compile investor pitch briefs.',
     ring: 'ring-2 ring-black border-black bg-card',
-    iconBg: 'bg-accent/20 text-black',
+    iconBg: 'bg-accent/20 text-text-primary',
   },
   {
     id: 'vc',
@@ -46,7 +46,7 @@ const ROLES = [
     label: 'VC / Investor',
     desc: 'Source deal flow, track thesis alignment, analyze startup risks, and manage watchlists.',
     ring: 'ring-2 ring-black border-black bg-card',
-    iconBg: 'bg-accent/20 text-black',
+    iconBg: 'bg-accent/20 text-text-primary',
   },
   {
     id: 'institution',
@@ -54,7 +54,7 @@ const ROLES = [
     label: 'Institutions (Gov, College, Incubators)',
     desc: 'Promote grant schemes, assess regional ecosystem health, eligibility, and impact outreach.',
     ring: 'ring-2 ring-black border-black bg-card',
-    iconBg: 'bg-accent/20 text-black',
+    iconBg: 'bg-accent/20 text-text-primary',
   }
 ];
 
@@ -170,9 +170,9 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
           <span className="font-outfit font-black text-base tracking-tight uppercase">Stratify</span>
         </div>
         <div className="flex items-center gap-3 text-xs font-bold text-text-muted uppercase tracking-wider font-outfit">
-          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-text-primary text-[10px] font-black ${step >= 1 ? 'bg-accent' : 'bg-gray-200'}`}>1</div>
-          <div className={`h-0.5 w-8 ${step >= 2 ? 'bg-[#1A1A1A]' : 'bg-gray-200'}`} />
-          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-text-primary text-[10px] font-black ${step >= 2 ? 'bg-accent' : 'bg-gray-200'}`}>2</div>
+          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-text-primary text-[10px] font-black ${step >= 1 ? 'bg-accent' : 'bg-hover'}`}>1</div>
+          <div className={`h-0.5 w-8 ${step >= 2 ? 'bg-[#1A1A1A]' : 'bg-hover'}`} />
+          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-text-primary text-[10px] font-black ${step >= 2 ? 'bg-accent' : 'bg-hover'}`}>2</div>
           <span className="ml-2 text-text-secondary font-semibold">Workspace Setup</span>
         </div>
       </div>
@@ -251,7 +251,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
                   <ArrowLeft size={14} /> Back to role selection
                 </button>
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-lg bg-accent/25 text-black">
+                  <div className="p-2.5 rounded-lg bg-accent/25 text-text-primary">
                     <selectedRole.icon size={20} />
                   </div>
                   <div>
@@ -340,7 +340,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-4 border-t border-light">
                   <button type="button" onClick={() => setStep(1)} className="flex items-center gap-1.5 text-sm font-semibold text-text-muted hover:text-text-primary transition-colors">
                     <ArrowLeft size={14} /> Back
                   </button>

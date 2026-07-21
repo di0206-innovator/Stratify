@@ -168,7 +168,7 @@ export default function ReportDetail() {
         return <h1 key={index} className="text-2xl md:text-3xl font-outfit font-black uppercase mt-6 mb-3 border-b border-gray-250 pb-2">{renderTextWithCitations(trimmed.substring(2), report.sources)}</h1>;
       }
       if (trimmed.startsWith('## ')) {
-        return <h2 key={index} className="text-xl md:text-2xl font-outfit font-bold uppercase mt-5 mb-2.5 text-black">{renderTextWithCitations(trimmed.substring(3), report.sources)}</h2>;
+        return <h2 key={index} className="text-xl md:text-2xl font-outfit font-bold uppercase mt-5 mb-2.5 text-text-primary">{renderTextWithCitations(trimmed.substring(3), report.sources)}</h2>;
       }
       if (trimmed.startsWith('### ')) {
         return <h3 key={index} className="text-lg font-outfit font-bold uppercase mt-4 mb-2">{renderTextWithCitations(trimmed.substring(4), report.sources)}</h3>;
@@ -213,8 +213,8 @@ export default function ReportDetail() {
   if (error || !report) {
     return (
       <div className="max-w-xl mx-auto px-6 py-16 text-center space-y-6">
-        <div className="bg-red-50 border border-red-200 text-red-600 p-8 rounded-xl text-left">
-          <ShieldAlert size={36} className="mb-3 text-red-600" />
+        <div className="bg-red-500/10 border border-red-500/30 text-red-500 p-8 rounded-xl text-left">
+          <ShieldAlert size={36} className="mb-3 text-red-500" />
           <h2 className="text-lg font-outfit font-bold uppercase text-text-primary">Brief Unreachable</h2>
           <p className="text-xs font-semibold text-text-secondary mt-2 leading-relaxed font-inter font-light">{error || 'Brief data failed to load.'}</p>
         </div>
@@ -247,7 +247,7 @@ export default function ReportDetail() {
         </Link>
         <button
           onClick={handleDeleteReport}
-          className="bg-red-50 border border-red-250 text-red-600 font-outfit font-bold px-4 py-2.5 hover:bg-red-100 transition-colors flex items-center gap-2 cursor-pointer uppercase text-xs rounded-lg"
+          className="bg-red-500/10 border border-red-250 text-red-500 font-outfit font-bold px-4 py-2.5 hover:bg-red-100 transition-colors flex items-center gap-2 cursor-pointer uppercase text-xs rounded-lg"
         >
           <Trash2 size={14} />
           <span>DELETE BRIEF</span>
@@ -266,7 +266,7 @@ export default function ReportDetail() {
               className={`flex-1 py-2 text-center text-xs font-outfit font-bold uppercase rounded-lg transition-all cursor-pointer border-0 shadow-sm ${
                 activeTab === 'interactive' 
                   ? 'bg-accent text-[#111] font-bold' 
-                  : 'bg-card text-gray-550 hover:bg-hover'
+                  : 'bg-card text-text-secondary hover:bg-hover'
               }`}
             >
               <BookOpen size={14} className="inline mr-1.5" />
@@ -277,7 +277,7 @@ export default function ReportDetail() {
               className={`flex-1 py-2 text-center text-xs font-outfit font-bold uppercase rounded-lg transition-all cursor-pointer border-0 shadow-sm ${
                 activeTab === 'markdown' 
                   ? 'bg-black text-white font-bold' 
-                  : 'bg-card text-gray-550 hover:bg-hover'
+                  : 'bg-card text-text-secondary hover:bg-hover'
               }`}
             >
               <FileText size={14} className="inline mr-1.5" />
@@ -292,7 +292,7 @@ export default function ReportDetail() {
               <div className="space-y-8">
                 {/* Title */}
                 <div className="border-b border-light pb-4 select-none">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold bg-accent/25 border border-[#C8E64A]/30 text-black mb-2.5 uppercase">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold bg-accent/25 border border-[#C8E64A]/30 text-text-primary mb-2.5 uppercase">
                     {report.founderContext?.profile?.startupStage || 'IDEA'} WEDGE
                   </span>
                   <h1 className="text-2xl md:text-3xl font-outfit font-black uppercase leading-tight tracking-tight">
@@ -358,7 +358,7 @@ export default function ReportDetail() {
                     <div className="space-y-3">
                       {report.sections.marketSignals.map((sig, idx) => (
                         <div key={idx} className="border border-light p-4 bg-canvas rounded-xl text-xs sm:text-sm font-semibold text-text-primary flex gap-2">
-                          <span className="text-black font-black font-mono shrink-0 select-none">[{idx + 1}]</span>
+                          <span className="text-text-primary font-black font-mono shrink-0 select-none">[{idx + 1}]</span>
                           <span className="font-inter leading-relaxed font-light">{renderTextWithCitations(sig, report.sources)}</span>
                         </div>
                       ))}
@@ -373,7 +373,7 @@ export default function ReportDetail() {
                     <ul className="space-y-3">
                       {report.sections.recommendations.map((rec, idx) => (
                         <li key={idx} className="flex gap-3 items-start">
-                          <div className="bg-accent border border-accent-hover text-black px-2 py-0.5 rounded text-[8px] font-bold shrink-0 mt-0.5 select-none font-mono">
+                          <div className="bg-accent border border-accent-hover text-text-primary px-2 py-0.5 rounded text-[8px] font-bold shrink-0 mt-0.5 select-none font-mono">
                             REC {idx + 1}
                           </div>
                           <span className="text-xs sm:text-sm font-semibold font-inter text-text-secondary leading-relaxed font-light">
@@ -386,14 +386,14 @@ export default function ReportDetail() {
                 )}
 
                 {/* Risks & Assumptions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-light">
                   {/* Risks */}
                   {report.sections.risks && report.sections.risks.length > 0 && (
                     <div className="space-y-3.5">
-                      <h3 className="font-outfit font-bold text-xs uppercase text-text-muted tracking-wider border-b border-gray-100 pb-1.5 select-none">Inherent Risks</h3>
+                      <h3 className="font-outfit font-bold text-xs uppercase text-text-muted tracking-wider border-b border-light pb-1.5 select-none">Inherent Risks</h3>
                       <ul className="space-y-2">
                         {report.sections.risks.map((risk, idx) => (
-                          <li key={idx} className="text-xs font-semibold font-inter text-text-secondary leading-relaxed pl-3 border-l border-red-200 font-light">
+                          <li key={idx} className="text-xs font-semibold font-inter text-text-secondary leading-relaxed pl-3 border-l border-red-500/30 font-light">
                             {renderTextWithCitations(risk, report.sources)}
                           </li>
                         ))}
@@ -404,7 +404,7 @@ export default function ReportDetail() {
                   {/* Assumptions */}
                   {report.sections.assumptions && report.sections.assumptions.length > 0 && (
                     <div className="space-y-3.5">
-                      <h3 className="font-outfit font-bold text-xs uppercase text-text-muted tracking-wider border-b border-gray-100 pb-1.5 select-none">Key Assumptions</h3>
+                      <h3 className="font-outfit font-bold text-xs uppercase text-text-muted tracking-wider border-b border-light pb-1.5 select-none">Key Assumptions</h3>
                       <ul className="space-y-2">
                         {report.sections.assumptions.map((ass, idx) => (
                           <li key={idx} className="text-xs font-semibold font-inter text-text-secondary leading-relaxed pl-3 border-l border-DEFAULT font-light">
@@ -434,7 +434,7 @@ export default function ReportDetail() {
               <div className="space-y-5">
                 {/* 7-Day Validation */}
                 <div className="space-y-2.5">
-                  <h3 className="font-outfit font-bold text-xs uppercase text-black border-b border-gray-250 pb-1.5 flex justify-between items-center select-none tracking-wide">
+                  <h3 className="font-outfit font-bold text-xs uppercase text-text-primary border-b border-gray-250 pb-1.5 flex justify-between items-center select-none tracking-wide">
                     <span>7-Day Sprint</span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-light bg-canvas">
                       {report.sections.actionPlan.sevenDaySprint?.filter(i => i.completed).length || 0} / {report.sections.actionPlan.sevenDaySprint?.length || 0}
@@ -447,7 +447,7 @@ export default function ReportDetail() {
                         onClick={() => handleCheckboxToggle('sevenDaySprint', idx, !item.completed)}
                         className="flex items-start gap-2.5 p-2.5 bg-card border border-light rounded-lg hover:border-DEFAULT cursor-pointer select-none transition-colors"
                       >
-                        <button type="button" className="shrink-0 text-black mt-0.5">
+                        <button type="button" className="shrink-0 text-text-primary mt-0.5">
                           {item.completed ? (
                             <div className="bg-accent rounded flex items-center justify-center p-0.5"><Check size={10} strokeWidth={3} /></div>
                           ) : (
@@ -464,7 +464,7 @@ export default function ReportDetail() {
 
                 {/* 30-Day Roadmap */}
                 <div className="space-y-2.5">
-                  <h3 className="font-outfit font-bold text-xs uppercase text-black border-b border-gray-255 pb-1.5 flex justify-between items-center select-none tracking-wide">
+                  <h3 className="font-outfit font-bold text-xs uppercase text-text-primary border-b border-gray-255 pb-1.5 flex justify-between items-center select-none tracking-wide">
                     <span>30-Day Milestones</span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-light bg-canvas">
                       {report.sections.actionPlan.thirtyDayRoadmap?.filter(i => i.completed).length || 0} / {report.sections.actionPlan.thirtyDayRoadmap?.length || 0}
@@ -477,7 +477,7 @@ export default function ReportDetail() {
                         onClick={() => handleCheckboxToggle('thirtyDayRoadmap', idx, !item.completed)}
                         className="flex items-start gap-2.5 p-2.5 bg-card border border-light rounded-lg hover:border-DEFAULT cursor-pointer select-none transition-colors"
                       >
-                        <button type="button" className="shrink-0 text-black mt-0.5">
+                        <button type="button" className="shrink-0 text-text-primary mt-0.5">
                           {item.completed ? (
                             <div className="bg-accent rounded flex items-center justify-center p-0.5"><Check size={10} strokeWidth={3} /></div>
                           ) : (
@@ -494,7 +494,7 @@ export default function ReportDetail() {
 
                 {/* Validation Checklist */}
                 <div className="space-y-2.5">
-                  <h3 className="font-outfit font-bold text-xs uppercase text-black border-b border-gray-260 pb-1.5 flex justify-between items-center select-none tracking-wide">
+                  <h3 className="font-outfit font-bold text-xs uppercase text-text-primary border-b border-gray-260 pb-1.5 flex justify-between items-center select-none tracking-wide">
                     <span>Validation Checklist</span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-light bg-canvas">
                       {report.sections.actionPlan.validationChecklist?.filter(i => i.completed).length || 0} / {report.sections.actionPlan.validationChecklist?.length || 0}
@@ -507,7 +507,7 @@ export default function ReportDetail() {
                         onClick={() => handleCheckboxToggle('validationChecklist', idx, !item.completed)}
                         className="flex items-start gap-2.5 p-2.5 bg-card border border-light rounded-lg hover:border-DEFAULT cursor-pointer select-none transition-colors"
                       >
-                        <button type="button" className="shrink-0 text-black mt-0.5">
+                        <button type="button" className="shrink-0 text-text-primary mt-0.5">
                           {item.completed ? (
                             <div className="bg-accent rounded flex items-center justify-center p-0.5"><Check size={10} strokeWidth={3} /></div>
                           ) : (
@@ -544,14 +544,14 @@ export default function ReportDetail() {
                           href={source.url} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-black hover:underline flex items-center gap-0.5 uppercase text-[9px] font-bold font-outfit"
+                          className="text-text-primary hover:underline flex items-center gap-0.5 uppercase text-[9px] font-bold font-outfit"
                         >
                           <span>LINK</span>
                           <ExternalLink size={10} />
                         </a>
                       )}
                     </div>
-                    <h4 className="font-outfit font-bold text-black uppercase text-[10px] break-words line-clamp-2 leading-snug">
+                    <h4 className="font-outfit font-bold text-text-primary uppercase text-[10px] break-words line-clamp-2 leading-snug">
                       {source.title}
                     </h4>
                     <p className="text-text-secondary mt-1 leading-relaxed line-clamp-3 font-light font-inter">

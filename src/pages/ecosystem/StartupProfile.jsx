@@ -126,7 +126,7 @@ export default function StartupProfile({ founderProfile, user }) {
   if (!startup) {
     return (
       <div className="max-w-xl mx-auto px-6 py-16 text-center space-y-6">
-        <h2 className="text-2xl font-outfit font-bold tracking-tight text-black">STARTUP NOT FOUND</h2>
+        <h2 className="text-2xl font-outfit font-bold tracking-tight text-text-primary">STARTUP NOT FOUND</h2>
         <p className="text-sm text-text-secondary leading-relaxed max-w-sm mx-auto">
           The requested startup profile could not be found or has not been initialized yet.
         </p>
@@ -176,7 +176,7 @@ export default function StartupProfile({ founderProfile, user }) {
 
       {/* Interactive Startup Graph Visualization */}
       <div className="os-card bg-card p-6 mb-8">
-        <h3 className="text-base font-outfit font-bold uppercase mb-4 flex items-center gap-1.5 text-black">
+        <h3 className="text-base font-outfit font-bold uppercase mb-4 flex items-center gap-1.5 text-text-primary">
           <Layers size={16} className="text-text-muted" /> Unified Startup Graph Nodes
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
@@ -269,7 +269,7 @@ export default function StartupProfile({ founderProfile, user }) {
             {hoveredNode ? (
               <div className="animate-slide-up">
                 <span className="font-outfit font-bold text-[9px] uppercase text-text-muted block mb-1 tracking-wider">NODE DETAIL</span>
-                <h4 className="font-outfit font-bold text-base text-black mb-1">{hoveredNode.title}</h4>
+                <h4 className="font-outfit font-bold text-base text-text-primary mb-1">{hoveredNode.title}</h4>
                 <span className="inline-block bg-black text-[#C8E64A] px-2.5 py-0.5 rounded-full font-bold text-[9px] uppercase tracking-wider mb-3">
                   {hoveredNode.count}
                 </span>
@@ -302,8 +302,8 @@ export default function StartupProfile({ founderProfile, user }) {
 
           {/* Problem & Solution */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="border border-red-200 bg-red-50/50 p-6 rounded-xl text-left flex flex-col">
-              <h3 className="text-xs font-bold uppercase mb-2.5 text-red-600 flex items-center gap-1.5">
+            <div className="border border-red-500/30 bg-red-500/10 p-6 rounded-xl text-left flex flex-col">
+              <h3 className="text-xs font-bold uppercase mb-2.5 text-red-500 flex items-center gap-1.5">
                 <Target size={14} /> Problem Statement
               </h3>
               <p className="text-xs text-text-secondary leading-relaxed font-inter font-light">
@@ -311,8 +311,8 @@ export default function StartupProfile({ founderProfile, user }) {
               </p>
             </div>
 
-            <div className="border border-green-200 bg-green-50/50 p-6 rounded-xl text-left flex flex-col">
-              <h3 className="text-xs font-bold uppercase mb-2.5 text-green-700 flex items-center gap-1.5">
+            <div className="border border-green-500/30 bg-green-500/10 p-6 rounded-xl text-left flex flex-col">
+              <h3 className="text-xs font-bold uppercase mb-2.5 text-green-500 flex items-center gap-1.5">
                 <Trophy size={14} /> Product Solution
               </h3>
               <p className="text-xs text-text-secondary leading-relaxed font-inter font-light">
@@ -323,7 +323,7 @@ export default function StartupProfile({ founderProfile, user }) {
 
           {/* Founder Journey / Intelligence Brief */}
           <div className="os-card bg-card p-6">
-            <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
+            <div className="flex justify-between items-center mb-4 pb-2 border-b border-light">
               <h3 className="text-sm font-outfit font-bold uppercase text-text-muted tracking-wider flex items-center gap-2">
                 <Sparkles size={14} className="text-[#C8E64A]" /> AI Journey Brief
               </h3>
@@ -353,8 +353,8 @@ export default function StartupProfile({ founderProfile, user }) {
             <div className="os-card bg-canvas border border-light p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-gray-250/60 pb-3">
                 <div className="flex items-center gap-2">
-                  <Shield className="text-black" size={16} />
-                  <h3 className="text-sm font-outfit font-bold uppercase text-black tracking-wider">
+                  <Shield className="text-text-primary" size={16} />
+                  <h3 className="text-sm font-outfit font-bold uppercase text-text-primary tracking-wider">
                     Due Diligence & Ecosystem Audit
                   </h3>
                 </div>
@@ -371,20 +371,20 @@ export default function StartupProfile({ founderProfile, user }) {
               {diligenceLoading ? (
                 <div className="py-8 text-center flex flex-col items-center justify-center space-y-2">
                   <div className="w-6 h-6 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                  <p className="text-xs font-outfit font-bold uppercase tracking-wider text-gray-550">AI Orchestrator Compiling Brief...</p>
+                  <p className="text-xs font-outfit font-bold uppercase tracking-wider text-text-secondary">AI Orchestrator Compiling Brief...</p>
                 </div>
               ) : diligenceReports.length > 0 ? (
                 <div className="space-y-3">
                   <div className="bg-accent/10 border border-[#C8E64A]/30 p-4 rounded-xl flex items-start gap-3">
-                    <FileText className="text-black shrink-0 mt-0.5" size={16} />
+                    <FileText className="text-text-primary shrink-0 mt-0.5" size={16} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-4">
-                        <h4 className="font-outfit font-bold text-xs uppercase text-black truncate">
+                        <h4 className="font-outfit font-bold text-xs uppercase text-text-primary truncate">
                           {diligenceReports[0].title}
                         </h4>
                         <Link 
                           to={`/intelligence/${diligenceReports[0].id}`}
-                          className="text-[10px] font-bold text-black uppercase hover:underline flex items-center gap-1 shrink-0"
+                          className="text-[10px] font-bold text-text-primary uppercase hover:underline flex items-center gap-1 shrink-0"
                         >
                           Open Report <ExternalLink size={10} />
                         </Link>
@@ -424,11 +424,11 @@ export default function StartupProfile({ founderProfile, user }) {
 
           {/* Verified Execution Timeline */}
           <div className="os-card bg-card p-6">
-            <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-100 select-none">
+            <div className="flex justify-between items-center mb-6 pb-2 border-b border-light select-none">
               <h3 className="text-sm font-outfit font-bold uppercase text-text-muted tracking-wider">
                 Execution Timeline
               </h3>
-              <span className="bg-green-50 border border-green-200 text-green-700 px-2.5 py-0.5 rounded-full font-bold text-[9px] uppercase tracking-wide">
+              <span className="bg-green-500/10 border border-green-500/30 text-green-500 px-2.5 py-0.5 rounded-full font-bold text-[9px] uppercase tracking-wide">
                 Consensus Audited
               </span>
             </div>
@@ -441,11 +441,11 @@ export default function StartupProfile({ founderProfile, user }) {
               <div className="relative border-l border-light ml-4 pl-6 space-y-6">
                 {timeline.map((event) => (
                   <div key={event.id} className="relative text-left">
-                    <div className="absolute -left-[33px] top-0 w-5 h-5 bg-card border border-light text-black flex items-center justify-center font-bold text-xs rounded-full shadow-sm">
+                    <div className="absolute -left-[33px] top-0 w-5 h-5 bg-card border border-light text-text-primary flex items-center justify-center font-bold text-xs rounded-full shadow-sm">
                       {event.eventType === 'profile_update' ? '✎' : event.eventType === 'score_increase' ? '↑' : event.eventType === 'decision_logged' ? '✓' : '★'}
                     </div>
 
-                    <div className="border border-light p-4 bg-canvas rounded-xl text-black">
+                    <div className="border border-light p-4 bg-canvas rounded-xl text-text-primary">
                       <div className="flex justify-between items-start flex-wrap gap-1.5 mb-2 select-none">
                         <span className="text-[9px] font-bold uppercase font-mono px-2 py-0.5 border border-light bg-card rounded-md">
                           {event.eventType}
@@ -479,18 +479,18 @@ export default function StartupProfile({ founderProfile, user }) {
                 {decisions.map((decision) => (
                   <div key={decision.id} className="border border-light p-4 bg-canvas rounded-xl">
                     <div className="flex justify-between items-start mb-2.5">
-                      <h4 className="font-outfit font-bold text-sm text-black uppercase">{decision.title}</h4>
-                      <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-md ${decision.status === 'completed' || decision.status === 'validated' ? 'bg-green-50 border border-green-200 text-green-700' : decision.status === 'invalidated' ? 'bg-red-50 border border-red-200 text-red-600' : 'bg-amber-50 border border-amber-200 text-amber-600'}`}>
+                      <h4 className="font-outfit font-bold text-sm text-text-primary uppercase">{decision.title}</h4>
+                      <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-md ${decision.status === 'completed' || decision.status === 'validated' ? 'bg-green-500/10 border border-green-500/30 text-green-500' : decision.status === 'invalidated' ? 'bg-red-500/10 border border-red-500/30 text-red-500' : 'bg-amber-500/10 border border-amber-500/30 text-amber-500'}`}>
                         {decision.status}
                       </span>
                     </div>
                     <p className="text-xs font-semibold text-text-secondary mb-2 leading-relaxed font-inter font-light">
-                      <span className="text-black uppercase text-[9px] font-bold block mb-1 tracking-wide">Context</span>
+                      <span className="text-text-primary uppercase text-[9px] font-bold block mb-1 tracking-wide">Context</span>
                       {decision.context}
                     </p>
                     {decision.outcome && (
                       <p className="text-xs font-semibold text-text-secondary leading-relaxed font-inter font-light border-t border-light/50 pt-2.5 mt-2.5">
-                        <span className="text-black uppercase text-[9px] font-bold block mb-1 tracking-wide">Outcome</span>
+                        <span className="text-text-primary uppercase text-[9px] font-bold block mb-1 tracking-wide">Outcome</span>
                         {decision.outcome}
                       </p>
                     )}
@@ -506,29 +506,29 @@ export default function StartupProfile({ founderProfile, user }) {
           <div className="os-card bg-card p-6">
             <h3 className="text-xs font-bold uppercase mb-4 text-text-muted tracking-wide select-none">Startup Vitals</h3>
             <div className="space-y-3.5 text-xs font-inter select-none">
-              <div className="flex justify-between items-center py-2.5 border-b border-gray-100">
+              <div className="flex justify-between items-center py-2.5 border-b border-light">
                 <span className="font-bold uppercase text-text-muted text-[10px]">Stage</span>
-                <span className="font-bold text-black uppercase bg-accent/20 border border-[#C8E64A]/30 px-2 py-0.5 rounded text-[9px]">
+                <span className="font-bold text-text-primary uppercase bg-accent/20 border border-[#C8E64A]/30 px-2 py-0.5 rounded text-[9px]">
                   {startup.stage}
                 </span>
               </div>
-              <div className="flex justify-between items-center py-2.5 border-b border-gray-100">
+              <div className="flex justify-between items-center py-2.5 border-b border-light">
                 <span className="font-bold uppercase text-text-muted text-[10px]">Geography Focus</span>
                 <span className="font-semibold text-text-primary">{startup.geography}</span>
               </div>
-              <div className="flex justify-between items-center py-2.5 border-b border-gray-100">
+              <div className="flex justify-between items-center py-2.5 border-b border-light">
                 <span className="font-bold uppercase text-text-muted text-[10px]">Sector</span>
                 <span className="font-semibold text-text-primary">{startup.industry}</span>
               </div>
               <div className="flex justify-between items-center py-2.5">
                 <span className="font-bold uppercase text-text-muted text-[10px]">Current Goal</span>
-                <span className="font-bold text-black text-right">{startup.needs || 'No active goal'}</span>
+                <span className="font-bold text-text-primary text-right">{startup.needs || 'No active goal'}</span>
               </div>
             </div>
           </div>
 
           <div className="os-card bg-canvas border border-light p-5 select-none text-center rounded-xl">
-            <Award size={24} className="mx-auto mb-2 text-black" />
+            <Award size={24} className="mx-auto mb-2 text-text-primary" />
             <h4 className="font-outfit font-bold text-xs uppercase tracking-wide">VERIFIED BUILDER</h4>
             <p className="text-[10px] font-semibold text-text-secondary mt-1.5 leading-relaxed">
               This startup is verified by the Stratify consensus layer for active build updates and validation checkpoints.
@@ -538,11 +538,11 @@ export default function StartupProfile({ founderProfile, user }) {
           {/* Active Briefs */}
           {briefs.length > 0 && (
             <div className="os-card bg-card p-4">
-              <h3 className="text-[10px] font-bold uppercase mb-3 text-text-muted border-b border-gray-100 pb-2 select-none">Active Briefs</h3>
+              <h3 className="text-[10px] font-bold uppercase mb-3 text-text-muted border-b border-light pb-2 select-none">Active Briefs</h3>
               <div className="space-y-3">
                 {briefs.map(brief => (
                   <Link key={brief.id} to={`/brief/${brief.id}`} className="block border border-light hover:border-DEFAULT p-3.5 rounded-xl transition-all">
-                    <span className="text-[10px] uppercase font-bold text-black block mb-1">{brief.name} Brief</span>
+                    <span className="text-[10px] uppercase font-bold text-text-primary block mb-1">{brief.name} Brief</span>
                     <span className="text-[10px] font-bold text-text-primary flex items-center gap-1 uppercase hover:underline">
                       View Data Room <ExternalLink size={10} />
                     </span>
@@ -555,12 +555,12 @@ export default function StartupProfile({ founderProfile, user }) {
           {/* Relevant Signals */}
           {signals.length > 0 && (
             <div className="os-card bg-card p-4">
-              <h3 className="text-[10px] font-bold uppercase mb-3 text-text-muted border-b border-gray-100 pb-2 select-none">Ecosystem Signals</h3>
+              <h3 className="text-[10px] font-bold uppercase mb-3 text-text-muted border-b border-light pb-2 select-none">Ecosystem Signals</h3>
               <div className="space-y-3">
                 {signals.slice(0, 3).map(signal => (
                   <div key={signal.id} className="border border-light p-3 bg-canvas rounded-xl">
                     <p className="text-xs font-semibold text-text-primary leading-relaxed font-light">{signal.title}</p>
-                    <span className={`text-[8px] font-bold uppercase px-2 py-0.5 mt-2 inline-block rounded-md border ${signal.sentiment === 'positive' ? 'bg-green-50 border-green-200 text-green-700' : signal.sentiment === 'negative' ? 'bg-red-50 border-red-200 text-red-600' : 'bg-amber-50 border-amber-200 text-amber-700'}`}>
+                    <span className={`text-[8px] font-bold uppercase px-2 py-0.5 mt-2 inline-block rounded-md border ${signal.sentiment === 'positive' ? 'bg-green-500/10 border-green-500/30 text-green-500' : signal.sentiment === 'negative' ? 'bg-red-500/10 border-red-500/30 text-red-500' : 'bg-amber-500/10 border-amber-500/30 text-amber-500'}`}>
                       {signal.sentiment}
                     </span>
                   </div>

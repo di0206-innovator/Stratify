@@ -199,7 +199,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
  {/* Modal Header */}
  <div className="text-center pt-2">
- <div className="inline-flex items-center gap-1.5 bg-neo-lavender border-2 border-black px-3 py-1 font-outfit font-black text-xs uppercase tracking-wider mb-2 text-black">
+ <div className="inline-flex items-center gap-1.5 bg-neo-lavender border-2 border-black px-3 py-1 font-outfit font-black text-xs uppercase tracking-wider mb-2 text-text-primary">
  <Lock size={12} strokeWidth={3} />
  SECURE GATEWAY
  </div>
@@ -323,13 +323,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
  {/* Status Messages */}
  {error && (
- <div className="bg-red-50 border-2 border-red-500 p-3 text-xs font-semibold text-red-800 flex items-start gap-2">
+ <div className="bg-red-500/10 border-2 border-red-500 p-3 text-xs font-semibold text-red-800 flex items-start gap-2">
  <AlertCircle size={14} className="shrink-0 mt-0.5 text-red-500" />
  <span>{error}</span>
  </div>
 )}
  {message && (
- <div className="bg-green-50 border-2 border-green-500 p-3 text-xs font-semibold text-green-800 flex items-start gap-2">
+ <div className="bg-green-500/10 border-2 border-green-500 p-3 text-xs font-semibold text-green-800 flex items-start gap-2">
  <CheckCircle size={14} className="shrink-0 mt-0.5 text-green-500" />
  <span>{message}</span>
  </div>

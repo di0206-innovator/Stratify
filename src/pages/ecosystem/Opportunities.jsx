@@ -5,10 +5,10 @@ import {
 } from 'lucide-react';
 
 const TYPE_CONFIG = {
-  accelerator: { icon: Rocket, color: 'bg-accent/25 text-black border-[#C8E64A]/40', label: 'Accelerator' },
-  grant: { icon: Gift, color: 'bg-green-50 text-green-700 border-green-200', label: 'Grant' },
-  program: { icon: Building2, color: 'bg-gray-100 text-text-primary border-light', label: 'Program' },
-  competition: { icon: Sparkles, color: 'bg-accent/10 text-black border-[#C8E64A]/30', label: 'Competition' },
+  accelerator: { icon: Rocket, color: 'bg-accent/25 text-text-primary border-[#C8E64A]/40', label: 'Accelerator' },
+  grant: { icon: Gift, color: 'bg-green-500/10 text-green-500 border-green-500/30', label: 'Grant' },
+  program: { icon: Building2, color: 'bg-hover text-text-primary border-light', label: 'Program' },
+  competition: { icon: Sparkles, color: 'bg-accent/10 text-text-primary border-[#C8E64A]/30', label: 'Competition' },
   role: { icon: Briefcase, color: 'bg-hover text-text-secondary border-light', label: 'Role' },
 };
 
@@ -137,7 +137,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
               <Plus size={14} /> Post Opportunity
             </button>
           )}
-          <span className="bg-gray-100 border border-light text-text-primary px-3 py-1.5 font-bold text-xs uppercase rounded-lg shadow-sm select-none">
+          <span className="bg-hover border border-light text-text-primary px-3 py-1.5 font-bold text-xs uppercase rounded-lg shadow-sm select-none">
             {filteredOpportunities.length} found
           </span>
           <button
@@ -170,7 +170,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                 className={`px-3 py-1.5 font-outfit font-bold text-xs uppercase tracking-wider rounded-lg transition-all border cursor-pointer ${
                   typeFilter === opt.value
                     ? 'bg-accent text-[#111] border-transparent shadow-sm'
-                    : 'bg-card border-gray-250 text-gray-550 hover:border-DEFAULT'
+                    : 'bg-card border-gray-250 text-text-secondary hover:border-DEFAULT'
                 }`}
               >
                 {opt.label}
@@ -209,10 +209,10 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
         </div>
       ) : filteredOpportunities.length === 0 ? (
         <div className="os-card bg-card p-16 text-center max-w-xl mx-auto space-y-4">
-          <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
+          <div className="w-12 h-12 bg-hover rounded-full flex items-center justify-center mx-auto">
             <Rocket size={24} className="text-text-muted" />
           </div>
-          <h3 className="font-outfit font-bold text-lg text-black">No Matches Found</h3>
+          <h3 className="font-outfit font-bold text-lg text-text-primary">No Matches Found</h3>
           <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
             Try adjusting your filters or search terms. More opportunities are added regularly.
           </p>
@@ -255,7 +255,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100/50">
+                <div className="flex items-center justify-between mt-auto pt-3 border-t border-light">
                   <div className="flex flex-wrap gap-1.5 select-none">
                     {opp.geography && (
                       <span className="bg-hover border border-light px-2 py-0.5 text-[9px] font-bold uppercase rounded-md text-text-secondary flex items-center gap-1">
@@ -410,7 +410,7 @@ export default function Opportunities({ founderProfile, user, openAuthModal }) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-light">
                 <button 
                   type="button" 
                   onClick={() => setIsCreateModalOpen(false)}

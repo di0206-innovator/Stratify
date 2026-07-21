@@ -119,7 +119,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
             <p className="text-[10px] font-black uppercase text-text-muted tracking-wider mb-1">Deployed Programs</p>
             <h3 className="text-3xl font-outfit font-black text-text-primary">{govSchemes.length} <span className="text-xs text-text-muted font-light">Active</span></h3>
           </div>
-          <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+          <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-500">
             <Building size={18} />
           </div>
         </div>
@@ -205,8 +205,8 @@ export default function InstitutionDashboard({ founderProfile, user }) {
                       <h4 className="font-outfit font-bold text-sm mb-2 text-text-primary group-hover:text-text-primary leading-snug">{scheme.name || scheme.title}</h4>
                       <p className="text-xs text-text-secondary line-clamp-3 mb-4 leading-relaxed font-light">{scheme.description}</p>
                     </div>
-                    <div className="flex flex-wrap gap-1.5 pt-3 border-t border-gray-100">
-                      <span className="px-2.5 py-0.5 bg-accent/25 border border-[#C8E64A]/40 text-black text-[9px] font-black uppercase rounded-md">
+                    <div className="flex flex-wrap gap-1.5 pt-3 border-t border-light">
+                      <span className="px-2.5 py-0.5 bg-accent/25 border border-[#C8E64A]/40 text-text-primary text-[9px] font-black uppercase rounded-md">
                         {scheme.incentive || scheme.budget}
                       </span>
                       <span className="px-2 py-0.5 bg-hover border border-light text-text-secondary text-[9px] font-bold uppercase rounded-md flex items-center gap-1">
@@ -218,7 +218,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-hover rounded-full flex items-center justify-center mb-4">
                   <Building size={20} className="text-text-muted" />
                 </div>
                 <h4 className="font-semibold text-text-primary mb-1">No Active Grants</h4>
@@ -300,7 +300,7 @@ export default function InstitutionDashboard({ founderProfile, user }) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 select-none">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-light select-none">
                 <button 
                   type="button" 
                   onClick={() => setIsCreateModalOpen(false)}

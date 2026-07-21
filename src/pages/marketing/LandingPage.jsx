@@ -332,7 +332,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
                 { num: '3', title: 'Compound', desc: 'Reports and briefs write structured state back to the graph.' },
               ].map((step) => (
                 <div key={step.num} className="flex items-start gap-5">
-                  <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-hover flex items-center justify-center flex-shrink-0">
                     <span className="font-outfit font-bold text-sm text-text-primary">{step.num}</span>
                   </div>
                   <div>
@@ -413,7 +413,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
           <div className="bg-card rounded-2xl border border-DEFAULT p-8 flex flex-col justify-between hover:shadow-lg transition-all animate-fade-in-up">
             <div>
               <div className="flex items-center justify-between mb-6">
-                <span className="px-2.5 py-1 bg-gray-100 text-text-primary text-[10px] font-bold uppercase rounded font-outfit">Founder OS</span>
+                <span className="px-2.5 py-1 bg-hover text-text-primary text-[10px] font-bold uppercase rounded font-outfit">Founder OS</span>
               </div>
               <div className="mb-6">
                 <span className="text-4xl font-outfit font-black text-text-primary">$49</span>
@@ -482,7 +482,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
           <div className="bg-card rounded-2xl border border-DEFAULT p-8 flex flex-col justify-between hover:shadow-lg transition-all animate-fade-in-up">
             <div>
               <div className="flex items-center justify-between mb-6">
-                <span className="px-2.5 py-1 bg-gray-100 text-text-primary text-[10px] font-bold uppercase rounded font-outfit">Institution OS</span>
+                <span className="px-2.5 py-1 bg-hover text-text-primary text-[10px] font-bold uppercase rounded font-outfit">Institution OS</span>
               </div>
               <div className="mb-6">
                 <span className="text-4xl font-outfit font-black text-text-primary">$999</span>

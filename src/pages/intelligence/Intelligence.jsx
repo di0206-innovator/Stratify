@@ -225,11 +225,11 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
       {!user ? (
         /* Interactive Locked Screen */
         <div className="max-w-md mx-auto os-card bg-card mt-12 p-10 text-center space-y-6 animate-slide-up">
-          <div className="inline-flex items-center justify-center bg-gray-100 p-4 text-black rounded-full">
+          <div className="inline-flex items-center justify-center bg-hover p-4 text-text-primary rounded-full">
             <Lock size={30} strokeWidth={2} />
           </div>
           <div className="space-y-2">
-            <h2 className="text-xl font-outfit font-bold tracking-tight text-black">Library Access Locked</h2>
+            <h2 className="text-xl font-outfit font-bold tracking-tight text-text-primary">Library Access Locked</h2>
             <p className="text-xs sm:text-sm text-text-secondary max-w-sm mx-auto leading-relaxed">
               Please sign in or join the network to view and manage your compiled strategic briefs, roadmaps, and execution plans.
             </p>
@@ -256,7 +256,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                     <span className="block text-[9px] font-bold uppercase tracking-wider text-text-muted">LATEST INTEL SCORE</span>
                     <span className="text-xl font-outfit font-black text-[#EF4444] mt-1 block">{validationScoreVal || 'NOT AUDITED'}</span>
                   </div>
-                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${validationScoreVal ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-text-muted'}`}>
+                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${validationScoreVal ? 'bg-red-500/10 text-red-500' : 'bg-hover text-text-muted'}`}>
                     {validationScoreVal ? 'Compiled' : 'Pending'}
                   </span>
                 </div>
@@ -268,7 +268,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                       {briefId ? (isPublic ? 'PUBLIC ACCESS' : 'WHITELIST ONLY') : 'NOT INITIALIZED'}
                     </span>
                   </div>
-                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${briefId ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-450'}`}>
+                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${briefId ? 'bg-green-500/10 text-green-500' : 'bg-hover text-text-muted'}`}>
                     {briefId ? 'Ready' : 'Draft'}
                   </span>
                 </div>
@@ -276,11 +276,11 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                 <div className="border border-light p-4 bg-card flex justify-between items-center rounded-xl">
                   <div>
                     <span className="block text-[9px] font-bold uppercase tracking-wider text-text-muted">WHITELISTED INVESTORS</span>
-                    <span className="text-xl font-outfit font-black text-black mt-1 block">
+                    <span className="text-xl font-outfit font-black text-text-primary mt-1 block">
                       {whitelistInput ? whitelistInput.split(',').map(x => x.trim()).filter(Boolean).length : 0} Members
                     </span>
                   </div>
-                  <span className="text-[9px] bg-accent/25 text-black rounded-full px-2 py-0.5 font-bold uppercase">
+                  <span className="text-[9px] bg-accent/25 text-text-primary rounded-full px-2 py-0.5 font-bold uppercase">
                     Secure
                   </span>
                 </div>
@@ -294,7 +294,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
               onClick={() => setActiveTab('insights')}
               className={`px-5 py-3 font-outfit font-bold text-xs sm:text-sm uppercase tracking-wider cursor-pointer border-b-2 transition-all ${
                 activeTab === 'insights'
-                  ? 'border-black text-black'
+                  ? 'border-black text-text-primary'
                   : 'border-transparent text-text-muted hover:text-text-primary'
               }`}
             >
@@ -304,7 +304,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
               onClick={() => setActiveTab('dataroom')}
               className={`px-5 py-3 font-outfit font-bold text-xs sm:text-sm uppercase tracking-wider cursor-pointer border-b-2 transition-all ${
                 activeTab === 'dataroom'
-                  ? 'border-black text-black'
+                  ? 'border-black text-text-primary'
                   : 'border-transparent text-text-muted hover:text-text-primary'
               }`}
             >
@@ -322,7 +322,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                   <span className="font-outfit font-bold uppercase text-xs">Retrieving briefs from database...</span>
                 </div>
               ) : reportsError ? (
-                <div className="os-card p-5 bg-red-50 border border-red-200 text-[#EF4444] flex items-start gap-3 rounded-xl">
+                <div className="os-card p-5 bg-red-500/10 border border-red-500/30 text-[#EF4444] flex items-start gap-3 rounded-xl">
                   <AlertCircle size={20} className="shrink-0" />
                   <div>
                     <span className="uppercase text-xs font-bold block mb-1">Database Read Failure</span>
@@ -356,12 +356,12 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                         className="os-card bg-card hover:border-DEFAULT transition-all flex flex-col justify-between h-64 group relative cursor-pointer"
                       >
                         <div>
-                          <div className="flex items-center justify-between border-b border-gray-100 pb-2.5 mb-3 select-none">
+                          <div className="flex items-center justify-between border-b border-light pb-2.5 mb-3 select-none">
                             <span className="text-[10px] font-semibold uppercase text-text-muted flex items-center gap-1.5">
                               <Calendar size={11} />
                               {formattedDate}
                             </span>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold border border-[#C8E64A]/40 bg-accent/10 text-black">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold border border-[#C8E64A]/40 bg-accent/10 text-text-primary">
                               {report.reportType || 'IDEA'}
                             </span>
                           </div>
@@ -374,13 +374,13 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                           </p>
                         </div>
 
-                        <div className="flex items-center justify-between border-t border-gray-100 pt-3 mt-3 select-none">
-                          <span className="text-[10px] font-semibold uppercase text-gray-450">
+                        <div className="flex items-center justify-between border-t border-light pt-3 mt-3 select-none">
+                          <span className="text-[10px] font-semibold uppercase text-text-muted">
                             {report.sourceCount || 0} Grounding Sources
                           </span>
                           <button
                             onClick={(e) => handleDeleteReport(report.id, e)}
-                            className="p-2 bg-red-50 text-[#EF4444] hover:bg-red-500 hover:text-white rounded-lg transition-colors cursor-pointer shrink-0"
+                            className="p-2 bg-red-500/10 text-[#EF4444] hover:bg-red-500/100 hover:text-white rounded-lg transition-colors cursor-pointer shrink-0"
                           >
                             <Trash2 size={12} />
                           </button>
@@ -396,15 +396,15 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
             <div className="os-card bg-card p-8">
               {loadingBrief ? (
                 <div className="text-center py-12">
-                  <RefreshCw size={24} className="mx-auto animate-spin text-black mb-2" />
-                  <span className="text-xs font-semibold uppercase text-gray-450">Accessing Strategic Vault...</span>
+                  <RefreshCw size={24} className="mx-auto animate-spin text-text-primary mb-2" />
+                  <span className="text-xs font-semibold uppercase text-text-muted">Accessing Strategic Vault...</span>
                 </div>
               ) : (
                 <form onSubmit={handleSaveBrief} className="space-y-6">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-light">
                     <div>
-                      <h3 className="font-outfit font-bold text-lg text-black uppercase">Configured Data Room</h3>
-                      <p className="text-xs text-gray-550 mt-0.5">Enable secure access to your verified scores, pitch decks, and milestones.</p>
+                      <h3 className="font-outfit font-bold text-lg text-text-primary uppercase">Configured Data Room</h3>
+                      <p className="text-xs text-text-secondary mt-0.5">Enable secure access to your verified scores, pitch decks, and milestones.</p>
                     </div>
                     {briefId && (
                       <button
@@ -420,7 +420,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="md:col-span-2">
-                      <label className="block text-xs font-bold uppercase text-gray-550 mb-2 tracking-wide">One-Line Elevator Pitch</label>
+                      <label className="block text-xs font-bold uppercase text-text-secondary mb-2 tracking-wide">One-Line Elevator Pitch</label>
                       <input
                         type="text"
                         value={pitch}
@@ -432,7 +432,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase text-gray-550 mb-2 tracking-wide">The Problem Wedge</label>
+                      <label className="block text-xs font-bold uppercase text-text-secondary mb-2 tracking-wide">The Problem Wedge</label>
                       <textarea
                         value={problem}
                         onChange={(e) => setProblem(e.target.value)}
@@ -444,7 +444,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase text-gray-550 mb-2 tracking-wide">The Solution Wedge</label>
+                      <label className="block text-xs font-bold uppercase text-text-secondary mb-2 tracking-wide">The Solution Wedge</label>
                       <textarea
                         value={solution}
                         onChange={(e) => setSolution(e.target.value)}
@@ -456,7 +456,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase text-gray-550 mb-2 tracking-wide">Pitch Deck Link (PDF/Doc)</label>
+                      <label className="block text-xs font-bold uppercase text-text-secondary mb-2 tracking-wide">Pitch Deck Link (PDF/Doc)</label>
                       <input
                         type="url"
                         value={deckUrl}
@@ -467,7 +467,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                     </div>
 
                     <div className="space-y-4">
-                      <label className="block text-xs font-bold uppercase text-gray-550 mb-1 tracking-wide">Access Privacy Controls</label>
+                      <label className="block text-xs font-bold uppercase text-text-secondary mb-1 tracking-wide">Access Privacy Controls</label>
                       
                       <div className="flex gap-4">
                         <label className={`flex-1 p-3.5 flex items-center justify-between cursor-pointer border rounded-xl transition-all ${isPublic ? 'bg-accent/10 border-black' : 'bg-card border-light'}`}>
@@ -483,7 +483,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
                           />
                         </label>
 
-                        <label className={`flex-1 p-3.5 flex items-center justify-between cursor-pointer border rounded-xl transition-all ${!isPublic ? 'bg-black border-black text-white' : 'bg-card border-light text-black'}`}>
+                        <label className={`flex-1 p-3.5 flex items-center justify-between cursor-pointer border rounded-xl transition-all ${!isPublic ? 'bg-black border-black text-white' : 'bg-card border-light text-text-primary'}`}>
                           <span className="font-outfit font-bold text-xs uppercase flex items-center gap-1.5">
                             <Lock size={14} /> Private Vault
                           </span>
@@ -500,7 +500,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
 
                     {!isPublic && (
                       <div className="md:col-span-2 animate-slide-up">
-                        <label className="block text-xs font-bold uppercase text-gray-550 mb-2 tracking-wide">Investor Email Whitelist (comma separated)</label>
+                        <label className="block text-xs font-bold uppercase text-text-secondary mb-2 tracking-wide">Investor Email Whitelist (comma separated)</label>
                         <input
                           type="text"
                           value={whitelistInput}

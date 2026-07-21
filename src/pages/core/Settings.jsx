@@ -80,7 +80,7 @@ export default function Settings({ user }) {
               <div className="flex items-center justify-between border-b border-DEFAULT pb-4 select-none">
                 <h2 className="text-base font-outfit font-bold uppercase text-text-primary">Account Details</h2>
                 {saved && (
-                  <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
+                  <span className="flex items-center gap-1.5 text-[9px] font-bold uppercase text-green-500 bg-green-500/10 border border-green-500/30 px-2.5 py-1 rounded-full">
                     <CheckCircle size={10} /> Saved
                   </span>
                 )}
@@ -149,7 +149,7 @@ export default function Settings({ user }) {
             <div className="os-card bg-card border border-DEFAULT p-6 space-y-6">
               <h2 className="text-base font-outfit font-bold uppercase text-text-primary border-b border-DEFAULT pb-4 select-none">Security</h2>
               <div className="space-y-4">
-                <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-lg text-left select-none">
+                <div className="p-4 bg-amber-500/100/10 border border-amber-500/20 text-amber-500 rounded-lg text-left select-none">
                   <p className="text-xs font-bold leading-relaxed">Your account is secured via Supabase Authentication.</p>
                   <p className="text-[10px] font-semibold opacity-80 mt-1 leading-relaxed">Password resets are handled through secure authentication tokens sent to your email.</p>
                 </div>

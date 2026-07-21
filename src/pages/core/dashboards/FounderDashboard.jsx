@@ -120,7 +120,7 @@ export default function FounderDashboard({ founderProfile, user, openAuthModal, 
             <p className="text-[10px] font-black uppercase text-text-muted tracking-wider mb-1">Active Bounties</p>
             <h3 className="text-3xl font-outfit font-black text-text-primary">2 <span className="text-xs text-text-muted font-light">Tasks</span></h3>
           </div>
-          <div className="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600">
+          <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-500">
             <Zap size={18} />
           </div>
         </div>
@@ -211,7 +211,7 @@ export default function FounderDashboard({ founderProfile, user, openAuthModal, 
             
             {/* Empty State */}
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-hover rounded-full flex items-center justify-center mb-4">
                 <FileText size={20} className="text-text-muted" />
               </div>
               <h4 className="font-semibold text-text-primary mb-1">No Active Reports</h4>

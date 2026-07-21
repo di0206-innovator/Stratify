@@ -12,15 +12,15 @@ export default function Toast({ message, type = 'info', onClose, duration = 3000
   }, [duration, onClose]);
 
   const styles = {
-    success: 'bg-green-50 border-green-200 text-green-800',
-    error: 'bg-red-50 border-red-200 text-red-800',
-    info: 'bg-blue-50 border-blue-200 text-blue-800',
+    success: 'bg-green-500/10 border-green-500/30 text-green-800',
+    error: 'bg-red-500/10 border-red-500/30 text-red-800',
+    info: 'bg-blue-500/10 border-blue-500/30 text-blue-800',
   };
 
   const icons = {
-    success: <CheckCircle2 size={18} className="text-green-600" />,
-    error: <AlertCircle size={18} className="text-red-600" />,
-    info: <Info size={18} className="text-blue-600" />,
+    success: <CheckCircle2 size={18} className="text-green-500" />,
+    error: <AlertCircle size={18} className="text-red-500" />,
+    info: <Info size={18} className="text-blue-500" />,
   };
 
   return (

@@ -28,28 +28,28 @@ export default function Terms() {
         </p>
 
         <section className="space-y-3">
-          <h2 className="font-outfit font-bold text-black text-lg uppercase select-none">1. Account Registry and Authenticity</h2>
+          <h2 className="font-outfit font-bold text-text-primary text-lg uppercase select-none">1. Account Registry and Authenticity</h2>
           <p>
             Users must register with verifiable emails. Founders registering startups must declare accurate metadata (stage, geography, stack, and burn metrics). Admin privileges are restricted to whitelisted accounts to maintain overall network integrity.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-outfit font-bold text-black text-lg uppercase select-none">2. Platform Usage and AI Agents</h2>
+          <h2 className="font-outfit font-bold text-text-primary text-lg uppercase select-none">2. Platform Usage and AI Agents</h2>
           <p>
             Our validation reports, opportunity matrices, and strategic briefs are generated through advanced autonomous multi-agent critic frameworks. These reports represent strategic suggestions and mathematical estimations, not legal or financial advice.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-outfit font-bold text-black text-lg uppercase select-none">3. Intellectual Property Moat</h2>
+          <h2 className="font-outfit font-bold text-text-primary text-lg uppercase select-none">3. Intellectual Property Moat</h2>
           <p>
             You retain absolute ownership of all content, pitch materials, and custom data logged into your Stratify OS workspace. Stratify Labs retains ownership of the underlying AI generation systems, graphic visualization nodes, and proprietary analysis frameworks.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-outfit font-bold text-black text-lg uppercase select-none">4. Prohibited Behaviors</h2>
+          <h2 className="font-outfit font-bold text-text-primary text-lg uppercase select-none">4. Prohibited Behaviors</h2>
           <p>
             You agree not to utilize Stratify for reporting fraudulent funding rounds, seeding mock profiles with malicious intents, launching denial of service attacks, or trying to bypass our secure whitelisting protocols.
           </p>
