@@ -66,14 +66,15 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-16 pt-6 border-t border-DEFAULT flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="text-xs text-text-muted">
-            © {new Date().getFullYear()} Stratify Labs. All rights reserved.
-          </span>
+        <div className="mt-16 pt-6 border-t border-DEFAULT flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-text-muted">
+          <div>
+            <span>© {new Date().getFullYear()} Stratify Labs Inc. All rights reserved.</span>
+            <span className="hidden sm:inline"> • 548 Market St, Suite 95204, San Francisco, CA 94104</span>
+          </div>
           <div className="flex items-center gap-6">
-            <Link to="/privacy" className="text-xs text-text-muted hover:text-text-primary transition-colors">Privacy</Link>
-            <Link to="/terms" className="text-xs text-text-muted hover:text-text-primary transition-colors">Terms</Link>
-            <a href="mailto:hello@stratify.co" className="text-xs text-text-muted hover:text-text-primary transition-colors">Contact</a>
+            <Link to="/privacy" className="text-text-muted hover:text-text-primary transition-colors">Privacy</Link>
+            <Link to="/terms" className="text-text-muted hover:text-text-primary transition-colors">Terms</Link>
+            <a href="mailto:hello@stratify.co" className="text-text-muted hover:text-text-primary transition-colors">Contact</a>
           </div>
         </div>
       </div>

@@ -316,21 +316,18 @@ export default function BookWalkthrough() {
             {/* Action CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
-                to="/"
+                to="/thank-you?type=walkthrough"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-accent text-[#111] text-xs font-outfit font-black uppercase tracking-wider rounded-xl hover:opacity-90 transition-all shadow-sm cursor-pointer"
               >
-                Return to Homepage <ArrowRight size={14} />
+                View Confirmation & Next Steps <ArrowRight size={14} />
               </Link>
               
-              <button
-                onClick={() => {
-                  setIsSuccess(false);
-                  setStep(1);
-                }}
+              <Link
+                to="/"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-card border border-DEFAULT text-text-primary text-xs font-outfit font-bold uppercase tracking-wider rounded-xl hover:border-text-primary transition-all cursor-pointer"
               >
-                Book Another Slot
-              </button>
+                Return to Homepage
+              </Link>
             </div>
           </div>
         ) : (

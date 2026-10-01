@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const DEFAULT_IMAGE = '/favicon.png';
+const DEFAULT_IMAGE = '/og-image.png';
 
 function upsertMeta(selector, attributes) {
   let element = document.head.querySelector(selector);
@@ -48,6 +48,9 @@ export default function Seo({
     upsertMeta('meta[property="og:description"]', { property: 'og:description', content: description });
     upsertMeta('meta[property="og:url"]', { property: 'og:url', content: canonicalUrl });
     upsertMeta('meta[property="og:image"]', { property: 'og:image', content: imageUrl });
+    upsertMeta('meta[property="og:image:width"]', { property: 'og:image:width', content: '1200' });
+    upsertMeta('meta[property="og:image:height"]', { property: 'og:image:height', content: '630' });
+    upsertMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary_large_image' });
     upsertMeta('meta[property="twitter:title"]', { property: 'twitter:title', content: title });
     upsertMeta('meta[property="twitter:description"]', { property: 'twitter:description', content: description });
     upsertMeta('meta[property="twitter:image"]', { property: 'twitter:image', content: imageUrl });

@@ -73,6 +73,21 @@ export default function About() {
           </a>
         </div>
       </div>
+
+      {/* Headquarters & Legal Contact */}
+      <div className="bg-canvas border border-light p-8 rounded-2xl space-y-4">
+        <h2 className="font-outfit font-black text-text-primary text-xl uppercase tracking-tight select-none">
+          Headquarters & Contact
+        </h2>
+        <div className="text-sm text-text-secondary leading-relaxed space-y-1 font-inter">
+          <p className="font-semibold text-text-primary">Stratify Labs Inc.</p>
+          <p>548 Market Street, Suite 95204</p>
+          <p>San Francisco, CA 94104, United States</p>
+          <p className="pt-2 text-xs text-text-muted">
+            General Inquiries: <a href="mailto:hello@stratify.co" className="underline hover:text-text-primary">hello@stratify.co</a> • Institutional Relations: <a href="mailto:partners@stratify.co" className="underline hover:text-text-primary">partners@stratify.co</a>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

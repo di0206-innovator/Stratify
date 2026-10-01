@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /settings
+Disallow: /onboarding
 
 Sitemap: https://stratify.co/sitemap.xml

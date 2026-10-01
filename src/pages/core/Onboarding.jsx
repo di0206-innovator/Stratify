@@ -82,13 +82,24 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
     ecosystemGoals: 'Job creation and regional technology growth'
   });
 
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const next = { ...prev };
+        delete next[name];
+        return next;
+      });
+    }
   };
 
   const selectRole = (selectedRole) => {
     setRole(selectedRole);
+    setFieldErrors({});
     confetti({ 
       particleCount: 50, 
       spread: 40, 
@@ -99,6 +110,30 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const errors = {};
+    if (role === 'founder') {
+      if (!formData.name?.trim()) errors.name = 'Startup name is required.';
+      if (!formData.industry?.trim()) errors.industry = 'Industry/sector is required.';
+      if (!formData.geography?.trim()) errors.geography = 'Focus geography is required.';
+      if (!formData.product?.trim()) errors.product = 'Product innovation is required.';
+      if (!formData.targetCustomer?.trim()) errors.targetCustomer = 'Target customer persona is required.';
+    } else if (role === 'vc' || role === 'angel') {
+      if (!formData.firmName?.trim()) errors.firmName = 'Firm or syndicate name is required.';
+      if (!formData.geography?.trim()) errors.geography = 'Geography focus is required.';
+      if (!formData.sectors?.trim()) errors.sectors = 'Target sectors are required.';
+    } else if (role === 'institution') {
+      if (!formData.orgName?.trim()) errors.orgName = 'Organization name is required.';
+      if (!formData.region?.trim()) errors.region = 'Region/mandate geography is required.';
+      if (!formData.mandate?.trim()) errors.mandate = 'Mandate statement is required.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    setSubmitting(true);
     const profile = {
       role,
       ...(role === 'founder' ? {
@@ -277,13 +312,18 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
               </div>
 
               <form onSubmit={handleSubmit} className="bg-card border border-light rounded-xl shadow-sm p-6 sm:p-8 space-y-6">
+                {Object.keys(fieldErrors).length > 0 && (
+                  <div className="p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-xs font-semibold flex items-center gap-2">
+                    <span>⚠️ Please provide all mandatory workspace information marked below.</span>
+                  </div>
+                )}
 
                 {/* ── FOUNDER FIELDS ── */}
                 {role === 'founder' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="Startup Name" name="name" value={formData.name} onChange={handleChange} placeholder="e.g. Acme AI" required />
-                    <Field label="Target Industry / Sector" name="industry" value={formData.industry} onChange={handleChange} placeholder="e.g. ClimateTech, B2B SaaS" required />
-                    <Field label="Focus Geography" name="geography" value={formData.geography} onChange={handleChange} placeholder="e.g. Bengaluru, Munich, Global" required />
+                    <Field label="Startup Name" name="name" value={formData.name} error={fieldErrors.name} onChange={handleChange} placeholder="e.g. Acme AI" required />
+                    <Field label="Target Industry / Sector" name="industry" value={formData.industry} error={fieldErrors.industry} onChange={handleChange} placeholder="e.g. ClimateTech, B2B SaaS" required />
+                    <Field label="Focus Geography" name="geography" value={formData.geography} error={fieldErrors.geography} onChange={handleChange} placeholder="e.g. Bengaluru, Munich, Global" required />
                     <div>
                       <label className="block text-xs font-bold text-text-secondary uppercase mb-1.5 tracking-wide">Startup Stage</label>
                       <select name="startupStage" value={formData.startupStage} onChange={handleChange} className="os-input">
@@ -291,9 +331,9 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
                       </select>
                     </div>
                     <div className="sm:col-span-2">
-                      <Field label="Product Wedge & Core Innovation" name="product" value={formData.product} onChange={handleChange} placeholder="e.g. subscription-based premium organic cold brew concentrates" required />
+                      <Field label="Product Wedge & Core Innovation" name="product" value={formData.product} error={fieldErrors.product} onChange={handleChange} placeholder="e.g. subscription-based premium organic cold brew concentrates" required />
                     </div>
-                    <Field label="Target Customer Persona" name="targetCustomer" value={formData.targetCustomer} onChange={handleChange} placeholder="e.g. urban professionals, developers" required />
+                    <Field label="Target Customer Persona" name="targetCustomer" value={formData.targetCustomer} error={fieldErrors.targetCustomer} onChange={handleChange} placeholder="e.g. urban professionals, developers" required />
                     <Field label="Team Size" name="teamSize" value={formData.teamSize} onChange={handleChange} placeholder="e.g. Solo founder, 3 engineers" />
                     <Field label="Available Budget / Runway" name="budget" value={formData.budget} onChange={handleChange} placeholder="e.g. Bootstrapped, $100k seed" />
                     <Field label="Strategic Time Window" name="timeline" value={formData.timeline} onChange={handleChange} placeholder="e.g. 30 days, 6 months" />
@@ -309,9 +349,9 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
                 {/* ── VC / ANGEL FIELDS ── */}
                 {(role === 'vc' || role === 'angel') && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="VC Firm / Fund Name" name="firmName" value={formData.firmName} onChange={handleChange} placeholder="e.g. Sequoia India, Accel" required />
-                    <Field label="Geography Focus" name="geography" value={formData.geography} onChange={handleChange} placeholder="e.g. India, South-East Asia, US" required />
-                    <Field label="Target Sectors / Industries" name="sectors" value={formData.sectors} onChange={handleChange} placeholder="e.g. FinTech, AI Infrastructure" required />
+                    <Field label="VC Firm / Fund Name" name="firmName" value={formData.firmName} error={fieldErrors.firmName} onChange={handleChange} placeholder="e.g. Sequoia India, Accel" required />
+                    <Field label="Geography Focus" name="geography" value={formData.geography} error={fieldErrors.geography} onChange={handleChange} placeholder="e.g. India, South-East Asia, US" required />
+                    <Field label="Target Sectors / Industries" name="sectors" value={formData.sectors} error={fieldErrors.sectors} onChange={handleChange} placeholder="e.g. FinTech, AI Infrastructure" required />
                     <div>
                       <label className="block text-xs font-bold text-text-secondary uppercase mb-1.5 tracking-wide">Preferred Investment Stage</label>
                       <select name="investmentStage" value={formData.investmentStage} onChange={handleChange} className="os-input">
@@ -330,8 +370,8 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
                 {/* ── INSTITUTION FIELDS ── */}
                 {role === 'institution' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="Organization Name" name="orgName" value={formData.orgName} onChange={handleChange} placeholder="e.g. Innovation Karnataka, Tech Singapore" required />
-                    <Field label="Region / Mandate Geography" name="region" value={formData.region} onChange={handleChange} placeholder="e.g. Karnataka, Singapore, EU" required />
+                    <Field label="Organization Name" name="orgName" value={formData.orgName} error={fieldErrors.orgName} onChange={handleChange} placeholder="e.g. Innovation Karnataka, Tech Singapore" required />
+                    <Field label="Region / Mandate Geography" name="region" value={formData.region} error={fieldErrors.region} onChange={handleChange} placeholder="e.g. Karnataka, Singapore, EU" required />
                     <Field label="Sector Priorities" name="sectorPriorities" value={formData.sectorPriorities} onChange={handleChange} placeholder="e.g. DeepTech, BioTech, AgTech, Climate" required />
                     <div>
                       <label className="block text-xs font-bold text-text-secondary uppercase mb-1.5 tracking-wide">Program Types Available</label>
@@ -340,7 +380,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
                       </select>
                     </div>
                     <Field label="Institution Support Focus" name="supportFocus" value={formData.supportFocus} onChange={handleChange} placeholder="e.g. R&D Commercialization, Startup Incubation" />
-                    <Field label="Mandate Statement" name="mandate" value={formData.mandate} onChange={handleChange} placeholder="e.g. Deploy INR 200 Cr to support 1000 technical founders" required />
+                    <Field label="Mandate Statement" name="mandate" value={formData.mandate} error={fieldErrors.mandate} onChange={handleChange} placeholder="e.g. Deploy INR 200 Cr to support 1000 technical founders" required />
                     <div className="sm:col-span-2">
                       <label className="block text-xs font-bold text-text-secondary uppercase mb-1.5 tracking-wide">Ecosystem Goals</label>
                       <textarea name="ecosystemGoals" value={formData.ecosystemGoals} onChange={handleChange} rows={3} placeholder="What indicators determine regional ecosystem success for your agency..." className="os-input resize-none" />
@@ -353,9 +393,18 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
                   <button type="button" onClick={() => setStep(1)} className="flex items-center gap-1.5 text-sm font-semibold text-text-muted hover:text-text-primary transition-colors">
                     <ArrowLeft size={14} /> Back
                   </button>
-                  <button type="submit" className="flex items-center gap-2 px-8 py-3 bg-[#1A1A1A] text-white text-sm font-semibold rounded-lg hover:bg-[#333] transition-colors">
-                    <span>Launch Ecosystem Workspace</span>
-                    <ArrowRight size={16} />
+                  <button type="submit" disabled={submitting} className="flex items-center gap-2 px-8 py-3 bg-[#1A1A1A] text-white text-sm font-semibold rounded-lg hover:bg-[#333] transition-colors disabled:opacity-60 cursor-pointer">
+                    {submitting ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>INITIALIZING WORKSPACE...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Launch Ecosystem Workspace</span>
+                        <ArrowRight size={16} />
+                      </>
+                    )}
                   </button>
                 </div>
               </form>
@@ -369,7 +418,7 @@ export default function Onboarding({ founderProfile, setFounderProfile }) {
 }
 
 // Reusable field component
-function Field({ label, name, value, onChange, placeholder, required = false }) {
+function Field({ label, name, value, onChange, placeholder, required = false, error = null }) {
   return (
     <div>
       <label className="block text-xs font-bold text-text-secondary uppercase mb-1.5 tracking-wide">
@@ -382,8 +431,15 @@ function Field({ label, name, value, onChange, placeholder, required = false }) 
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className="os-input"
+        aria-invalid={!!error}
+        aria-describedby={error ? `${name}-error` : undefined}
+        className={`os-input ${error ? '!border-red-500 ring-1 ring-red-500' : ''}`}
       />
+      {error && (
+        <p id={`${name}-error`} className="text-red-500 text-[11px] font-semibold mt-1 flex items-center gap-1 animate-fade-in">
+          <span>⚠️</span> {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D0D0E"/>
+      <stop offset="100%" stop-color="#18181B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="80%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#C8E64A" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#C8E64A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="line" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C8E64A"/>
+      <stop offset="100%" stop-color="#4ADE80"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Subtle Graph Grid -->
+  <g stroke="#27272A" stroke-width="1" opacity="0.6">
+    <line x1="80" y1="0" x2="80" y2="630"/>
+    <line x1="200" y1="0" x2="200" y2="630"/>
+    <line x1="320" y1="0" x2="320" y2="630"/>
+    <line x1="440" y1="0" x2="440" y2="630"/>
+    <line x1="560" y1="0" x2="560" y2="630"/>
+    <line x1="680" y1="0" x2="680" y2="630"/>
+    <line x1="800" y1="0" x2="800" y2="630"/>
+    <line x1="920" y1="0" x2="920" y2="630"/>
+    <line x1="1040" y1="0" x2="1040" y2="630"/>
+    <line x1="1160" y1="0" x2="1160" y2="630"/>
+    <line x1="0" y1="100" x2="1200" y2="100"/>
+    <line x1="0" y1="200" x2="1200" y2="200"/>
+    <line x1="0" y1="300" x2="1200" y2="300"/>
+    <line x1="0" y1="400" x2="1200" y2="400"/>
+    <line x1="0" y1="500" x2="1200" y2="500"/>
+  </g>
+
+  <!-- Connected Graph Nodes (Visual Accent) -->
+  <g opacity="0.75">
+    <line x1="850" y1="220" x2="1000" y2="180" stroke="#C8E64A" stroke-width="2" stroke-dasharray="4 4"/>
+    <line x1="1000" y1="180" x2="1080" y2="300" stroke="#C8E64A" stroke-width="2"/>
+    <line x1="850" y1="220" x2="920" y2="380" stroke="#C8E64A" stroke-width="2"/>
+    <line x1="920" y1="380" x2="1080" y2="300" stroke="#C8E64A" stroke-width="2"/>
+    <line x1="1080" y1="300" x2="1050" y2="460" stroke="#C8E64A" stroke-width="2" stroke-dasharray="4 4"/>
+
+    <circle cx="850" cy="220" r="8" fill="#C8E64A"/>
+    <circle cx="1000" cy="180" r="14" fill="#C8E64A"/>
+    <circle cx="1080" cy="300" r="20" fill="#C8E64A"/>
+    <circle cx="920" cy="380" r="10" fill="#FAF9F6"/>
+    <circle cx="1050" cy="460" r="12" fill="#C8E64A"/>
+  </g>
+
+  <!-- Brand Mark -->
+  <g transform="translate(100, 100)">
+    <rect width="64" height="64" rx="16" fill="#18181B" stroke="#27272A" stroke-width="2"/>
+    <text x="32" y="46" font-family="'Inter', sans-serif" font-size="34" font-weight="900" fill="#FAF9F6" text-anchor="middle">S</text>
+    <circle cx="50" cy="18" r="6" fill="#C8E64A"/>
+    <text x="86" y="44" font-family="'Inter', sans-serif" font-size="32" font-weight="900" fill="#FAF9F6" letter-spacing="-1">Stratify</text>
+    <rect x="230" y="24" width="60" height="24" rx="6" fill="#C8E64A"/>
+    <text x="260" y="40" font-family="'Inter', sans-serif" font-size="11" font-weight="900" fill="#111111" text-anchor="middle" letter-spacing="1">BETA</text>
+  </g>
+
+  <!-- Main Headline -->
+  <text x="100" y="260" font-family="'Inter', -apple-system, sans-serif" font-size="56" font-weight="900" fill="#FAF9F6" letter-spacing="-1.5">
+    THE OPERATING SYSTEM FOR THE
+  </text>
+  <text x="100" y="325" font-family="'Inter', -apple-system, sans-serif" font-size="56" font-weight="900" fill="#C8E64A" letter-spacing="-1.5">
+    STARTUP ECONOMY.
+  </text>
+
+  <!-- Subtitle -->
+  <text x="100" y="385" font-family="'Inter', -apple-system, sans-serif" font-size="22" font-weight="400" fill="#A1A1AA">
+    Connecting Founders, VCs, and Ecosystem Institutions
+  </text>
+  <text x="100" y="415" font-family="'Inter', -apple-system, sans-serif" font-size="22" font-weight="400" fill="#A1A1AA">
+    into one unified, AI-grounded intelligence graph.
+  </text>
+
+  <!-- Metric Pills -->
+  <g transform="translate(100, 480)">
+    <!-- Pill 1 -->
+    <rect x="0" y="0" width="180" height="60" rx="12" fill="#18181B" stroke="#27272A" stroke-width="1.5"/>
+    <text x="20" y="28" font-family="'Inter', sans-serif" font-size="18" font-weight="800" fill="#FAF9F6">2,400+</text>
+    <text x="20" y="46" font-family="'Inter', sans-serif" font-size="10" font-weight="700" fill="#71717A" letter-spacing="1">STARTUPS MAPPED</text>
+
+    <!-- Pill 2 -->
+    <rect x="200" y="0" width="180" height="60" rx="12" fill="#18181B" stroke="#27272A" stroke-width="1.5"/>
+    <text x="220" y="28" font-family="'Inter', sans-serif" font-size="18" font-weight="800" fill="#C8E64A">$1.8B</text>
+    <text x="220" y="46" font-family="'Inter', sans-serif" font-size="10" font-weight="700" fill="#71717A" letter-spacing="1">CAPITAL TRACKED</text>
+
+    <!-- Pill 3 -->
+    <rect x="400" y="0" width="180" height="60" rx="12" fill="#18181B" stroke="#27272A" stroke-width="1.5"/>
+    <text x="420" y="28" font-family="'Inter', sans-serif" font-size="18" font-weight="800" fill="#FAF9F6">31</text>
+    <text x="420" y="46" font-family="'Inter', sans-serif" font-size="10" font-weight="700" fill="#71717A" letter-spacing="1">ECOSYSTEMS</text>
+  </g>
+</svg>

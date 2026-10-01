@@ -11,11 +11,10 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = React.useState(false);
 
   const email = user?.email ? user.email.toLowerCase() : '';
-  const isAdmin = user && (
+  const ADMIN_EMAILS = ['divyanshu.b.sinha@gmail.com', 'divyanshusunstone@gmail.com'];
+  const isAdmin = user && !!user.emailVerified && (
     user.role === 'admin' || 
-    email === 'divyanshu.b.sinha@gmail.com' || 
-    email === 'divyanshusunstone@gmail.com' ||
-    email.startsWith('admin@')
+    ADMIN_EMAILS.includes(email)
   );
 
   React.useEffect(() => {

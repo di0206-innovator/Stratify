@@ -405,11 +405,11 @@ function createApp(options = {}) {
                 objectSrc: ["'none'"],
                 formAction: ["'self'"],
                 frameAncestors: ["'self'"],
-                scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://apis.google.com", "https://*.firebaseapp.com", "'unsafe-inline'"],
+                scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://apis.google.com", "https://*.firebaseapp.com", "https://va.vercel-scripts.com", "'unsafe-inline'"],
                 styleSrc: ["'self'", "https://fonts.googleapis.com", "'unsafe-inline'"],
                 fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
                 imgSrc: ["'self'", "data:", "https:"],
-                connectSrc: ["'self'", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com", "https://*.googleapis.com", "https://*.firebaseapp.com"],
+                connectSrc: ["'self'", "https://identitytoolkit.googleapis.com", "https://securetoken.googleapis.com", "https://*.googleapis.com", "https://*.firebaseapp.com", "https://*.supabase.co", "wss://*.supabase.co", "https://*.sentry.io", "https://*.ingest.sentry.io", "https://va.vercel-scripts.com"],
                 frameSrc: ["'self'", "https://*.firebaseapp.com", "https://*.google.com"]
             }
         }
@@ -737,6 +737,9 @@ function createApp(options = {}) {
     function requireAdmin(req, res, next) {
         if (!req.user) {
             return next(new HttpError(401, 'UNAUTHORIZED', 'Authentication is required.'));
+        }
+        if (req.authType !== 'api_token' && !req.user.emailVerified) {
+            return next(new HttpError(403, 'EMAIL_NOT_VERIFIED', 'Verified email is required for admin access.'));
         }
         const email = req.user.email ? req.user.email.toLowerCase() : '';
         const adminEmails = appConfig.adminEmails || [];

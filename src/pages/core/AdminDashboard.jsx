@@ -25,11 +25,21 @@ export default function AdminDashboard() {
         fetch('/api/admin/waitlist'),
       ]);
 
-      if (!statsRes.ok) throw new Error('Failed to load system stats.');
+      if (!statsRes.ok) {
+        if (statsRes.status === 401 || statsRes.status === 403) {
+          throw new Error('Access denied: verified administrator credentials required.');
+        }
+        throw new Error('Failed to load system stats.');
+      }
       const statsData = await statsRes.json();
       setStats(statsData.stats);
 
-      if (!usersRes.ok) throw new Error('Failed to load user list.');
+      if (!usersRes.ok) {
+        if (usersRes.status === 401 || usersRes.status === 403) {
+          throw new Error('Access denied: verified administrator credentials required.');
+        }
+        throw new Error('Failed to load user list.');
+      }
       const usersData = await usersRes.json();
       setUsers(usersData.users);
 
@@ -139,11 +149,27 @@ export default function AdminDashboard() {
           <span className="font-outfit font-bold text-xs uppercase tracking-wider block">Accessing System Core...</span>
         </div>
       ) : error ? (
-        <div className="border border-red-500/30 p-6 bg-red-500/10 text-red-500 flex items-start gap-3 rounded-xl">
-          <AlertCircle size={24} className="shrink-0" />
-          <div>
-            <span className="uppercase text-sm font-bold block mb-1">System Audit Failure</span>
-            <p className="text-xs font-semibold">{error}</p>
+        <div className="border border-red-500/30 p-6 bg-red-500/10 text-red-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl">
+          <div className="flex items-start gap-3">
+            <AlertCircle size={24} className="shrink-0 mt-0.5" />
+            <div>
+              <span className="uppercase text-sm font-bold block mb-1">System Authorization / Audit Failure</span>
+              <p className="text-xs font-semibold">{error}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={fetchAdminData}
+              className="px-3 py-1.5 rounded-lg border border-red-500/40 text-xs font-bold font-outfit uppercase hover:bg-red-500/20 transition-all cursor-pointer"
+            >
+              Retry
+            </button>
+            <a
+              href="/"
+              className="px-3 py-1.5 rounded-lg bg-red-500 text-white text-xs font-bold font-outfit uppercase hover:bg-red-600 transition-all text-center"
+            >
+              Return Home
+            </a>
           </div>
         </div>
       ) : (

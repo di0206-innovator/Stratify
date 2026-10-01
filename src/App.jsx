@@ -11,12 +11,16 @@ import About from './pages/marketing/About';
 import Upgrade from './pages/marketing/Upgrade';
 import BookWalkthrough from './pages/marketing/BookWalkthrough';
 import CommandPalette from './components/CommandPalette';
+import CookieBanner from './components/CookieBanner';
+import StickyMobileCta from './components/StickyMobileCta';
+import { trackPageView } from './lib/analytics';
 import { supabase } from './lib/supabase';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
+    trackPageView(pathname);
   }, [pathname]);
   return null;
 }
@@ -40,6 +44,8 @@ const Opportunities = lazy(() => import('./pages/ecosystem/Opportunities'));
 const Explore = lazy(() => import('./pages/ecosystem/Explore'));
 const FounderMemory = lazy(() => import('./pages/tools/FounderMemory'));
 const Settings = lazy(() => import('./pages/core/Settings'));
+const NotFound = lazy(() => import('./pages/core/NotFound'));
+const ThankYou = lazy(() => import('./pages/marketing/ThankYou'));
 
 // Fallback spinner for lazy-loaded pages
 const PageFallback = () => (
@@ -118,12 +124,11 @@ export default function App() {
  });
 
  const email = user && user.email ? user.email.toLowerCase() : '';
- const isAdmin = user && (
- user.role === 'admin' || 
- email === 'divyanshu.b.sinha@gmail.com' || 
- email === 'divyanshusunstone@gmail.com' ||
- email.startsWith('admin@')
-);
+ const ADMIN_EMAILS = ['divyanshu.b.sinha@gmail.com', 'divyanshusunstone@gmail.com'];
+ const isAdmin = user && !!user.emailVerified && (
+   user.role === 'admin' || 
+   ADMIN_EMAILS.includes(email)
+ );
 
  useEffect(() => {
  document.documentElement.setAttribute('data-theme', theme);
@@ -304,12 +309,9 @@ function AppContent({
   const seo = getSeoForPath(location.pathname);
 
   // Only redirect unauthenticated users from private routes
-  const isOnboardingRoute = location.pathname === '/onboarding';
-  const isSettingsRoute = location.pathname === '/settings';
-  const isAdminRoute = location.pathname === '/admin';
-  
-  if (!user && !isPublicRoute) {
-  return <Navigate to="/" replace />;
+  const PROTECTED_ROUTES = ['/dashboard', '/settings', '/admin', '/onboarding'];
+  if (!user && PROTECTED_ROUTES.includes(location.pathname)) {
+    return <Navigate to="/" replace />;
   }
 
   // Only redirect to onboarding from dashboard — let all other pages handle missing profile gracefully
@@ -482,8 +484,11 @@ function AppContent({
   <Route path="/book" element={<BookWalkthrough />} />
   <Route path="/schedule-walkthrough" element={<BookWalkthrough />} />
 
-  {/* Wildcard Fallback */}
-  <Route path="*" element={<Navigate to="/" replace />} />
+  {/* Thank You Page */}
+  <Route path="/thank-you" element={<ThankYou />} />
+
+  {/* Dedicated Custom 404 Page */}
+  <Route path="*" element={<NotFound />} />
  </Routes>
  </Suspense>
  </main>
@@ -512,71 +517,203 @@ function AppContent({
  isOpen={isCommandPaletteOpen} 
  onClose={() => setIsCommandPaletteOpen(false)} 
  />
+
+ {/* Cookie Banner */}
+ <CookieBanner />
+
+ {/* Sticky Mobile CTA */}
+ <StickyMobileCta user={user} openAuthModal={openAuthModal} />
  </>
 );
 }
 
 function getSeoForPath(pathname) {
- const defaults = {
- title: 'Stratify | Startup Economy Operating System',
- description: 'Stratify connects founders, investors, and startup institutions in one AI-powered operating system for execution, intelligence, and ecosystem visibility.',
- robots: 'index, follow',
- };
+  const defaults = {
+    title: 'Stratify | Startup Economy Operating System',
+    description: 'Stratify connects founders, investors, and startup institutions in one AI-powered operating system for execution, intelligence, and ecosystem visibility.',
+    robots: 'index, follow',
+  };
 
- if (pathname === '/') {
- return defaults;
- }
+  if (pathname === '/') {
+    return defaults;
+  }
 
- if (pathname.startsWith('/brief/')) {
- return {
- ...defaults,
- title: 'Stratify Brief | Shared Startup Intelligence',
- description: 'View a shared Stratify brief with startup intelligence, context, and supporting analysis.',
- };
- }
+  if (pathname.startsWith('/brief/')) {
+    return {
+      ...defaults,
+      title: 'Startup Brief & Diligence Memo | Stratify Intelligence',
+      description: 'View an AI-grounded Stratify diligence brief with market signals, competitor analysis, and execution roadmaps.',
+    };
+  }
 
- if (pathname === '/about') {
- return {
- ...defaults,
- title: 'About Stratify | Startup Economy Operating System',
- description: 'Learn about Stratify and its mission to build the operating system for startup ecosystems.',
- };
- }
+  if (pathname.startsWith('/startups/')) {
+    return {
+      ...defaults,
+      title: 'Startup Profile & Graph Node | Stratify Ecosystem',
+      description: 'Inspect verified startup traction, tech stack, funding stage, and ecosystem connections on the Stratify graph.',
+    };
+  }
 
- if (pathname === '/privacy') {
- return {
- ...defaults,
- title: 'Privacy Policy | Stratify',
- description: 'Read how Stratify handles data, privacy, and platform protections.',
- };
- }
+  if (pathname === '/explore') {
+    return {
+      ...defaults,
+      title: 'Explore Startup Graph & Ecosystem Directory | Stratify',
+      description: 'Search and filter active startups across AI, SaaS, FinTech, and climate tech with live stage and geography telemetry.',
+    };
+  }
+
+  if (pathname === '/feed') {
+    return {
+      ...defaults,
+      title: 'Startup Community & Founder Feed | Stratify',
+      description: 'Join discussions, share product milestones, and discover co-founders and early adopters in the global founder feed.',
+    };
+  }
+
+  if (pathname === '/signals') {
+    return {
+      ...defaults,
+      title: 'Live Market Signals & Deal Flow Intelligence | Stratify',
+      description: 'Real-time market velocity pulses, emerging venture trends, and thesis-driven startup signal discovery powered by AI.',
+    };
+  }
+
+  if (pathname === '/intelligence' || pathname === '/reports' || pathname === '/insights') {
+    return {
+      ...defaults,
+      title: 'Strategic Intelligence & Research Engine | Stratify',
+      description: 'Generate deep-dive competitor tear-downs, market opportunity assessments, and defensible GTM execution plans.',
+    };
+  }
+
+  if (pathname === '/runway') {
+    return {
+      ...defaults,
+      title: 'Runway Planner & Burn Rate Calculator | Stratify Tools',
+      description: 'Interactive financial modeling tool for startup founders to simulate hiring scenarios, burn rates, and cash-out dates.',
+    };
+  }
+
+  if (pathname === '/equity') {
+    return {
+      ...defaults,
+      title: 'Cap Table & Equity Split Planner | Stratify Tools',
+      description: 'Model founding team equity allocation, vesting schedules, option pools, and SAFE dilution with institutional precision.',
+    };
+  }
+
+  if (pathname === '/bounties') {
+    return {
+      ...defaults,
+      title: 'Micro Bounty Board & Task Marketplace | Stratify',
+      description: 'Deploy milestone bounties, claim engineering and design tasks, and earn reputation within the startup ecosystem.',
+    };
+  }
+
+  if (pathname === '/timeline') {
+    return {
+      ...defaults,
+      title: 'Milestone Timeline & Execution Proof-of-Work | Stratify',
+      description: 'Track roadmap velocity, verify public achievements, and build an auditable track record for investors and partners.',
+    };
+  }
+
+  if (pathname === '/opportunities') {
+    return {
+      ...defaults,
+      title: 'Capital, Grants & Program Matching | Stratify',
+      description: 'Discover non-dilutive government grants, accelerator programs, and VC investment opportunities matched to your startup stage.',
+    };
+  }
+
+  if (pathname === '/dashboard') {
+    return {
+      ...defaults,
+      title: 'Executive Dashboard | Stratify Founder OS',
+      description: 'Unified command center for startup execution, real-time runway metrics, intelligence briefs, and ecosystem connections.',
+      robots: 'noindex, nofollow',
+    };
+  }
+
+  if (pathname === '/onboarding') {
+    return {
+      ...defaults,
+      title: 'Workspace Onboarding & Registry | Stratify',
+      description: 'Initialize your Stratify workspace, define your startup profile, and configure custom role-tailored intelligence.',
+      robots: 'noindex, nofollow',
+    };
+  }
+
+  if (pathname === '/settings') {
+    return {
+      ...defaults,
+      title: 'Workspace Settings & Security | Stratify',
+      description: 'Manage account security, API keys, notification preferences, and team permissions in Stratify.',
+      robots: 'noindex, nofollow',
+    };
+  }
+
+  if (pathname === '/admin') {
+    return {
+      ...defaults,
+      title: 'System Admin Console | Stratify',
+      description: 'Administrative overview of platform health, user sessions, active intelligence jobs, and waitlist management.',
+      robots: 'noindex, nofollow',
+    };
+  }
+
+  if (pathname === '/about') {
+    return {
+      ...defaults,
+      title: 'About Stratify | Operating System for the Startup Economy',
+      description: 'Learn about Stratify Labs and our mission to unite founders, investors, and institutions into a single intelligent graph.',
+    };
+  }
+
+  if (pathname === '/privacy') {
+    return {
+      ...defaults,
+      title: 'Privacy Policy & Data Security | Stratify',
+      description: 'Read how Stratify handles data encryption, privacy protections, zero data leakage guarantees, and user rights.',
+    };
+  }
 
   if (pathname === '/terms') {
     return {
       ...defaults,
       title: 'Terms of Service | Stratify',
-      description: 'Review the terms governing access to and use of the Stratify platform.',
+      description: 'Review the terms and conditions governing access to and use of the Stratify ecosystem platform and tools.',
     };
   }
 
   if (pathname === '/upgrade') {
     return {
       ...defaults,
-      title: 'Upgrade — Premium Plans Coming Soon | Stratify',
-      description: 'Premium features are rolling out soon. Join the waitlist to be first in line for advanced AI capabilities, investor data rooms, and more.',
+      title: 'Upgrade & Premium Waitlist | Stratify',
+      description: 'Explore premium intelligence capabilities, dedicated VC deal rooms, and priority background processing tiers.',
     };
   }
 
-  if (pathname === '/walkthrough') {
+  if (pathname === '/walkthrough' || pathname === '/book-walkthrough' || pathname === '/demo' || pathname === '/walkthrough-demo' || pathname === '/book' || pathname === '/schedule-walkthrough') {
     return {
       ...defaults,
-      title: 'Book a Walkthrough | Stratify Executive Demo',
-      description: 'Schedule a 1-on-1 live walkthrough of Stratify with a lead executive over Google Meet. Tailored for founders, VCs, angels, and institutions.',
+      title: 'Book a Live Walkthrough | Stratify Executive Demo',
+      description: 'Schedule a 1-on-1 personalized Google Meet demo of Stratify with a lead executive for your fund, startup, or accelerator.',
+    };
+  }
+
+  if (pathname === '/thank-you') {
+    return {
+      ...defaults,
+      title: 'Confirmation & Next Steps | Stratify',
+      description: 'Your request has been received. Check your inbox for calendar invitations, meeting links, or priority status updates.',
     };
   }
 
   return {
- ...defaults,
- robots: 'noindex, nofollow',
- };
+    ...defaults,
+    title: '404 Page Not Found | Stratify',
+    description: 'The requested page could not be found on the Stratify Startup Economy platform.',
+    robots: 'noindex, nofollow',
+  };
 }
