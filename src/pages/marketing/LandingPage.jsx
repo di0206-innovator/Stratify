@@ -24,63 +24,66 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
           SECTION 1: Marketing Navigation
           ════════════════════════════════════════════════════════════ */}
       <nav className="w-full sticky top-0 z-50 bg-canvas/90 backdrop-blur-md border-b border-DEFAULT/60" aria-label="Marketing navigation">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 min-h-16 py-3 flex flex-wrap items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-4 sm:py-5 flex items-center justify-between gap-6">
           {/* Brand */}
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-surface-dark flex items-center justify-center text-white font-outfit font-black text-base">
+          <Link to="/" className="flex items-center gap-3 flex-shrink-0 group">
+            <div className="w-8 h-8 rounded-lg bg-surface-dark flex items-center justify-center text-white font-outfit font-black text-base shadow-sm group-hover:scale-105 transition-transform">
               S
             </div>
-            <span className="font-outfit font-black text-xl tracking-tight">Stratify</span>
+            <span className="font-outfit font-black text-xl tracking-tight text-text-primary">Stratify</span>
             <span className="bg-accent text-[#111] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider scale-90 flex-shrink-0">
               Beta
             </span>
+          </Link>
+
+          {/* Center links — spacious and elegant */}
+          <div className="hidden md:flex items-center gap-8 lg:gap-10">
+            <a href="#system" className="text-xs font-semibold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors py-1">Product</a>
+            <a href="#roles" className="text-xs font-semibold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors py-1">Roles</a>
+            <a href="#compounds" className="text-xs font-semibold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors py-1">Graph</a>
+            <a href="#pricing" className="text-xs font-semibold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors py-1">Pricing</a>
+            <a href="#architecture" className="text-xs font-semibold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors py-1">Architecture</a>
           </div>
 
-          {/* Center links — hidden on mobile */}
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#system" className="text-sm text-text-secondary hover:text-text-primary transition-colors font-medium">Product</a>
-            <a href="#roles" className="text-sm text-text-secondary hover:text-text-primary transition-colors font-medium">Roles</a>
-            <a href="#compounds" className="text-sm text-text-secondary hover:text-text-primary transition-colors font-medium">Graph</a>
-            <a href="#pricing" className="text-sm text-text-secondary hover:text-text-primary transition-colors font-medium">Pricing</a>
-            <a href="#testimonial" className="text-sm text-text-secondary hover:text-text-primary transition-colors font-medium">Customers</a>
-          </div>
-
-          {/* Auth & Theme */}
-          <div className="flex items-center gap-3 ml-auto">
+          {/* Auth & CTAs — breathable cluster */}
+          <div className="flex items-center gap-3 sm:gap-4 ml-auto sm:ml-0 flex-shrink-0">
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-2 mr-2 text-text-secondary hover:text-text-primary hover:bg-hover rounded-full transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-full border border-DEFAULT bg-card flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-hover transition-colors cursor-pointer"
               aria-label="Toggle dark mode"
             >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
             </button>
+
+            <div className="hidden sm:block h-5 w-px bg-DEFAULT/70"></div>
+
             {user ? (
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-dark text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-dark text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:opacity-90 transition-all shadow-sm"
               >
-                <ArrowRight size={15} />
+                <ArrowRight size={14} />
                 Dashboard
               </Link>
             ) : (
               <>
                 <Link
                   to="/walkthrough"
-                  className="px-4 py-2 bg-accent/15 border border-accent/40 text-text-primary text-xs font-outfit font-bold uppercase tracking-wider rounded-lg hover:bg-accent hover:text-[#111] transition-all hidden sm:inline-flex items-center gap-1.5"
+                  className="px-4 py-2 bg-accent/15 border border-accent/40 text-text-primary text-xs font-outfit font-bold uppercase tracking-wider rounded-xl hover:bg-accent hover:text-[#111] transition-all hidden sm:inline-flex items-center gap-1.5"
                 >
                   Book Walkthrough
                 </Link>
                 <button
                   onClick={openAuthModal}
-                  className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors hidden sm:block"
+                  className="text-xs font-bold uppercase tracking-wider text-text-secondary hover:text-text-primary transition-colors px-2 py-1.5 hidden sm:block"
                 >
                   Sign in
                 </button>
                 <button
                   onClick={openAuthModal}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-dark text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-colors"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-surface-dark text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:opacity-90 transition-all shadow-sm cursor-pointer"
                 >
-                  <ArrowRight size={15} />
+                  <ArrowRight size={14} />
                   Get started
                 </button>
               </>
@@ -117,7 +120,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
 
             {/* Subtitle */}
             <p className="text-base md:text-lg text-text-muted leading-relaxed max-w-lg mb-10">
-              Stratify connects founders, investors, angels, and institutions into a unified startup graph — powering background AI intelligence, capital flow, and execution proof-of-work.
+              Stratify connects founders, investors, angels, and institutions into a living startup graph to drive real-time AI intelligence, capital flow, and verified proof of work.
             </p>
 
             {/* CTAs */}
@@ -137,19 +140,19 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
               </Link>
             </div>
 
-            {/* Stats strip */}
-            <div className="flex flex-wrap items-center gap-8 md:gap-14">
+            {/* Architectural Specifications strip */}
+            <div className="flex flex-wrap items-center gap-8 md:gap-12 pt-2">
               <div>
-                <span className="block font-outfit font-black text-2xl text-text-primary">2,400+</span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted mt-0.5 block">startups mapped</span>
+                <span className="block font-outfit font-black text-2xl text-text-primary">Graph-Native</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted mt-0.5 block">Unified Ecosystem Core</span>
               </div>
               <div>
-                <span className="block font-outfit font-black text-2xl text-text-primary">$1.8B</span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted mt-0.5 block">capital tracked</span>
+                <span className="block font-outfit font-black text-2xl text-text-primary">Multi-Agent</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted mt-0.5 block">Intelligence & Verification</span>
               </div>
               <div>
-                <span className="block font-outfit font-black text-2xl text-text-primary">31</span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted mt-0.5 block">ecosystems</span>
+                <span className="block font-outfit font-black text-2xl text-text-primary">Zero-Leak</span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-text-muted mt-0.5 block">Row-Level Security</span>
               </div>
             </div>
           </div>
@@ -163,17 +166,24 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
 
 
       {/* ════════════════════════════════════════════════════════════
-          SECTION 3: Trust Strip
+          SECTION 3: Ecosystem Audience & Infrastructure
           ════════════════════════════════════════════════════════════ */}
       <section className="border-y border-DEFAULT bg-canvas py-8">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-16">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-14">
             <span className="text-[10px] font-outfit font-semibold uppercase tracking-[0.2em] text-text-muted whitespace-nowrap">
-              Trusted across the ecosystem
+              Engineered for
             </span>
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 text-text-muted">
-              {['Northwind', 'Meridian', 'Karnataka SIC', 'Verdant', 'Orbit Labs', 'Lumen'].map((name) => (
-                <span key={name} className="font-outfit font-bold text-sm tracking-tight hover:text-text-primary transition-colors cursor-default">
+            <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10 text-text-secondary">
+              {[
+                'Early Stage Founders',
+                'Angel Syndicates',
+                'Venture Capitalists',
+                'Startup Accelerators',
+                'Ecosystem Institutions',
+                'Family Offices'
+              ].map((name) => (
+                <span key={name} className="font-outfit font-semibold text-xs tracking-wider uppercase hover:text-text-primary transition-colors cursor-default">
                   {name}
                 </span>
               ))}
@@ -211,7 +221,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
               </div>
               <h3 className="font-outfit font-bold text-xl text-text-primary mb-3">Founders</h3>
               <p className="text-sm text-text-muted leading-relaxed mb-6">
-                Run execution from one graph — runway, equity, memory, and momentum in a single loop.
+                Keep your entire execution in sync: runway forecasts, equity math, strategic memory, and live momentum all moving together.
               </p>
               <ul className="space-y-2.5 mb-8">
                 {['Runway & equity planners', 'Founder memory', 'Micro-bounties'].map((item) => (
@@ -307,7 +317,7 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
           {[
             { icon: Network, title: 'Startup Graph', desc: 'Every milestone, decision, and metric attaches to one living data model.', bg: 'bg-card' },
             { icon: Radio, title: 'Signals', desc: 'Market, product, and competitive signals feed your intelligence layer.', bg: 'bg-hover' },
-            { icon: Brain, title: 'Founder Memory', desc: 'Capture decisions and their outcomes — validated or invalidated.', bg: 'bg-card' },
+            { icon: Brain, title: 'Founder Memory', desc: 'Track key decisions, validate experiments, and build your strategic moat in real time.', bg: 'bg-card' },
             { icon: FileText, title: 'Insights & Briefs', desc: 'Generate analysis and data-room ready briefs from live graph state.', bg: 'bg-card' },
             { icon: DollarSign, title: 'Runway & Equity', desc: 'Model burn, cash, and cap table with scenarios that stay in sync.', bg: 'bg-hover' },
             { icon: TrendingUp, title: 'Deal Flow', desc: 'Score compatibility and track pipeline with transparent reasoning.', bg: 'bg-card' },
@@ -366,39 +376,41 @@ export default function LandingPage({ openAuthModal, user, theme, setTheme }) {
 
 
       {/* ════════════════════════════════════════════════════════════
-          SECTION 7: Testimonial / Field Note
+          SECTION 7: Architecture & Founding Principle
           ════════════════════════════════════════════════════════════ */}
-      <section id="testimonial" className="bg-surface-dark text-white">
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-            {/* Left: Quote */}
+      <section id="architecture" className="bg-surface-dark text-white">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left: Founder Philosophy */}
             <div className="animate-fade-in-up">
-              <p className="text-[10px] font-outfit font-semibold uppercase tracking-[0.2em] text-text-muted mb-8">Field note</p>
-              <blockquote className="font-outfit font-bold text-xl md:text-2xl leading-snug text-white/95 mb-10">
-                "Stratify replaced four tools and a dozen spreadsheets. For the first time, our board deck, runway, and product signals all tell the same story — because they're the same data."
+              <p className="text-[10px] font-outfit font-semibold uppercase tracking-[0.2em] text-accent mb-6">Platform Architecture</p>
+              <blockquote className="font-outfit font-bold text-xl md:text-2xl leading-relaxed text-white/95 mb-8">
+                "Startups move fast, but lose ground when execution stays locked in isolated sheets, decks, and chats. We built Stratify so your runway, cap table scenarios, experiments, and market signals live in one shared graph. Founders gain total clarity, while investors get real, verifiable proof of work."
               </blockquote>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-outfit font-bold text-sm text-text-primary">
-                  PN
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-accent text-[#111] flex items-center justify-center font-outfit font-black text-base shadow-sm">
+                  DS
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">Priya Nair</p>
-                  <p className="text-xs text-text-muted">CEO, Atlas Freight</p>
+                  <p className="text-sm font-bold text-white font-outfit uppercase tracking-tight">Divyanshu Sinha</p>
+                  <p className="text-xs text-text-muted font-medium">Founder & CEO, Stratify</p>
                 </div>
               </div>
             </div>
 
-            {/* Right: Metrics grid */}
-            <div className="grid grid-cols-2 gap-px bg-gray-700/30 rounded-xl overflow-hidden animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            {/* Right: Core Guarantees grid */}
+            <div className="grid grid-cols-2 gap-px bg-white/10 rounded-2xl overflow-hidden animate-fade-in-up border border-white/10" style={{ animationDelay: '0.1s' }}>
               {[
-                { value: '4→1', label: 'tools consolidated' },
-                { value: '9hrs', label: 'saved / week' },
-                { value: '+22%', label: 'MRR momentum' },
-                { value: '14mo', label: 'runway clarity' },
-              ].map((metric) => (
-                <div key={metric.label} className="bg-surface-dark p-8">
-                  <span className="block font-outfit font-black text-3xl text-white mb-2">{metric.value}</span>
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">{metric.label}</span>
+                { title: 'Deterministic', desc: 'Unified source of truth for runway, equity, and milestones' },
+                { title: 'Zero Leakage', desc: 'PostgreSQL Row-Level Security with granular data room grants' },
+                { title: 'Multi-Agent', desc: 'Context-aware intelligence with strict grounding verification' },
+                { title: 'Ecosystem Graph', desc: 'Connected network bridging founders, syndicates, and funds' },
+              ].map((item) => (
+                <div key={item.title} className="bg-surface-dark p-8 flex flex-col justify-between">
+                  <div>
+                    <span className="block font-outfit font-black text-lg text-white mb-2">{item.title}</span>
+                    <span className="text-xs text-text-muted leading-relaxed font-inter">{item.desc}</span>
+                  </div>
                 </div>
               ))}
             </div>

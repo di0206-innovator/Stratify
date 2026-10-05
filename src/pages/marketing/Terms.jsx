@@ -57,8 +57,8 @@ export default function Terms() {
 
         <section className="pt-6 border-t border-light space-y-2 text-xs text-text-muted select-none">
           <p className="font-semibold text-text-primary">Legal Notices & Inquiries:</p>
-          <p>Stratify Labs Inc. • 548 Market Street, Suite 95204, San Francisco, CA 94104, United States</p>
-          <p>Legal Team: <a href="mailto:legal@stratify.co" className="underline hover:text-text-primary">legal@stratify.co</a></p>
+          <p>Stratify Labs • Operating Globally Remote & Distributed</p>
+          <p>Legal & Compliance: <a href="mailto:legal@stratify.co" className="underline hover:text-text-primary">legal@stratify.co</a></p>
         </section>
       </div>
     </div>

@@ -62,7 +62,7 @@ const RealtimeTicker = memo(function RealtimeTicker() {
       addNewTickerItem({ text, type: 'bounty' });
     },
     signal_created: (signal) => {
-      const text = `⚡ SIGNAL: [${signal.type}] ${signal.title} — Impact: ${signal.impact}`;
+      const text = `⚡ SIGNAL: [${signal.type}] ${signal.title} • Impact: ${signal.impact}`;
       addNewTickerItem({ text, type: 'signal' });
     }
   });

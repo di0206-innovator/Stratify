@@ -64,7 +64,7 @@ export default function RunwayPlanner({ user, openAuthModal }) {
         setSimulationLog(msg);
       }
     } catch (err) {
-      setSimulationLog('Network error — could not reach the simulation engine. Check your connection.');
+      setSimulationLog('Network issue: could not reach the simulation engine. Please check your connection.');
     } finally {
       setSimulating(false);
     }

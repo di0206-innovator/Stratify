@@ -365,7 +365,7 @@ export default function InteractiveSandbox() {
                 <div className="flex items-center gap-2">
                   <Brain size={18} className="text-accent" />
                   <span className="font-outfit font-black text-base text-text-primary">
-                    {selectedPreset.name} — Diligence Brief
+                    {selectedPreset.name}: Diligence Brief
                   </span>
                 </div>
                 <span className="px-3 py-1 bg-accent/20 border border-accent/40 text-text-primary text-[10px] font-black uppercase rounded-full font-outfit">

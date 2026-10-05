@@ -110,10 +110,10 @@ export default function ThankYou() {
           </Link>
         </div>
 
-        {/* Registered Address Verification */}
+        {/* Official Contact Notice */}
         <div className="text-[11px] text-text-muted border-t border-DEFAULT pt-6">
           <p className="font-medium">
-            Stratify Labs Inc. • 548 Market Street, Suite 95204, San Francisco, CA 94104 • support@stratify.co
+            Stratify Labs • Operating Globally Remote & Distributed • support@stratify.co
           </p>
         </div>
       </div>

@@ -68,8 +68,8 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-16 pt-6 border-t border-DEFAULT flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-text-muted">
           <div>
-            <span>© {new Date().getFullYear()} Stratify Labs Inc. All rights reserved.</span>
-            <span className="hidden sm:inline"> • 548 Market St, Suite 95204, San Francisco, CA 94104</span>
+            <span>© {new Date().getFullYear()} Stratify Labs. All rights reserved.</span>
+            <span className="hidden sm:inline"> • Global Remote Operations • hello@stratify.co</span>
           </div>
           <div className="flex items-center gap-6">
             <Link to="/privacy" className="text-text-muted hover:text-text-primary transition-colors">Privacy</Link>

@@ -63,7 +63,7 @@ export default function Privacy() {
 
         <section className="pt-6 border-t border-light space-y-2 text-xs text-text-muted select-none">
           <p className="font-semibold text-text-primary">Contact & Data Protection Officer:</p>
-          <p>Stratify Labs Inc. • 548 Market Street, Suite 95204, San Francisco, CA 94104, United States</p>
+          <p>Stratify Labs • Operating Globally Remote & Distributed</p>
           <p>Privacy & Security Team: <a href="mailto:privacy@stratify.co" className="underline hover:text-text-primary">privacy@stratify.co</a></p>
         </section>
       </div>

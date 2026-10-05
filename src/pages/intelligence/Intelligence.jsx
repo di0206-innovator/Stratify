@@ -222,7 +222,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
       if (res.ok) {
         const data = await res.json();
         setBriefId(data.brief.id);
-        setToast({ message: 'Brief saved & locked to Investor Data Room ✓ — also logged to Timeline', type: 'success' });
+        setToast({ message: 'Brief saved & locked to Investor Data Room ✓ (also logged to Timeline)', type: 'success' });
         confetti({
           particleCount: 80,
           spread: 50,
@@ -234,7 +234,7 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
         setToast({ message: msg, type: 'error' });
       }
     } catch (err) {
-      setToast({ message: 'Network error — could not save brief. Check your connection.', type: 'error' });
+      setToast({ message: 'Network issue: could not save brief. Please check your connection.', type: 'error' });
       console.error('Failed to save brief:', err);
     } finally {
       setSavingBrief(false);

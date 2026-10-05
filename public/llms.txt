@@ -1,0 +1,30 @@
+# Stratify: The Operating System for the Startup Economy
+
+> Stratify connects founders, venture capital investors, and accelerator institutions into a single context-aware network powered by real-time market signals and AI execution intelligence.
+
+## Core System Modules
+
+- [Explore Startup Graph](https://stratify.co/explore): Verified directory and graph nodes across SaaS, AI, FinTech, and DeepTech startups.
+- [Live Market Signals](https://stratify.co/signals): AI-grounded market velocity telemetry, competitor moves, and customer demand pulses.
+- [Founder Memory & Decisions](https://stratify.co/memory): Immutable strategic decision logging linking architectural and business choices to business outcomes.
+- [Strategic Intelligence & Briefs](https://stratify.co/intelligence): Deep-dive competitor tear-downs, market opportunity assessments, and defensible GTM execution plans.
+- [Runway & Burn Planner](https://stratify.co/runway): Interactive startup financial simulation modeling hiring plans, revenue growth, and zero-cash dates.
+- [Cap Table & Equity Split](https://stratify.co/equity): Founding equity allocation, vesting schedules, option pools, and SAFE dilution calculator.
+- [Bounty Board](https://stratify.co/bounties): Milestone marketplace for deploying tasks, claiming engineering bounties, and earning ecosystem reputation.
+- [Opportunities Engine](https://stratify.co/opportunities): Non-dilutive government grants, venture capital thesis matching, and accelerator applications.
+- [Live Walkthrough](https://stratify.co/walkthrough): 1-on-1 executive demo and strategy call booking.
+
+## Key Facts & Architecture
+
+- **Operations**: Global Remote & Distributed. Contact: hello@stratify.co.
+- **Geographic Coverage**: San Francisco / Silicon Valley, New York, Bengaluru, London, Singapore, Berlin, Tokyo, Sydney.
+- **AI Core**: Multi-agent orchestration powered by Google Gemini 2.5 Flash, Tavily live web grounding, and recursive QA Critic validation loops.
+- **Database & Auth**: Scalable PostgreSQL with Supabase authentication and session token verification.
+- **Security**: Strict Row-Level Security (RLS), constant-time token comparison, HttpOnly encrypted cookies, and zero private data leakage guarantees.
+
+## Documentation & Full Spec
+
+- Full LLM specification: [llms-full.txt](https://stratify.co/llms-full.txt)
+- About & Leadership: [https://stratify.co/about](https://stratify.co/about)
+- Privacy Policy: [https://stratify.co/privacy](https://stratify.co/privacy)
+- Terms of Service: [https://stratify.co/terms](https://stratify.co/terms)

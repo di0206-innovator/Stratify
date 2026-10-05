@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 
 const PLANS = [
-  { id: 'founder', label: 'Founder OS — $49/mo' },
-  { id: 'investor', label: 'Investor OS — $299/mo' },
-  { id: 'institution', label: 'Institution OS — $999/mo' },
+  { id: 'founder', label: 'Founder OS ($49/mo)' },
+  { id: 'investor', label: 'Investor OS ($299/mo)' },
+  { id: 'institution', label: 'Institution OS ($999/mo)' },
 ];
 
 const UPCOMING_FEATURES = [

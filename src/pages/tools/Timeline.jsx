@@ -77,7 +77,7 @@ export default function Timeline({ founderProfile, user, openAuthModal }) {
   const isEcosystem = founderProfile?.role === 'vc' || founderProfile?.role === 'institution' || founderProfile?.role === 'government';
 
   return (
-    <AuthGate user={user} openAuthModal={openAuthModal} message={isEcosystem ? "Sign in to view the ecosystem activity timeline." : "Sign in to view your startup's activity timeline — every decision, milestone, and change."}>
+    <AuthGate user={user} openAuthModal={openAuthModal} message={isEcosystem ? "Sign in to view the ecosystem activity timeline." : "Sign in to follow your startup journey across every key milestone, pivot, and update."}>
       <div className="max-w-4xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-text-primary">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-light select-none">
@@ -90,7 +90,7 @@ export default function Timeline({ founderProfile, user, openAuthModal }) {
                 {isEcosystem ? 'Ecosystem Timeline' : 'Startup Timeline'}
               </h1>
               <p className="font-inter text-text-secondary mt-1 text-xs sm:text-sm">
-                {isEcosystem ? 'Real-time activity feed of regional startups — milestones, launches, and decisions.' : "Your startup's living history — every decision, milestone, and change."}
+                {isEcosystem ? 'Live ecosystem pulse tracking launches, milestones, and strategic moves.' : "Your startup's living record covering milestones, experiments, and pivotal decisions."}
               </p>
             </div>
           </div>

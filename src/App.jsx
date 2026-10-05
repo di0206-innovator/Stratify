@@ -532,6 +532,20 @@ function getSeoForPath(pathname) {
     title: 'Stratify | Startup Economy Operating System',
     description: 'Stratify connects founders, investors, and startup institutions in one AI-powered operating system for execution, intelligence, and ecosystem visibility.',
     robots: 'index, follow',
+    keywords: 'stratify, startup operating system, startup ecosystem, venture capital, angel investors, cofounder matching, founder network, validation engine, product development, global startup platform',
+    geoRegion: 'US-CA',
+    geoPlacename: 'San Francisco, California',
+    geoPosition: '37.789172;-122.401449',
+    schema: {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      'name': 'Stratify',
+      'applicationCategory': 'BusinessApplication, FinancialApplication',
+      'operatingSystem': 'Web, Cloud, SaaS',
+      'url': 'https://stratify.co',
+      'description': 'The Operating System for the Startup Economy connecting founders, VCs, and institutions.',
+      'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'USD' }
+    }
   };
 
   if (pathname === '/') {
@@ -543,6 +557,14 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Startup Brief & Diligence Memo | Stratify Intelligence',
       description: 'View an AI-grounded Stratify diligence brief with market signals, competitor analysis, and execution roadmaps.',
+      keywords: 'startup brief, investment memo, diligence teardown, competitor analysis, market validation',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        'headline': 'Startup Intelligence & Diligence Memo',
+        'publisher': { '@type': 'Organization', 'name': 'Stratify Labs Inc.' },
+        'description': 'AI-grounded diligence brief featuring real-time market signals and competitor landscape analysis.'
+      }
     };
   }
 
@@ -551,6 +573,7 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Startup Profile & Graph Node | Stratify Ecosystem',
       description: 'Inspect verified startup traction, tech stack, funding stage, and ecosystem connections on the Stratify graph.',
+      keywords: 'startup directory, startup graph node, company profile, verified tech stack, founder traction'
     };
   }
 
@@ -559,6 +582,13 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Explore Startup Graph & Ecosystem Directory | Stratify',
       description: 'Search and filter active startups across AI, SaaS, FinTech, and climate tech with live stage and geography telemetry.',
+      keywords: 'startup ecosystem directory, explore startups, venture graph, seed stage startups, series A directory',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        'name': 'Stratify Startup Graph & Ecosystem Directory',
+        'description': 'Interactive global startup ecosystem registry across AI, SaaS, FinTech, and frontier tech.'
+      }
     };
   }
 
@@ -567,6 +597,7 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Startup Community & Founder Feed | Stratify',
       description: 'Join discussions, share product milestones, and discover co-founders and early adopters in the global founder feed.',
+      keywords: 'startup community feed, founder updates, product milestones, proof of work, cofounder networking'
     };
   }
 
@@ -575,6 +606,13 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Live Market Signals & Deal Flow Intelligence | Stratify',
       description: 'Real-time market velocity pulses, emerging venture trends, and thesis-driven startup signal discovery powered by AI.',
+      keywords: 'market signals, venture capital deal flow, startup intelligence, competitor tracking, market pulses',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'DataFeed',
+        'name': 'Stratify Live Market Signals Feed',
+        'description': 'Real-time market velocity telemetry, competitor moves, and thesis-driven venture opportunities.'
+      }
     };
   }
 
@@ -583,6 +621,15 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Strategic Intelligence & Research Engine | Stratify',
       description: 'Generate deep-dive competitor tear-downs, market opportunity assessments, and defensible GTM execution plans.',
+      keywords: 'strategic intelligence, market research engine, AI diligence, competitor teardown, GTM validation',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        'name': 'Stratify Strategic Intelligence Engine',
+        'applicationCategory': 'BusinessApplication',
+        'operatingSystem': 'Web',
+        'description': 'Multi-agent AI market intelligence and competitive teardown generator.'
+      }
     };
   }
 
@@ -591,6 +638,15 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Runway Planner & Burn Rate Calculator | Stratify Tools',
       description: 'Interactive financial modeling tool for startup founders to simulate hiring scenarios, burn rates, and cash-out dates.',
+      keywords: 'runway calculator, startup burn rate, zero cash date simulator, startup financial model, hiring runway',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        'name': 'Stratify Runway Planner & Burn Calculator',
+        'applicationCategory': 'FinanceApplication',
+        'operatingSystem': 'Web',
+        'description': 'Free interactive financial modeling tool for founders to simulate hiring scenarios and cash runway.'
+      }
     };
   }
 
@@ -599,6 +655,15 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Cap Table & Equity Split Planner | Stratify Tools',
       description: 'Model founding team equity allocation, vesting schedules, option pools, and SAFE dilution with institutional precision.',
+      keywords: 'cap table planner, equity split calculator, SAFE dilution calculator, ESOP option pool simulator, founder equity',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        'name': 'Stratify Cap Table & Equity Dilution Planner',
+        'applicationCategory': 'FinanceApplication',
+        'operatingSystem': 'Web',
+        'description': 'Institutional-grade startup cap table simulator and post-money SAFE dilution calculator.'
+      }
     };
   }
 
@@ -607,6 +672,7 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Micro Bounty Board & Task Marketplace | Stratify',
       description: 'Deploy milestone bounties, claim engineering and design tasks, and earn reputation within the startup ecosystem.',
+      keywords: 'startup bounties, milestone marketplace, freelance dev bounties, proof of work tasks'
     };
   }
 
@@ -615,6 +681,7 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Milestone Timeline & Execution Proof-of-Work | Stratify',
       description: 'Track roadmap velocity, verify public achievements, and build an auditable track record for investors and partners.',
+      keywords: 'startup timeline, proof of work, verified milestones, execution ledger, investor roadmap'
     };
   }
 
@@ -623,6 +690,7 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Capital, Grants & Program Matching | Stratify',
       description: 'Discover non-dilutive government grants, accelerator programs, and VC investment opportunities matched to your startup stage.',
+      keywords: 'startup grants, non dilutive funding, accelerator applications, venture capital matching, startup programs'
     };
   }
 
@@ -667,6 +735,19 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'About Stratify | Operating System for the Startup Economy',
       description: 'Learn about Stratify Labs and our mission to unite founders, investors, and institutions into a single intelligent graph.',
+      keywords: 'about stratify, stratify labs, divyanshu sinha, startup operating system vision, sf startup',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        'name': 'About Stratify',
+        'description': 'Stratify Labs is building the operating system for the startup economy.',
+        'mainEntity': {
+          '@type': 'Organization',
+          'name': 'Stratify Labs',
+          'url': 'https://stratify.co',
+          'founder': { '@type': 'Person', 'name': 'Divyanshu Sinha' }
+        }
+      }
     };
   }
 
@@ -675,6 +756,7 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Privacy Policy & Data Security | Stratify',
       description: 'Read how Stratify handles data encryption, privacy protections, zero data leakage guarantees, and user rights.',
+      keywords: 'stratify privacy policy, startup data security, gdpr compliance, zero leakage guarantee'
     };
   }
 
@@ -683,6 +765,7 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Terms of Service | Stratify',
       description: 'Review the terms and conditions governing access to and use of the Stratify ecosystem platform and tools.',
+      keywords: 'stratify terms of service, platform agreement, startup software terms'
     };
   }
 
@@ -691,6 +774,7 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Upgrade & Premium Waitlist | Stratify',
       description: 'Explore premium intelligence capabilities, dedicated VC deal rooms, and priority background processing tiers.',
+      keywords: 'stratify pricing, vc deal room plan, startup accelerator enterprise pricing, upgrade stratify'
     };
   }
 
@@ -699,6 +783,15 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Book a Live Walkthrough | Stratify Executive Demo',
       description: 'Schedule a 1-on-1 personalized Google Meet demo of Stratify with a lead executive for your fund, startup, or accelerator.',
+      keywords: 'book walkthrough, stratify demo, live executive demo, schedule startup walkthrough, vc demo session',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'Service',
+        'name': 'Stratify 1-on-1 Executive Walkthrough Demo',
+        'provider': { '@type': 'Organization', 'name': 'Stratify Labs Inc.' },
+        'serviceType': 'Executive Product Demonstration & Strategy Session',
+        'areaServed': 'Global'
+      }
     };
   }
 
@@ -707,6 +800,7 @@ function getSeoForPath(pathname) {
       ...defaults,
       title: 'Confirmation & Next Steps | Stratify',
       description: 'Your request has been received. Check your inbox for calendar invitations, meeting links, or priority status updates.',
+      robots: 'noindex, nofollow'
     };
   }
 

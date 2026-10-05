@@ -155,7 +155,7 @@ export default function Feed({ user, founderProfile }) {
         setPostError(data?.error?.message || `Post failed (${res.status}). Please try again.`);
       }
     } catch (err) {
-      setPostError('Network error — could not publish post.');
+      setPostError('Network issue: could not publish post. Please check your connection.');
       console.error('Failed to create post:', err);
     } finally {
       setSubmitting(false);
@@ -301,7 +301,7 @@ export default function Feed({ user, founderProfile }) {
           {syncedToIntel && (
             <div className="mt-3 p-3 bg-accent/15 border border-[#C8E64A]/40 rounded-lg flex items-center gap-2 text-xs font-semibold text-text-primary animate-slide-up">
               <CheckCircle2 size={14} className="text-green-500 shrink-0" />
-              Post published! <strong>Auto-synced to Intel & Memory</strong> — view it in Founder Memory.
+              Post published! <strong>Auto-synced to Intel & Memory</strong>: view it directly in Founder Memory.
             </div>
           )}
         </form>

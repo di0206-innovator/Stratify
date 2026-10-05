@@ -138,10 +138,10 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
       >
         Skip to main content
       </a>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 min-h-16 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-3.5 sm:py-4 flex flex-wrap items-center justify-between gap-6">
         {/* Brand */}
-        <Link to="/dashboard" className="flex items-center gap-2.5 flex-shrink-0 cursor-pointer">
-          <div className="w-7 h-7 rounded-lg bg-surface-dark flex items-center justify-center text-white font-outfit font-black text-sm">
+        <Link to="/dashboard" className="flex items-center gap-3 flex-shrink-0 cursor-pointer group">
+          <div className="w-8 h-8 rounded-lg bg-surface-dark flex items-center justify-center text-white font-outfit font-black text-sm group-hover:scale-105 transition-transform shadow-sm">
             S
           </div>
           <span className="font-outfit font-black text-base tracking-tight uppercase">
@@ -167,7 +167,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
         <nav
           id="primary-navigation"
           aria-label="Primary navigation"
-          className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-1 md:flex-1 md:justify-center order-3 md:order-none`}
+          className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-1.5 lg:gap-2 md:flex-1 md:justify-center order-3 md:order-none`}
         >
           {activeCoreNavItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -290,22 +290,22 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
         </nav>
 
         {/* Theme Toggle & Profile & Auth Status */}
-        <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto items-center justify-between md:justify-end gap-2.5 flex-shrink-0 order-4 md:order-none relative`}>
+        <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto items-center justify-between md:justify-end gap-3 sm:gap-3.5 flex-shrink-0 order-4 md:order-none relative`}>
           {/* Cmd+K Search Pill */}
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
-            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-DEFAULT bg-card hover:bg-hover transition-all cursor-pointer text-text-secondary hover:text-text-primary text-xs font-semibold select-none shadow-sm"
+            className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl border border-DEFAULT bg-card hover:bg-hover transition-all cursor-pointer text-text-secondary hover:text-text-primary text-xs font-semibold select-none shadow-sm"
           >
             <Search size={13} className="text-text-muted" />
             <span>Search...</span>
-            <kbd className="font-mono text-[9px] bg-canvas border border-light px-1 rounded text-text-muted">⌘K</kbd>
+            <kbd className="font-mono text-[9px] bg-canvas border border-light px-1.5 py-0.5 rounded text-text-muted">⌘K</kbd>
           </button>
 
           {/* Walkthrough CTA Button */}
           <Link
             to="/walkthrough"
-            className="px-3 py-1.5 bg-accent/15 border border-accent/40 text-text-primary text-xs font-outfit font-bold uppercase tracking-wider rounded-lg hover:bg-accent hover:text-[#111] transition-all flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-accent/15 border border-accent/40 text-text-primary text-xs font-outfit font-bold uppercase tracking-wider rounded-xl hover:bg-accent hover:text-[#111] transition-all flex items-center gap-1.5 shadow-sm"
           >
             <Calendar size={13} className="text-accent hover:text-[#111]" />
             <span className="hidden sm:inline">Book</span> Walkthrough
@@ -315,7 +315,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           <button
             type="button"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2 rounded-lg border border-DEFAULT bg-card hover:bg-hover transition-all cursor-pointer text-text-secondary hover:text-text-primary"
+            className="w-9 h-9 rounded-full border border-DEFAULT bg-card hover:bg-hover flex items-center justify-center transition-all cursor-pointer text-text-secondary hover:text-text-primary shadow-sm"
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}

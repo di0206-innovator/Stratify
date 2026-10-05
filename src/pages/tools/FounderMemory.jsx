@@ -70,7 +70,7 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
         showToast(msg, 'error');
       }
     } catch (e) {
-      showToast('Network error — could not save. Check your connection.', 'error');
+      showToast('Network issue: could not save. Please check your connection.', 'error');
       console.error('Post error:', e);
     } finally {
       setSaving(false);
@@ -78,7 +78,7 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
   };
 
   return (
-    <AuthGate user={user} openAuthModal={openAuthModal} message="Sign in to access your Founder Memory — a strategic record of decisions, pivots, and experiments.">
+    <AuthGate user={user} openAuthModal={openAuthModal} message="Sign in to access your Founder Memory: log key moves, track product pivots, and prove out experiments.">
       <div className="max-w-4xl mx-auto px-6 py-10 space-y-8 animate-fade-in text-text-primary">
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
@@ -191,7 +191,7 @@ export default function FounderMemory({ founderProfile, user, openAuthModal }) {
             </div>
             <h3 className="font-outfit font-bold text-lg text-text-primary">Empty Memory</h3>
             <p className="text-xs text-text-secondary max-w-sm mx-auto leading-relaxed">
-              Log your strategic decisions, product pivots, and experiments — or post a milestone on the <strong>Feed</strong> and it will auto-appear here.
+              Log your strategic decisions, product pivots, and experiments directly here. You can also share a win on the <strong>Feed</strong> to sync it instantly.
             </p>
             <button
               onClick={() => setShowForm(true)}
