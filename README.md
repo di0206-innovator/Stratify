@@ -1,76 +1,135 @@
-# Stratify — Startup Economy Operating System
+# Stratify — Startup Ecosystem Operating System
 
-Stratify is a unified, narrative-driven ecosystem operating system designed for founders, VCs, angel investors, and startup institutions. It maps startup execution data, strategic memories, milestones, and real-time market signals onto one single, interactive graph.
-
----
-
-## 🌟 Core Features
-
-- **Premium UI Overhaul:** Complete redesign based on a clean off-white canvas (`#FAF9F6`), sharp headings (`Outfit` font family), structural rounded cards, and chartreuse (`#C8E64A`) interactive highlights.
-- **Dynamic AI Journeys:** Browse real-world startups (like YC-backed companies and Indian Unicorns) in the **Explore** section, open their showcase profiles, and dynamically generate comprehensive, journalistic journey timelines using Gemini.
-- **Seasoned VC/Founder Tone:** The multi-agent critique loop (Auditor, Strategist, Coach) is fine-tuned to audit strategic roadmaps with a blunt, pragmatic, veteran founder perspective.
-- **Toast Notifications System:** Native browser `alert()` popups have been fully replaced with a clean, customizable `Toast` system configured with screen-reader accessibility rules (`role="status"`, `aria-live="polite"`).
-- **Algorithmic Grading Moat:** Startup show cards are ranked using a mathematical scoring formula (10-99 scale) based on traction metrics, stage weight, details completeness, and dynamic event/milestone logs.
-- **Supabase Realtime Feed & Bounty Station:** Integrated instant subscription channels to sync posts, milestones, and active bounty micro-sprints live across ecosystem workspaces.
-- **Ecosystem Information Hub:** Custom router paths added for `/about`, `/privacy`, and `/terms`, including the founding leadership profile.
+Stratify is a unified, narrative-driven ecosystem operating system and intelligence engine designed for startup founders, venture capitalists, angel investors, and accelerators. It aggregates startup execution metrics, cap table models, founder memory hypotheses, and real-time market signals into an interactive graph.
 
 ---
 
-## 🚀 Quick Start
+## 🌟 Core Modules & Architecture
 
-### 1. Installation
-Install core project dependencies:
-```bash
-npm install
-```
+### 1. Multi-Agent Strategic Intelligence Engine
+- **Autonomous Multi-Agent Synthesis:** Orchestrates specialized agents (Founder Context, ReAct Research, Market Analyst, Founder Strategist, Execution Coach, and QA Critic) to compile comprehensive briefs.
+- **Report Archetypes:**
+  - `Strategic Brief & GTM Positioning`
+  - `VC Due Diligence Memo`
+  - `Competitor Landscape Audit`
+  - `Idea & Market Validation Report`
+- **Real-Time Grounding:** Integrates live web search, Wikipedia, and SEC data via Tavily and Google Gemini (`gemini-2.5-flash`), with structured fallback synthesis.
 
-### 2. Configuration
-Copy the sample environment file:
-```bash
-cp .env.example .env
-```
-Fill in the configuration parameters inside `.env`:
-- Set `GEMINI_API_KEY` to enable the live multi-agent intelligence workspaces.
-- Set `TAVILY_API_KEY` to retrieve real-time search/news citations in analysis briefs.
-- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to enable account authorization and Realtime channels.
+### 2. Startup Graph & Ecosystem Network
+- **Interactive Graph Visualization:** Explore ventures across sectors (Fintech, AI, Climate, Consumer, Enterprise) with dynamic relationship mapping.
+- **Algorithmic Moat & Scoring Engine:** Objective venture grading (10–99 scale) combining team velocity, market traction, stage maturity, and validation milestones.
+- **Dynamic Startup Profiles:** Live showcase cards with venture problem/solution breakdown, dynamic diligence briefs, and historical milestone logs.
 
-### 3. Database Seeding
-Seed the database with real-world startup profiles (Indian Unicorns + recent YC batches):
-```bash
-node scripts/seed_startups.js
-```
+### 3. Founder Execution Suite
+- **Runway Planner:** Interactive financial model simulating monthly burn rate, revenue inflection, headcount planning, and cash-out runways.
+- **Cap Table & Equity Simulator:** Pre-money and post-money dilution modeling across SAFE notes, priced Seed/Series rounds, and option pool expansions.
+- **Founder Memory:** Hypothesis tracker and decision journal recording strategic bets, validation outcomes, and pivots.
+- **Micro-Bounty Board:** Collaborative ecosystem task marketplace for fast technical and operational sprints.
+- **Milestone Timeline:** Chronological company progress ledger tracking product releases, customer wins, and fundraising rounds.
 
-### 4. Running the Workspace
-Launch the local Express backend and Vite frontend concurrently:
-```bash
-npm run dev
-```
-Open `http://localhost:5173` to enter the operating system.
+### 4. Real-Time Ecosystem Signals Wire
+- **Streaming Live Wire:** Live market pulse notifications broadcast across startup sectors.
+- **Sector Intelligence Sweep:** Background sweep monitoring macro trends, regulatory changes, and venture financing activity.
+
+### 5. Role-Based Workspaces & Governance
+- **Tailored Dashboards:** Dedicated dashboards for Founders, Venture Capitalists, Angels, and Institutional Partners.
+- **Production Auth & Security:** Dual-mode authentication supporting Supabase Auth and stateless Scrypt password hashing with strict Row-Level Security (RLS) policies.
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Frontend:** React + Vite, Tailwind CSS, Lucide icons, Canvas Confetti.
-- **Backend:** Node.js, Express, PostgreSQL / JSON File Store, Scrypt cryptography.
-- **AI Engine:** Google Gemini SDK (`gemini-1.5-flash`), Tavily Web Search API.
-- **Realtime / Auth:** Supabase Auth Client, Supabase Realtime Channel Postgres subscriptions.
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 19, Vite, Tailwind CSS, Lucide Icons, Canvas Confetti |
+| **Backend** | Node.js, Express, PostgreSQL / Supabase, Redis, Scrypt Security |
+| **AI & Search** | Google Gemini (`gemini-2.5-flash`), Tavily Web Search API |
+| **Database & Realtime** | Supabase PostgreSQL, Supabase Realtime Channels, In-Memory/File Stores |
+| **Testing & CI** | Node.js Native Test Runner, Playwright E2E, GitHub Actions |
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone & Install Dependencies
+```bash
+git clone https://github.com/di0206-innovator/Stratify.git
+cd Stratify
+npm install
+```
+
+### 2. Configure Environment Variables
+Copy the template configuration:
+```bash
+cp .env.example .env
+```
+Key configuration parameters in `.env`:
+```ini
+# AI Engine
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.5-flash
+TAVILY_API_KEY=your_tavily_api_key_here
+
+# Supabase (Optional for full cloud sync; local file-store fallback is enabled by default)
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Server & Client Ports
+PORT=3000
+NODE_ENV=development
+```
+
+### 3. Database Migration (Optional)
+If connecting to Supabase or PostgreSQL:
+- Run [`supabase-migration.sql`](supabase-migration.sql) in your Supabase SQL Editor.
+- Or apply local migrations with `node lib/db/migrate.js`.
+
+### 4. Seed Ecosystem Data
+Populate the Startup Graph with initial venture profiles and milestones:
+```bash
+node scripts/seed_startups.js
+```
+
+### 5. Run Development Environment
+Start both the backend server and Vite frontend concurrently:
+```bash
+npm run dev
+```
+- **Frontend:** `http://localhost:5173`
+- **Backend API:** `http://localhost:3000` (or `http://localhost:3010` in standalone backend mode)
+
+---
+
+## 🧪 Testing & Verification
+
+Run the full integration test suite:
+```bash
+npm test
+```
+*Status: 61 / 61 tests passing across auth security, graph scoring, ReAct search, concurrency locks, and multi-agent synthesis.*
+
+Run production build validation:
+```bash
+npm run build
+```
+
+Run end-to-end browser tests:
+```bash
+npx playwright test
+```
 
 ---
 
 ## 🐳 Docker Deployment
 
-To spin up a production-ready Nginx reverse proxy, Node server, and clean frontend assets:
+To launch a containerized production environment with Nginx reverse proxy and Node.js cluster:
 ```bash
 docker-compose up --build
 ```
 
 ---
 
-## 🧪 Quality and Testing
+## 📄 License
 
-Run the full integration test suite covering token validation, auth state management, ReAct search providers, graph score updates, and critic revisions:
-```bash
-npm test
-```
-*Current Status: 55/55 Tests Passing*
+MIT License. Designed and engineered for high-growth ventures.
