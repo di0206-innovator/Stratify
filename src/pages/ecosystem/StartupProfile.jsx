@@ -47,16 +47,19 @@ export default function StartupProfile({ founderProfile, user }) {
           sources: ['web', 'wikipedia', 'sec'],
           founderProfile: {
             name: startup.name,
+            product: startup.pitch || startup.solution || `${startup.name} Platform`,
             pitch: startup.pitch,
             problem: startup.problem,
             solution: startup.solution,
-            stage: startup.stage,
-            industry: startup.industry,
-            geography: startup.geography,
+            stage: startup.stage || 'idea',
+            industry: startup.industry || 'Technology',
+            geography: startup.geography || 'Global',
+            targetCustomer: startup.target_market || 'Early adopters and businesses',
+            currentGoal: startup.needs || 'Due diligence audit and investor validation',
             needs: startup.needs
           },
           reportOptions: {
-            reportType: 'DILIGENCE'
+            reportType: 'investor_memo'
           }
         })
       });

@@ -48,8 +48,6 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
   const getNavItems = () => {
     const role = founderProfile?.role || 'founder';
     
-    // Ecosystem Information Architecture:
-    // Workspace -> Startup -> Community -> Intelligence -> Capital -> Network
     const core = [
       { path: '/dashboard', label: 'Workspace', icon: LayoutDashboard },
       { path: '/explore', label: 'Startup Graph', icon: Users },
@@ -58,60 +56,32 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
     ];
 
     if (role === 'founder') {
-      core.push({ path: '/opportunities', label: 'Capital & Grants', icon: UserCog });
+      core.push({ path: '/opportunities', label: 'Capital', icon: UserCog });
     } else if (role === 'vc' || role === 'angel') {
       core.push({ path: '/signals', label: 'Deal Signals', icon: TrendingUp });
     } else {
-      core.push({ path: '/opportunities', label: 'Programs & Grants', icon: UserCog });
+      core.push({ path: '/opportunities', label: 'Programs', icon: UserCog });
     }
 
     if (isAdmin) {
-      core.push({ path: '/admin', label: 'Admin Console', icon: Shield });
+      core.push({ path: '/admin', label: 'Admin', icon: Shield });
     }
     return core;
   };
 
-  const getExecutionItems = () => {
-    const role = founderProfile?.role || 'founder';
-    if (role !== 'founder') return [];
+  const getToolItems = () => {
     return [
       { path: '/runway', label: 'Runway Planner', icon: TrendingUp },
       { path: '/equity', label: 'Cap Table', icon: Users },
       { path: '/bounties', label: 'Bounty Board', icon: Cpu },
       { path: '/timeline', label: 'Milestone Timeline', icon: Calendar },
       { path: '/memory', label: 'Founder Memory', icon: BrainCircuit },
-    ];
-  };
-
-  const getIntelItems = () => {
-    const role = founderProfile?.role || 'founder';
-    const base = [
-      { path: '/intelligence', label: 'Strategic Reports & Briefs', icon: FileText },
-      { path: '/signals', label: 'Ecosystem Intelligence', icon: Radio },
-    ];
-    if (role === 'institution' || role === 'government') {
-      return [
-        ...base,
-        { path: '/opportunities', label: 'Programs & Grants', icon: UserCog },
-        { path: '/timeline', label: 'Ecosystem Timeline', icon: TrendingUp },
-      ];
-    }
-    if (role === 'vc' || role === 'angel') {
-      return [
-        ...base,
-        { path: '/timeline', label: 'Deal Flow Timeline', icon: TrendingUp },
-      ];
-    }
-    return [
-      ...base,
-      { path: '/memory', label: 'Hypothesis Memory', icon: Cpu },
-      { path: '/timeline', label: 'Milestone Timeline', icon: TrendingUp },
+      { path: '/signals', label: 'Market Signals', icon: Radio },
     ];
   };
 
   const activeCoreNavItems = getNavItems();
-  const executionItems = getExecutionItems();
-  const intelItems = getIntelItems();
+  const toolItems = getToolItems();
 
   const handleLogout = async () => {
     try {
@@ -131,17 +101,17 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
   };
 
   return (
-    <header className="w-full bg-canvas border-b border-DEFAULT sticky top-12 z-50">
+    <header className="w-full bg-canvas/95 backdrop-blur-md border-b border-DEFAULT sticky top-12 z-50 transition-colors">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:p-3 focus:bg-accent focus:text-black focus:font-bold focus:rounded-md"
       >
         Skip to main content
       </a>
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-3.5 sm:py-4 flex flex-wrap items-center justify-between gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 sm:gap-4">
         {/* Brand */}
-        <Link to="/dashboard" className="flex items-center gap-3 flex-shrink-0 cursor-pointer group">
-          <div className="w-8 h-8 rounded-lg bg-surface-dark flex items-center justify-center text-white font-outfit font-black text-sm group-hover:scale-105 transition-transform shadow-sm">
+        <Link to="/dashboard" className="flex items-center gap-2.5 flex-shrink-0 cursor-pointer group">
+          <div className="w-7 h-7 rounded-lg bg-surface-dark flex items-center justify-center text-white font-outfit font-black text-sm group-hover:scale-105 transition-transform shadow-sm">
             S
           </div>
           <span className="font-outfit font-black text-base tracking-tight uppercase">
@@ -152,9 +122,10 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           </span>
         </Link>
 
+        {/* Mobile menu trigger */}
         <button
           type="button"
-          className="inline-flex md:hidden items-center rounded-lg border border-DEFAULT px-3 py-2 text-xs font-semibold uppercase tracking-wider text-text-secondary"
+          className="inline-flex md:hidden items-center rounded-lg border border-DEFAULT px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-text-secondary"
           onClick={() => setIsMobileMenuOpen((value) => !value)}
           aria-expanded={isMobileMenuOpen}
           aria-controls="primary-navigation"
@@ -167,7 +138,7 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
         <nav
           id="primary-navigation"
           aria-label="Primary navigation"
-          className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-1.5 lg:gap-2 md:flex-1 md:justify-center order-3 md:order-none`}
+          className={`${isMobileMenuOpen ? 'flex absolute top-full left-0 right-0 bg-canvas border-b border-DEFAULT p-4 shadow-xl' : 'hidden'} md:flex md:static md:p-0 md:bg-transparent md:border-none md:shadow-none w-full md:w-auto flex-col md:flex-row items-stretch md:items-center gap-1.5 md:gap-1 lg:gap-2 md:flex-1 md:justify-center`}
         >
           {activeCoreNavItems.map((item) => {
             const isActive = location.pathname === item.path;
@@ -175,9 +146,9 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-3 py-2 text-left md:text-center text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
+                className={`px-2.5 py-1.5 text-left md:text-center text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                   isActive
-                    ? 'text-text-primary border-black font-black'
+                    ? 'text-text-primary border-black dark:border-white font-black'
                     : 'text-text-secondary hover:text-text-primary border-transparent'
                 }`}
               >
@@ -186,101 +157,42 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
             );
           })}
 
-          {/* Execution Dropdown */}
-          {executionItems.length > 0 && (
-            <div className="relative flex items-center">
-              <Link
-                to="/runway"
-                className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
-                  executionItems.some(item => location.pathname === item.path)
-                    ? 'text-text-primary border-black font-black'
-                    : 'text-text-secondary hover:text-text-primary border-transparent'
-                }`}
-              >
-                Execution
-              </Link>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveDropdown(activeDropdown === 'execution' ? null : 'execution');
-                }}
-                aria-expanded={activeDropdown === 'execution'}
-                aria-haspopup="menu"
-                aria-label="Toggle execution dropdown"
-                className={`p-2 -ml-1 text-xs font-semibold transition-colors flex items-center cursor-pointer ${
-                  executionItems.some(item => location.pathname === item.path)
-                    ? 'text-text-primary'
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                <span className="text-[9px]">▼</span>
-              </button>
-              {activeDropdown === 'execution' && (
-                <div className="absolute left-0 top-full mt-1 w-48 bg-card border border-light shadow-lg z-[100] py-1 rounded-md" role="menu">
-                  {executionItems.map((item) => {
-                    const isActive = location.pathname === item.path;
-                    return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => setActiveDropdown(null)}
-                        className={`block px-4 py-2 text-xs font-semibold uppercase hover:bg-hover transition-colors ${
-                          isActive ? 'text-text-primary font-black bg-hover' : 'text-text-secondary'
-                        }`}
-                      >
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Memory & Intel Dropdown */}
+          {/* Tools Dropdown */}
           <div className="relative flex items-center">
-            <Link
-              to="/intelligence"
-              className={`px-3 py-2 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap ${
-                intelItems.some(item => location.pathname === item.path)
-                  ? 'text-text-primary border-black font-black'
-                  : 'text-text-secondary hover:text-text-primary border-transparent'
-              }`}
-            >
-              Intel & Memory
-            </Link>
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                setActiveDropdown(activeDropdown === 'intel' ? null : 'intel');
+                setActiveDropdown(activeDropdown === 'tools' ? null : 'tools');
               }}
-              aria-expanded={activeDropdown === 'intel'}
+              aria-expanded={activeDropdown === 'tools'}
               aria-haspopup="menu"
-              aria-label="Toggle intel and memory dropdown"
-              className={`p-2 -ml-1 text-xs font-semibold transition-colors flex items-center cursor-pointer ${
-                intelItems.some(item => location.pathname === item.path)
-                  ? 'text-text-primary'
-                  : 'text-text-secondary hover:text-text-primary'
+              aria-label="Toggle execution and tools dropdown"
+              className={`px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors border-b-2 flex items-center gap-1 cursor-pointer whitespace-nowrap ${
+                toolItems.some(item => location.pathname === item.path)
+                  ? 'text-text-primary border-black dark:border-white font-black'
+                  : 'text-text-secondary hover:text-text-primary border-transparent'
               }`}
             >
-              <span className="text-[9px]">▼</span>
+              <span>Execution</span>
+              <span className="text-[8px] opacity-70">▼</span>
             </button>
-            {activeDropdown === 'intel' && (
-              <div className="absolute left-0 top-full mt-1 w-48 bg-card border border-light shadow-lg z-[100] py-1 rounded-md" role="menu">
-                {intelItems.map((item) => {
+            {activeDropdown === 'tools' && (
+              <div className="absolute left-0 top-full mt-1.5 w-52 bg-card border border-light shadow-xl z-[100] py-1.5 rounded-xl animate-slide-up" role="menu">
+                {toolItems.map((item) => {
                   const isActive = location.pathname === item.path;
+                  const Icon = item.icon;
                   return (
                     <Link
                       key={item.path}
                       to={item.path}
                       onClick={() => setActiveDropdown(null)}
-                      className={`block px-4 py-2 text-xs font-semibold uppercase hover:bg-hover transition-colors ${
+                      className={`flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold uppercase hover:bg-hover transition-colors ${
                         isActive ? 'text-text-primary font-black bg-hover' : 'text-text-secondary'
                       }`}
                     >
-                      {item.label}
+                      <Icon size={13} className="text-text-muted" />
+                      <span>{item.label}</span>
                     </Link>
                   );
                 })}
@@ -289,36 +201,27 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
           </div>
         </nav>
 
-        {/* Theme Toggle & Profile & Auth Status */}
-        <div className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-auto items-center justify-between md:justify-end gap-3 sm:gap-3.5 flex-shrink-0 order-4 md:order-none relative`}>
+        {/* Right side controls: Search, Theme Toggle, Profile */}
+        <div className={`${isMobileMenuOpen ? 'flex mt-3 pt-3 border-t border-DEFAULT' : 'hidden'} md:flex md:mt-0 md:pt-0 md:border-none items-center justify-end gap-2.5 sm:gap-3 flex-shrink-0 relative`}>
           {/* Cmd+K Search Pill */}
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
-            className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl border border-DEFAULT bg-card hover:bg-hover transition-all cursor-pointer text-text-secondary hover:text-text-primary text-xs font-semibold select-none shadow-sm"
+            className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-DEFAULT bg-card hover:bg-hover transition-all cursor-pointer text-text-secondary hover:text-text-primary text-xs font-semibold select-none shadow-sm"
           >
             <Search size={13} className="text-text-muted" />
-            <span>Search...</span>
+            <span>Search</span>
             <kbd className="font-mono text-[9px] bg-canvas border border-light px-1.5 py-0.5 rounded text-text-muted">⌘K</kbd>
           </button>
-
-          {/* Walkthrough CTA Button */}
-          <Link
-            to="/walkthrough"
-            className="px-3.5 py-2 bg-accent/15 border border-accent/40 text-text-primary text-xs font-outfit font-bold uppercase tracking-wider rounded-xl hover:bg-accent hover:text-[#111] transition-all flex items-center gap-1.5 shadow-sm"
-          >
-            <Calendar size={13} className="text-accent hover:text-[#111]" />
-            <span className="hidden sm:inline">Book</span> Walkthrough
-          </Link>
 
           {/* Theme Toggle */}
           <button
             type="button"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="w-9 h-9 rounded-full border border-DEFAULT bg-card hover:bg-hover flex items-center justify-center transition-all cursor-pointer text-text-secondary hover:text-text-primary shadow-sm"
+            className="w-8 h-8 rounded-full border border-DEFAULT bg-card hover:bg-hover flex items-center justify-center transition-all cursor-pointer text-text-secondary hover:text-text-primary shadow-sm"
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
           </button>
 
           {user ? (
@@ -370,20 +273,20 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
                       Dashboard Home
                     </Link>
                     <Link
-                      to="/settings"
+                      to="/walkthrough"
                       onClick={() => setIsProfileDropdownOpen(false)}
                       className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-hover hover:text-text-primary transition-colors"
                     >
-                      <Settings size={14} className="text-text-muted" />
-                      Settings & Account
+                      <Calendar size={14} className="text-text-muted" />
+                      Book Walkthrough
                     </Link>
                     <Link
-                      to="/onboarding"
+                      to="/upgrade"
                       onClick={() => setIsProfileDropdownOpen(false)}
                       className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-text-secondary hover:bg-hover hover:text-text-primary transition-colors"
                     >
-                      <UserCog size={14} className="text-text-muted" />
-                      Switch Workspace Role
+                      <Cpu size={14} className="text-text-muted" />
+                      Membership & Tier
                     </Link>
                   </div>
 
@@ -405,12 +308,21 @@ export default function Navbar({ founderProfile, user, setUser, openAuthModal, t
               )}
             </div>
           ) : (
-            <button
-              onClick={openAuthModal}
-              className="os-btn-primary text-xs py-1.5"
-            >
-              Sign In
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/walkthrough"
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-DEFAULT text-xs font-semibold uppercase hover:bg-hover transition-colors text-text-secondary"
+              >
+                <Calendar size={13} className="text-accent" />
+                <span>Walkthrough</span>
+              </Link>
+              <button
+                onClick={openAuthModal}
+                className="os-btn-primary text-xs py-1.5 px-3.5"
+              >
+                Sign In
+              </button>
+            </div>
           )}
         </div>
       </div>

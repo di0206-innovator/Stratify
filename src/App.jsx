@@ -497,8 +497,8 @@ function AppContent({
  {location.pathname !== '/' && (
    <footer className="w-full bg-canvas border-t border-DEFAULT py-4 select-none mt-auto">
      <div className="max-w-7xl mx-auto px-4 text-center">
-       <span className="font-outfit font-black text-[10px] tracking-wider uppercase text-text-muted">
-         © {new Date().getFullYear()} STRATIFY LABS INC. • ALL SYSTEM INTERFACES GROUNDED WITH AI LOGIC AND LIVE INTEL.
+       <span className="font-outfit font-medium text-xs text-text-muted">
+         © {new Date().getFullYear()} Stratify Labs. Real-time ecosystem intelligence for modern ventures.
        </span>
      </div>
    </footer>

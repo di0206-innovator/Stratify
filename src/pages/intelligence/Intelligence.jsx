@@ -157,12 +157,14 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
         body: JSON.stringify({
           query: reportQuery.trim(),
           sources: ['web', 'wikipedia', 'sec'],
-          founderProfile: founderProfile || {
-            name: myStartup?.name || 'My Startup',
-            industry: myStartup?.industry || 'Technology',
-            geography: myStartup?.geography || 'Global',
-            product: myStartup?.pitch || reportQuery,
-            stage: myStartup?.stage || 'idea'
+          founderProfile: {
+            name: founderProfile?.name || myStartup?.name || 'My Startup',
+            industry: founderProfile?.industry || myStartup?.industry || 'Technology',
+            geography: founderProfile?.geography || myStartup?.geography || 'Global',
+            product: founderProfile?.product || myStartup?.pitch || reportQuery,
+            stage: founderProfile?.stage || myStartup?.stage || 'idea',
+            targetCustomer: founderProfile?.targetCustomer || myStartup?.target_market || 'Early adopters and businesses',
+            currentGoal: founderProfile?.currentGoal || myStartup?.current_focus || 'Market validation and rapid growth'
           },
           reportOptions: {
             reportType
@@ -621,8 +623,8 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
 
       {/* Inline Strategic Report Creator Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-card border border-light w-full max-w-xl rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6 relative animate-slide-up">
+        <div className="fixed inset-0 z-[100] bg-black/75 backdrop-blur-md overflow-y-auto flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+          <div className="bg-card border border-light w-full max-w-xl rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6 relative animate-slide-up my-auto">
             <button
               onClick={() => setShowCreateModal(false)}
               className="absolute top-5 right-5 p-2 text-text-muted hover:text-text-primary rounded-full hover:bg-hover transition-colors"
@@ -630,13 +632,13 @@ export default function Intelligence({ user, setUser, openAuthModal, founderProf
               <X size={18} />
             </button>
 
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-accent/20 border border-[#C8E64A]/30 flex items-center justify-center text-text-primary">
+            <div className="flex items-center gap-3 pr-8">
+              <div className="w-10 h-10 rounded-xl bg-accent/20 border border-[#C8E64A]/30 flex items-center justify-center text-text-primary shrink-0">
                 <Sparkles size={20} />
               </div>
               <div>
-                <h3 className="font-outfit font-black text-xl text-text-primary uppercase tracking-tight">Compile Strategic Report</h3>
-                <p className="text-xs text-text-secondary font-medium">Multi-agent intelligence analysis grounded in web, patent, & market data.</p>
+                <h3 className="font-outfit font-black text-xl text-text-primary uppercase tracking-tight leading-snug">Compile Strategic Report</h3>
+                <p className="text-xs text-text-secondary font-medium">Multi-agent intelligence analysis grounded in web, patent, and market data.</p>
               </div>
             </div>
 
